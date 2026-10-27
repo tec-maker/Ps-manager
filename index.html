@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة صالات الألعاب - واجهة الإعدادات المنفصلة</title>
+    <title>نظام إدارة صالات الألعاب - بدون زر الخروج</title>
     <meta name="theme-color" content="#090d16">
     <link rel="icon" href="https://img.icons8.com/color/96/play-station.png">
     <style>
@@ -35,8 +35,6 @@
         input, select, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid var(--border-color); font-size: 14px; background: #030712; color: #fff; box-sizing: border-box; outline: none; }
         button.main-btn { background: var(--accent-blue); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button.main-btn:hover { background: #0369a1; }
-        
-        .logout-btn { background: var(--accent-red); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; }
 
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; max-width: 1100px; margin-left: auto; margin-right: auto; }
         .stat-box { background: var(--card-bg); padding: 15px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); }
@@ -71,7 +69,6 @@
         .timer-val { font-family: monospace; font-size: 16px; font-weight: bold; color: #f8fafc; }
         .cost-val { color: #f43f5e; font-weight: bold; font-size: 18px; }
 
-        /* واجهة الإعدادات المنفصلة */
         .settings-view { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 18px; border: 1px solid var(--border-color); display: none; }
         .settings-view h2 { color: var(--accent-blue); margin-top: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; font-size: 20px; }
         
@@ -162,12 +159,6 @@
             }
         }
 
-        window.logout = function() {
-            currentSalon = null;
-            localStorage.removeItem('ps_current_salon');
-            showAuthScreen();
-        }
-
         function initSession() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-screen').style.display = 'block';
@@ -184,7 +175,6 @@
             initCloudDevices();
         }
 
-        // --- التحكم بظهور واجهة الإعدادات المنفصلة ---
         window.openSettingsView = function() {
             document.getElementById('main-dashboard-view').style.display = 'none';
             document.getElementById('settings-view-panel').style.display = 'block';
@@ -640,13 +630,12 @@
     <!-- واجهة التطبيق الرئيسية -->
     <div id="app-screen" style="display: none;">
         
-        <!-- الهيدر العلوي ويحتوي على أيقونة الإعدادات المنفصلة -->
+        <!-- الهيدر العلوي (بدون زر خروج، مع أيقونة الإعدادات) -->
         <header>
             <h1><img src="https://img.icons8.com/color/32/play-station.png" style="vertical-align: middle;"> صالة الألعاب</h1>
             <div class="header-actions">
                 <span id="salon-welcome" style="font-size: 12px; color: var(--accent-blue); font-weight: bold;"></span>
                 <button class="settings-icon-btn" onclick="openSettingsView()" title="الإعدادات وإدارة الأجهزة">⚙️ الإعدادات</button>
-                <button class="logout-btn" onclick="logout()">خروج</button>
             </div>
         </header>
 
@@ -674,14 +663,14 @@
             </div>
         </div>
 
-        <!-- واجهة إعدادات منفصلة بالكامل (تفتح عند الضغط على زر الإعدادات ⚙️) -->
+        <!-- واجهة إعدادات منفصلة بالكامل -->
         <div id="settings-view-panel" class="settings-view">
             <h2>
                 <span>⚙️ إعدادات النظام وإدارة الأجهزة</span>
                 <button onclick="closeSettingsView()" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
 
-            <!-- لوحة المدير العام (للإدارة العامة) -->
+            <!-- لوحة المدير العام -->
             <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple); margin-top: 15px;">
                 <h3 style="color: var(--accent-purple); margin-top:0;">👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
@@ -693,7 +682,7 @@
                 <div id="salons-list-container" class="item-list">جاري التحميل...</div>
             </div>
 
-            <!-- لوحة إضافة وإزالة الأجهزة للصالاة الحالية -->
+            <!-- لوحة إدارة الأجهزة -->
             <div class="admin-panel" style="margin-top: 15px;">
                 <h3 style="color: var(--accent-blue); margin-top:0;">🖥️➕ إضافة جهاز جديد (PlayStation أو PC)</h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
