@@ -2,10 +2,19 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة صالات الألعاب - متعدد اللغات</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نظام إدارة صالات الألعاب - PWA الشاشة الكاملة</title>
+    
+    <!-- إعدادات إخفاء شريط المتصفح وجعله تطبيق شاشة كاملة (PWA Manifest مدمج) -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#090d16">
     <link rel="icon" href="https://img.icons8.com/color/96/play-station.png">
+    
+    <!-- ماني فاست مدمج بصيغة Data URI لإجبار المتصفح على فتح التطبيق بشاشة كاملة مستقلة -->
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"Gaming Lounge Manager","short_name":"PS Manager","start_url":"./index.html","display":"standalone","background_color":"%23090d16","theme_color":"%23090d16","icons":[{"src":"https://img.icons8.com/color/96/play-station.png","sizes":"96x96","type":"image/png"}]}'>
+
     <style>
         :root {
             --bg-color: #090d16;
@@ -19,7 +28,7 @@
             --accent-orange: #d97706;
             --border-color: #1f2937;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; }
         
         header { text-align: center; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 20px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
         header h1 { margin: 0; font-size: 18px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
@@ -98,151 +107,74 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // القواميس للغات الأربعة
         const translations = {
             ar: {
                 loginTitle: "تسجيل دخول الصالة / المركز",
                 usernamePh: "اسم الصالة (أو HA للإدارة العامة)",
                 passwordPh: "كلمة المرور",
                 loginBtn: "دخول النظام",
-                brandTitle: "صالة الألعاب",
-                settingsBtn: "⚙️ الإعدادات",
                 syncing: "⏳ جاري الاتصال...",
                 synced: "⚡ متزامن سحابياً",
-                available: "المتاح",
-                busy: "المشغول",
-                revenue: "إيرادات الصالة",
                 historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم",
                 noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن",
                 settingsTitle: "⚙️ إعدادات النظام وإدارة الأجهزة والتسعير",
                 closeSettings: "✖ إغلاق ورجوع",
                 superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)",
-                newSalonNamePh: "اسم الصالة الجديدة",
-                newSalonPassPh: "كلمة مرور الصالة",
                 createSalonBtn: "➕ إنشاء صالة جديدة",
-                salonsListTitle: "قائمة الصالات والمراكز المسجلة:",
                 addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط",
-                devIdPh: "الرقم المعرف (1, 2...)",
-                devNamePh: "اسم الجهاز (مثلاً: PS5 - VIP)",
-                psOption: "بلايستيشن (PlayStation)",
-                pcOption: "حاسوب (PC)",
-                singleLabel: "فردي",
-                doubleLabel: "ثنائي",
-                tripleLabel: "ثلاثي",
-                quadLabel: "رباعي",
-                pcRateLabel: "سعر ساعة PC",
                 addDeviceBtn: "➕ حفظ وإضافة الجهاز",
-                devicesListTitle: "قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:",
-                logoutBtn: "🚪 تسجيل الخروج من الصالة",
-                langLabel: "لغة التطبيق / App Language:"
+                logoutBtn: "🚪 تسجيل الخروج من الصالة"
             },
             en: {
                 loginTitle: "Salon / Center Login",
                 usernamePh: "Salon Name (or HA for Superadmin)",
                 passwordPh: "Password",
                 loginBtn: "Login",
-                brandTitle: "Gaming Lounge",
-                settingsBtn: "⚙️ Settings",
                 syncing: "⏳ Connecting...",
                 synced: "⚡ Cloud Synced",
-                available: "Available",
-                busy: "Busy",
-                revenue: "Salon Revenue",
                 historyTitle: "📋 Today's Invoices & Sessions History",
                 noHistory: "No sessions recorded today yet",
                 settingsTitle: "⚙️ System Settings & Device Management",
                 closeSettings: "✖ Close & Return",
                 superAdminTitle: "👑 Central Control Panel (Salons Management)",
-                newSalonNamePh: "New Salon Name",
-                newSalonPassPh: "Salon Password",
                 createSalonBtn: "➕ Create New Salon",
-                salonsListTitle: "Registered Salons List:",
                 addDeviceTitle: "🖥️➕ Add New Device & Set Pricing",
-                devIdPh: "Device ID (1, 2...)",
-                devNamePh: "Device Name (e.g., PS5 - VIP)",
-                psOption: "PlayStation",
-                pcOption: "PC",
-                singleLabel: "Single",
-                doubleLabel: "Double",
-                tripleLabel: "Triple",
-                quadLabel: "Quad",
-                pcRateLabel: "PC Hourly Rate",
                 addDeviceBtn: "➕ Save & Add Device",
-                devicesListTitle: "Devices List & Individual Repricing:",
-                logoutBtn: "🚪 Logout from Salon",
-                langLabel: "App Language / لغة التطبيق:"
+                logoutBtn: "🚪 Logout from Salon"
             },
             tr: {
                 loginTitle: "Salon / Merkez Girişi",
                 usernamePh: "Salon Adı (veya Süper Yönetici için HA)",
                 passwordPh: "Şifre",
                 loginBtn: "Giriş Yap",
-                brandTitle: "Oyun Salonu",
-                settingsBtn: "⚙️ Ayarlar",
                 syncing: "⏳ Bağlanıyor...",
                 synced: "⚡ Bulut Senkronize",
-                available: "Müsait",
-                busy: "Meşgul",
-                revenue: "Salon Geliri",
                 historyTitle: "📋 Bugünkü Faturalar ve Oturum Geçmişi",
                 noHistory: "Bugün henüz kayıtlı oturum yok",
                 settingsTitle: "⚙️ Sistem Ayarları ve Cihaz Yönetimi",
                 closeSettings: "✖ Kapat ve Dön",
                 superAdminTitle: "👑 Merkezi Kontrol Paneli (Salon Yönetimi)",
-                newSalonNamePh: "Yeni Salon Adı",
-                newSalonPassPh: "Salon Şifresi",
                 createSalonBtn: "➕ Yeni Salon Oluştur",
-                salonsListTitle: "Kayıtlı Salonlar Listesi:",
                 addDeviceTitle: "🖥️➕ Yeni Cihaz Ekle ve Fiyat Belirle",
-                devIdPh: "Cihaz ID (1, 2...)",
-                devNamePh: "Cihaz Adı (örn: PS5 - VIP)",
-                psOption: "PlayStation",
-                pcOption: "Bilgisayar (PC)",
-                singleLabel: "Tek",
-                doubleLabel: "Çift",
-                tripleLabel: "Üçlü",
-                quadLabel: "Dörtlü",
-                pcRateLabel: "PC Saatlik Ücreti",
                 addDeviceBtn: "➕ Kaydet ve Cihaz Ekle",
-                devicesListTitle: "Cihaz Listesi ve Fiyatlandırma:",
-                logoutBtn: "🚪 Salondan Çıkış Yap",
-                langLabel: "Uygulama Dili / App Language:"
+                logoutBtn: "🚪 Salondan Çıkış Yap"
             },
             fr: {
                 loginTitle: "Connexion Salon / Centre",
                 usernamePh: "Nom du Salon (ou HA pour Superadmin)",
                 passwordPh: "Mot de passe",
                 loginBtn: "Connexion",
-                brandTitle: "Salon de Jeux",
-                settingsBtn: "⚙️ Paramètres",
                 syncing: "⏳ Connexion...",
                 synced: "⚡ Synchronisé Cloud",
-                available: "Disponible",
-                busy: "Occupé",
-                revenue: "Revenu du Salon",
                 historyTitle: "📋 Historique des Factures et Sessions",
                 noHistory: "Aucune session enregistrée aujourd'hui",
                 settingsTitle: "⚙️ Paramètres Système et Gestion des Appareils",
                 closeSettings: "✖ Fermer et Retour",
                 superAdminTitle: "👑 Panneau de Contrôle Central (Gestion Salons)",
-                newSalonNamePh: "Nom du Nouveau Salon",
-                newSalonPassPh: "Mot de passe du Salon",
                 createSalonBtn: "➕ Créer un Nouveau Salon",
-                salonsListTitle: "Liste des Salons Enregistrés:",
                 addDeviceTitle: "🖥️➕ Ajouter un Appareil & Définir les Tarifs",
-                devIdPh: "ID de l'appareil (1, 2...)",
-                devNamePh: "Nom de l'appareil (ex: PS5 - VIP)",
-                psOption: "PlayStation",
-                pcOption: "PC",
-                singleLabel: "Solo",
-                doubleLabel: "Duo",
-                tripleLabel: "Trio",
-                quadLabel: "Quاتو / Quatuor",
-                pcRateLabel: "Tarif Horaire PC",
                 addDeviceBtn: "➕ Enregistrer et Ajouter",
-                devicesListTitle: "Liste des Appareils & Tarification:",
-                logoutBtn: "🚪 Déconnexion du Salon",
-                langLabel: "Langue de l'App / لغة التطبيق:"
+                logoutBtn: "🚪 Déconnexion du Salon"
             }
         };
 
@@ -264,14 +196,11 @@
             localStorage.setItem('ps_current_lang', lang);
             document.documentElement.lang = lang;
             document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-            
-            // تحديث قيم النصوص في واجهة تسجيل الدخول والإعدادات الحالية
             updateStaticTexts();
             if (salonDevicesList.length > 0) renderDevicesGrid();
         }
 
         function updateStaticTexts() {
-            // تحديث نصوص شاشة الدخول
             let authH2 = document.querySelector('#auth-screen h2');
             if(authH2) authH2.innerText = t('loginTitle');
             let uInput = document.getElementById('username');
@@ -281,16 +210,13 @@
             let loginBtn = document.querySelector('#auth-screen button.main-btn');
             if(loginBtn) loginBtn.innerText = t('loginBtn');
 
-            // تحديث لغة القوائم المنسدلة للغة
             let langSelects = document.querySelectorAll('.lang-select');
             langSelects.forEach(sel => sel.value = currentLang);
         }
 
         window.onload = function() {
             let savedLang = localStorage.getItem('ps_current_lang');
-            if (savedLang) {
-                currentLang = savedLang;
-            }
+            if (savedLang) currentLang = savedLang;
             document.documentElement.lang = currentLang;
             document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
 
@@ -715,10 +641,10 @@
                             <div style="font-size: 11px; color: var(--accent-blue); margin-bottom: 5px;">Rates: [1P:${r['فردي']} | 2P:${r['ثنائي']} | 3P:${r['ثلاثي']} | 4P:${r['رباعي']}]</div>
                             <div style="font-size: 12px; color: var(--text-muted);">Select Game Mode:</div>
                             <div class="type-buttons">
-                                <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')} (${r['فردي']})</button>
-                                <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')} (${r['ثنائي']})</button>
-                                <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">${t('tripleLabel')} (${r['ثلاثي']})</button>
-                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')} (${r['رباعي']})</button>
+                                <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">Single (${r['فردي']})</button>
+                                <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">Double (${r['ثنائي']})</button>
+                                <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">Triple (${r['ثلاثي']})</button>
+                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">Quad (${r['رباعي']})</button>
                             </div>
                         `;
                     } else {
@@ -877,7 +803,6 @@
         <input type="text" id="username" placeholder="اسم الصالة (أو HA للإدارة العامة)">
         <input type="password" id="password" placeholder="كلمة المرور">
         
-        <!-- خيار تغيير اللغة عند تسجيل الدخول -->
         <div style="margin-top: 15px; text-align: left;">
             <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Language / اللغة:</label>
             <select class="lang-select" onchange="changeLanguage(this.value)" style="margin-top:0;">
@@ -934,9 +859,8 @@
                 <button onclick="closeSettingsView()" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
 
-            <!-- خيار تغيير اللغات داخل الإعدادات (أسفل العنوان) -->
             <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-blue);">
-                <h3 style="color: var(--accent-blue); margin-top:0; font-size:14px;">🌐 لغة التطبيق / App Language / Uygulama Dili / Langue</h3>
+                <h3 style="color: var(--accent-blue); margin-top:0; font-size:14px;">🌐 لغة التطبيق / App Language</h3>
                 <select class="lang-select" onchange="changeLanguage(this.value)">
                     <option value="ar">العربية (Arabic)</option>
                     <option value="en">English</option>
@@ -945,7 +869,6 @@
                 </select>
             </div>
 
-            <!-- لوحة المدير العام -->
             <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple); margin-top: 15px;">
                 <h3 style="color: var(--accent-purple); margin-top:0;">👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
@@ -957,7 +880,6 @@
                 <div id="salons-list-container" class="item-list">جاري التحميل...</div>
             </div>
 
-            <!-- لوحة إضافة الجهاز وتسعيره حسب عدد اللاعبين -->
             <div class="admin-panel" style="margin-top: 15px;">
                 <h3 style="color: var(--accent-blue); margin-top:0;">🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط</h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
@@ -984,7 +906,6 @@
                 <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
             </div>
 
-            <!-- زر تسجيل الخروج بأسفل قائمة الإعدادات -->
             <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px; text-align: center;">
                 <button onclick="logout()" style="background: var(--accent-red); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; width: 100%;">🚪 تسجيل الخروج من الصالة</button>
             </div>
