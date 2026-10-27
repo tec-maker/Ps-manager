@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة صالة البلايستيشن - الاحترافي</title>
+    <title>نظام إدارة صالات الألعاب الشامل - PlayStation & PC</title>
     <meta name="theme-color" content="#090d16">
     <link rel="icon" href="https://img.icons8.com/color/96/play-station.png">
     <style>
         :root {
             --bg-color: #090d16;
             --card-bg: #111827;
-            --card-hover: #1f2937;
             --text-color: #f3f4f6;
             --text-muted: #9ca3af;
             --accent-green: #059669;
@@ -22,68 +21,59 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; direction: rtl; }
         
-        header { text-align: center; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 20px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-        header h1 { margin: 0; font-size: 20px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
+        header { text-align: center; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 20px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        header h1 { margin: 0; font-size: 18px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
         .sync-status { font-size: 12px; color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.1); padding: 4px 10px; border-radius: 20px; }
         
-        /* شاشة تسجيل الدخول العصري */
-        .auth-container { max-width: 420px; margin: 80px auto; background: var(--card-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.6); text-align: center; }
-        .auth-container h2 { color: var(--accent-blue); margin-top: 0; margin-bottom: 25px; font-size: 24px; }
-        input, select, button { width: 100%; padding: 14px; margin-top: 12px; border-radius: 10px; border: 1px solid var(--border-color); font-size: 15px; background: #030712; color: #fff; box-sizing: border-box; outline: none; transition: all 0.3s; }
-        input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2); }
-        button.main-btn { background: var(--accent-blue); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .auth-container { max-width: 420px; margin: 60px auto; background: var(--card-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.6); text-align: center; }
+        .auth-container h2 { color: var(--accent-blue); margin-top: 0; margin-bottom: 20px; font-size: 22px; }
+        input, select, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid var(--border-color); font-size: 14px; background: #030712; color: #fff; box-sizing: border-box; outline: none; }
+        button.main-btn { background: var(--accent-blue); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button.main-btn:hover { background: #0369a1; }
         
-        .logout-btn { background: var(--accent-red); color: white; border: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: opacity 0.2s; }
-        .logout-btn:hover { opacity: 0.9; }
+        .logout-btn { background: var(--accent-red); color: white; border: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; }
 
-        /* شريط الإحصائيات العلوي */
-        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; max-width: 1100px; margin-left: auto; margin-right: auto; }
-        .stat-box { background: var(--card-bg); padding: 18px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .stat-box span { display: block; font-size: 22px; font-weight: bold; margin-top: 8px; }
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; max-width: 1100px; margin-left: auto; margin-right: auto; }
+        .stat-box { background: var(--card-bg); padding: 15px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); }
+        .stat-box span { display: block; font-size: 20px; font-weight: bold; margin-top: 5px; }
         
-        /* شبكة أجهزة البلايستيشن */
-        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1100px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 1100px; margin: 0 auto; }
         @media(min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
         @media(min-width: 1200px) { .grid { grid-template-columns: repeat(4, 1fr); } }
         
-        .card { background: var(--card-bg); border-radius: 18px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-top: 6px solid #ccc; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); transition: transform 0.2s; }
-        .card:hover { transform: translateY(-3px); }
+        .card { background: var(--card-bg); border-radius: 18px; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-top: 6px solid #ccc; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
         .card.available { border-top-color: var(--accent-green); }
         .card.busy { border-top-color: var(--accent-red); }
         
-        .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .status-badge { font-size: 11px; padding: 5px 12px; border-radius: 20px; color: #fff; font-weight: bold; letter-spacing: 0.5px; }
+        .title { font-size: 16px; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .status-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; color: #fff; font-weight: bold; }
         .available .status-badge { background: var(--accent-green); }
         .busy .status-badge { background: var(--accent-red); }
         
-        /* أزرار الخيارات والتحكم */
-        .type-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 10px; }
-        .type-btn { background: #1f2937; color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px; font-size: 13px; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .type-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-top: 8px; }
+        .type-btn { background: #1f2937; color: var(--text-muted); border: 1px solid var(--border-color); padding: 6px; font-size: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; }
         .type-btn.active { background: var(--accent-blue); color: #fff; border-color: #38bdf8; }
 
-        .time-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
-        .time-btn { background: #1f2937; color: #38bdf8; border: 1px solid var(--border-color); padding: 8px 4px; font-size: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        .time-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 6px; }
+        .time-btn { background: #1f2937; color: #38bdf8; border: 1px solid var(--border-color); padding: 6px 2px; font-size: 11px; font-weight: bold; border-radius: 6px; cursor: pointer; }
         .time-btn.reduce { background: #431407; color: #fb923c; border-color: #7c2d12; }
-        .time-btn:hover { background: #374151; }
 
-        button.start { background: var(--accent-green); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 14px; }
-        button.stop { background: var(--accent-red); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; padding: 12px; border-radius: 8px; font-size: 14px; }
-        button.pos-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; padding: 10px; border-radius: 8px; font-size: 13px; }
+        button.start { background: var(--accent-green); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; padding: 10px; border-radius: 6px; font-size: 13px; }
+        button.stop { background: var(--accent-red); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; padding: 10px; border-radius: 6px; font-size: 13px; }
+        button.pos-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 6px; padding: 8px; border-radius: 6px; font-size: 12px; }
         
-        .info { margin-top: 10px; font-size: 13px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
-        .timer-val { font-family: monospace; font-size: 18px; font-weight: bold; color: #f8fafc; }
-        .cost-val { color: #f43f5e; font-weight: bold; font-size: 20px; }
+        .info { margin-top: 8px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+        .timer-val { font-family: monospace; font-size: 16px; font-weight: bold; color: #f8fafc; }
+        .cost-val { color: #f43f5e; font-weight: bold; font-size: 18px; }
 
-        /* لوحات الإدارة والمقصف */
-        .admin-panel, .history-section { max-width: 1100px; margin: 25px auto; background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        .admin-panel h3, .history-section h3 { margin-top: 0; color: var(--accent-purple); font-size: 18px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
-        .employee-list { font-size: 13px; margin-top: 12px; }
-        .emp-item { display: flex; justify-content: space-between; align-items: center; background: #030712; padding: 10px 15px; margin-top: 8px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .admin-panel, .history-section { max-width: 1100px; margin: 20px auto; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .admin-panel h3 { margin-top: 0; color: var(--accent-purple); font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .item-list { font-size: 13px; margin-top: 10px; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; background: #030712; padding: 8px 12px; margin-top: 6px; border-radius: 6px; border: 1px solid var(--border-color); }
 
-        .history-section h3 { color: var(--accent-blue); }
-        .history-list { font-size: 13px; color: var(--text-muted); max-height: 180px; overflow-y: auto; }
-        .history-item { padding: 10px 0; border-bottom: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .history-section h3 { color: var(--accent-blue); margin-top: 0; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .history-list { font-size: 12px; color: var(--text-muted); max-height: 150px; overflow-y: auto; }
+        .history-item { padding: 8px 0; border-bottom: 1px dashed var(--border-color); display: flex; justify-content: space-between; }
     </style>
 
     <script type="module">
@@ -103,22 +93,23 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const prices = { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200 };
+        const prices = { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
         let devicesData = {};
+        let salonDevicesList = [];
         let totalRevenue = 0;
         let historyLogs = [];
         let speechIntervals = {};
-        let tempTypes = { 1: "فردي", 2: "فردي", 3: "فردي", 4: "فردي" };
-        let currentUser = null;
+        let tempTypes = {};
+        let currentSalon = null; // اسم الصالة النشطة حالياً
 
         window.onload = function() {
-            let savedUser = localStorage.getItem('ps_current_user');
-            if (savedUser) {
+            let savedSalon = localStorage.getItem('ps_current_salon');
+            if (savedSalon) {
                 try {
-                    currentUser = JSON.parse(savedUser);
+                    currentSalon = JSON.parse(savedSalon);
                     initSession();
                 } catch(e) {
-                    localStorage.removeItem('ps_current_user');
+                    localStorage.removeItem('ps_current_salon');
                     showAuthScreen();
                 }
             } else {
@@ -137,26 +128,27 @@
             let err = document.getElementById('login-error');
 
             if (!u || !p) {
-                err.innerText = "الرجاء إدخال اسم المستخدم وكلمة المرور";
+                err.innerText = "الرجاء إدخال اسم الصالة وكلمة المرور";
                 return;
             }
 
+            // حساب المسؤول الرئيسي العام
             if (u === "HA" && p === "hamodi296") {
-                currentUser = { username: "HA", role: "admin" };
-                localStorage.setItem('ps_current_user', JSON.stringify(currentUser));
+                currentSalon = { name: "الادارة العامة", role: "superadmin" };
+                localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
                 initSession();
                 return;
             }
 
             try {
-                let docRef = doc(db, "employees", u);
+                let docRef = doc(db, "salons", u);
                 let docSnap = await getDoc(docRef);
                 if (docSnap.exists() && docSnap.data().password === p) {
-                    currentUser = { username: u, role: "employee" };
-                    localStorage.setItem('ps_current_user', JSON.stringify(currentUser));
+                    currentSalon = { name: u, role: "salon" };
+                    localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
                     initSession();
                 } else {
-                    err.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة!";
+                    err.innerText = "اسم الصالة أو كلمة المرور غير صحيحة!";
                 }
             } catch (e) {
                 err.innerText = "حدث خطأ أثناء الاتصال بقاعدة البيانات.";
@@ -164,81 +156,128 @@
         }
 
         window.logout = function() {
-            currentUser = null;
-            localStorage.removeItem('ps_current_user');
+            currentSalon = null;
+            localStorage.removeItem('ps_current_salon');
             showAuthScreen();
         }
 
         function initSession() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-screen').style.display = 'block';
-            document.getElementById('user-welcome').innerText = `المستخدم: ${currentUser.username} (${currentUser.role === 'admin' ? 'مسؤول النظام ⭐' : 'موظف الصالة 👤'})`;
+            document.getElementById('salon-welcome').innerText = `الصالة النشطة: ${currentSalon.name} (${currentSalon.role === 'superadmin' ? 'مدير عام ⭐' : 'إدارة صالة 🎮'})`;
             
-            if (currentUser.role === 'admin') {
-                document.getElementById('admin-section').style.display = 'block';
-                loadEmployeesList();
+            if (currentSalon.role === 'superadmin') {
+                document.getElementById('superadmin-section').style.display = 'block';
+                loadSalonsList();
             } else {
-                document.getElementById('admin-section').style.display = 'none';
+                document.getElementById('superadmin-section').style.display = 'none';
             }
+
+            document.getElementById('salon-admin-section').style.display = 'block';
+            loadSalonDevicesConfig();
             initCloudDevices();
         }
 
-        window.addEmployee = async function() {
-            let name = document.getElementById('emp-name').value.trim();
-            let pass = document.getElementById('emp-pass').value.trim();
+        // --- إدارة الصالات (للمدير العام) ---
+        window.addSalonCenter = async function() {
+            let name = document.getElementById('new-salon-name').value.trim();
+            let pass = document.getElementById('new-salon-pass').value.trim();
             if (!name || !pass) {
-                alert("الرجاء إدخال اسم الموظف وكلمة المرور");
+                alert("الرجاء إدخال اسم الصالة وكلمة المرور");
                 return;
             }
-            await setDoc(doc(db, "employees", name), { username: name, password: pass });
-            alert(`تم إضافة الموظف ${name} بنجاح!`);
-            document.getElementById('emp-name').value = '';
-            document.getElementById('emp-pass').value = '';
-            loadEmployeesList();
+            await setDoc(doc(db, "salons", name), { name: name, password: pass });
+            alert(`تم إنشاء صالة ${name} بنجاح!`);
+            document.getElementById('new-salon-name').value = '';
+            document.getElementById('new-salon-pass').value = '';
+            loadSalonsList();
         }
 
-        async function loadEmployeesList() {
-            let listDiv = document.getElementById('employees-list-container');
+        async function loadSalonsList() {
+            let listDiv = document.getElementById('salons-list-container');
             listDiv.innerHTML = "جاري التحميل...";
-            let querySnapshot = await getDocs(collection(db, "employees"));
+            let querySnapshot = await getDocs(collection(db, "salons"));
             if (querySnapshot.empty) {
-                listDiv.innerHTML = "لا توجد حسابات موظفين مضافة حتى الآن.";
+                listDiv.innerHTML = "لا توجد صالات مضافة حتى الآن.";
                 return;
             }
             let html = "";
             querySnapshot.forEach((docSnap) => {
                 let data = docSnap.data();
-                html += `<div class="emp-item"><span>👤 ${data.username}</span> <button onclick="deleteEmp('${data.username}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:12px;">حذف</button></div>`;
+                html += `<div class="item-row"><span>🏢 صالة: <b>${data.name}</b></span> <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:3px 8px; border-radius:4px; cursor:pointer;">حذف</button></div>`;
             });
             listDiv.innerHTML = html;
         }
 
-        window.deleteEmp = async function(name) {
-            if (confirm(`هل أنت متأكد من حذف حساب الموظف ${name}؟`)) {
-                await deleteDoc(doc(db, "employees", name));
-                loadEmployeesList();
+        window.deleteSalon = async function(name) {
+            if (confirm(`هل أنت متأكد من حذف صالة ${name}؟`)) {
+                await deleteDoc(doc(db, "salons", name));
+                loadSalonsList();
             }
         }
 
-        window.addToDeviceTab = async function(id) {
-            let itemName = prompt("أدخل اسم الطلب (مشروب / وجبة):", "مشروب غازي");
-            if (!itemName) return;
-            let itemPrice = prompt(`أدخل سعر ${itemName} (بالليرة):`, "50");
-            if (!itemPrice || isNaN(itemPrice)) return;
+        // --- إدارة الأجهزة داخل الصالة ---
+        window.addDeviceToSalon = async function() {
+            let devId = document.getElementById('dev-id').value.trim();
+            let devName = document.getElementById('dev-name').value.trim();
+            let devType = document.getElementById('dev-type').value; // ps4 أو pc
 
-            let d = devicesData[id];
-            if (!d || !d.busy) {
-                alert("يجب تشغيل الجهاز أولاً لتتمكن من إضافة طلبات إلى فاتورته!");
+            if (!devId || !devName) {
+                alert("الرجاء إدخال رقم المعرف واسم الجهاز");
                 return;
             }
 
-            let currentItems = d.posItems || [];
-            currentItems.push({ name: itemName, price: parseInt(itemPrice) });
-
-            await setDoc(doc(db, "devices", "ps" + id), {
-                ...d,
-                posItems: currentItems
+            let docId = `${currentSalon.name}_${devId}`;
+            await setDoc(doc(db, "salon_devices", docId), {
+                salon: currentSalon.name,
+                deviceId: devId,
+                name: devName,
+                category: devType, // 'ps' أو 'pc'
+                busy: false,
+                type: devType === 'pc' ? 'PC' : 'فردي',
+                startTime: null,
+                durationMinutes: 0,
+                posItems: []
             });
+
+            document.getElementById('dev-id').value = '';
+            document.getElementById('dev-name').value = '';
+            loadSalonDevicesConfig();
+        }
+
+        async function loadSalonDevicesConfig() {
+            let listDiv = document.getElementById('salon-devices-list');
+            listDiv.innerHTML = "جاري التحميل...";
+            let querySnapshot = await getDocs(collection(db, "salon_devices"));
+            salonDevicesList = [];
+            
+            querySnapshot.forEach((docSnap) => {
+                let data = docSnap.data();
+                if (data.salon === currentSalon.name) {
+                    salonDevicesList.push(data);
+                }
+            });
+
+            if (salonDevicesList.length === 0) {
+                listDiv.innerHTML = "لا توجد أجهزة مضافة في هذه الصالة بعد. قم بإضافة أجهزة للبدء.";
+                document.getElementById('devices-container').innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">لا توجد أجهزة معروضة، أضف أجهزة من لوحة الإدارة أعلاه.</div>';
+                return;
+            }
+
+            let html = "";
+            salonDevicesList.forEach(dev => {
+                let icon = dev.category === 'pc' ? '🖥️ PC' : '🎮 PlayStation';
+                html += `<div class="item-row"><span>${icon} - <b>${dev.name}</b> (معرف: ${dev.deviceId})</span> <button onclick="removeDevice('${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:3px 8px; border-radius:4px; cursor:pointer;">حذف</button></div>`;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        window.removeDevice = async function(devId) {
+            if (confirm("هل تريد حذف هذا الجهاز نهائياً؟")) {
+                let docId = `${currentSalon.name}_${devId}`;
+                await deleteDoc(doc(db, "salon_devices", docId));
+                loadSalonDevicesConfig();
+            }
         }
 
         function speakDeviceNameLoud(deviceName) {
@@ -247,7 +286,6 @@
                 let utterance = new SpeechSynthesisUtterance(`انتهى وقت ${deviceName}`);
                 utterance.lang = 'ar-SA';
                 utterance.rate = 0.95;
-                utterance.volume = 1.0;
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -266,69 +304,65 @@
         }
 
         function initCloudDevices() {
-            document.getElementById('sync-text').innerText = "⚡ متزامن سحابياً (Pro)";
-            for (let i = 1; i <= 4; i++) {
-                let docRef = doc(db, "devices", "ps" + i);
-                onSnapshot(docRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        devicesData[i] = docSnap.data();
-                        updateCardUI(i, devicesData[i]);
-                        updateGlobalStats();
-                    } else {
-                        setDoc(docRef, { id: i, name: `بلايستيشن ${i}`, busy: false, type: "فردي", startTime: null, durationMinutes: 0, employee: "", posItems: [] });
+            document.getElementById('sync-text').innerText = "⚡ متزامن سحابياً";
+            
+            // الاستماع لتغييرات الأجهزة في قاعدة البيانات
+            onSnapshot(collection(db, "salon_devices"), (snapshot) => {
+                salonDevicesList = [];
+                snapshot.forEach((docSnap) => {
+                    let data = docSnap.data();
+                    if (data.salon === currentSalon.name) {
+                        salonDevicesList.push(data);
+                        devicesData[data.deviceId] = data;
                     }
                 });
-            }
+                renderDevicesGrid();
+                updateGlobalStats();
+            });
         }
 
-        window.setGameType = async function(id, type) {
-            let d = devicesData[id];
+        window.setGameType = async function(devId, type) {
+            let d = devicesData[devId];
+            let docId = `${currentSalon.name}_${devId}`;
             if (d && d.busy) {
-                await setDoc(doc(db, "devices", "ps" + id), { ...d, type: type });
+                await setDoc(doc(db, "salon_devices", docId), { ...d, type: type });
             } else {
-                tempTypes[id] = type;
-                let btnF = document.getElementById(`btn-${id}-فردي`);
-                let btn2 = document.getElementById(`btn-${id}-ثنائي`);
-                let btn3 = document.getElementById(`btn-${id}-ثلاثي`);
-                let btn4 = document.getElementById(`btn-${id}-رباعي`);
-                if(btnF) btnF.className = "type-btn " + (type === "فردي" ? "active" : "");
-                if(btn2) btn2.className = "type-btn " + (type === "ثنائي" ? "active" : "");
-                if(btn3) btn3.className = "type-btn " + (type === "ثلاثي" ? "active" : "");
-                if(btn4) btn4.className = "type-btn " + (type === "رباعي" ? "active" : "");
+                tempTypes[devId] = type;
+                renderDevicesGrid();
             }
         }
 
-        window.setInitialDuration = function(id, mins) {
-            let input = document.getElementById(`duration-${id}`);
+        window.setInitialDuration = function(devId, mins) {
+            let input = document.getElementById(`duration-${devId}`);
             if (input) {
                 let current = parseInt(input.value) || 0;
                 input.value = Math.max(0, current + mins);
             }
         }
 
-        window.startDeviceCloud = async function(id) {
-            stopSpeechAlert(id);
-            let durationInput = document.getElementById(`duration-${id}`);
-            let selectedType = tempTypes[id] || "فردي";
-            let durationMins = parseInt(durationInput.value) || 0;
+        window.startDeviceCloud = async function(devId) {
+            stopSpeechAlert(devId);
+            let d = devicesData[devId];
+            let durationInput = document.getElementById(`duration-${devId}`);
+            let selectedType = tempTypes[devId] || (d.category === 'pc' ? 'PC' : 'فردي');
+            let durationMins = parseInt(durationInput ? durationInput.value : 0) || 0;
             let nowTime = Date.now();
+            let docId = `${currentSalon.name}_${devId}`;
 
-            await setDoc(doc(db, "devices", "ps" + id), {
-                id: id,
-                name: `بلايستيشن ${id}`,
+            await setDoc(doc(db, "salon_devices", docId), {
+                ...d,
                 busy: true,
                 type: selectedType,
                 startTime: nowTime,
                 durationMinutes: durationMins,
-                employee: currentUser.username,
                 posItems: []
             });
         }
 
-        window.adjustTimeCloud = async function(id, mins) {
-            let d = devicesData[id];
+        window.adjustTimeCloud = async function(devId, mins) {
+            let d = devicesData[devId];
             if (!d) return;
-            stopSpeechAlert(id);
+            stopSpeechAlert(devId);
             let currentDuration = d.durationMinutes || 0;
             if (currentDuration === 0 && d.startTime) {
                 let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
@@ -336,18 +370,34 @@
                 currentDuration = Math.max(0, diffMins);
             }
             let newDuration = Math.max(0, currentDuration + mins);
-            await setDoc(doc(db, "devices", "ps" + id), { ...d, durationMinutes: newDuration });
+            let docId = `${currentSalon.name}_${devId}`;
+            await setDoc(doc(db, "salon_devices", docId), { ...d, durationMinutes: newDuration });
         }
 
-        window.stopDeviceCloud = async function(id) {
-            stopSpeechAlert(id);
-            let d = devicesData[id];
+        window.addToDeviceTab = async function(devId) {
+            let itemName = prompt("أدخل اسم الطلب (مشروب / وجبة):", "مشروب");
+            if (!itemName) return;
+            let itemPrice = prompt(`أدخل سعر ${itemName} (بالليرة):`, "50");
+            if (!itemPrice || isNaN(itemPrice)) return;
+
+            let d = devicesData[devId];
+            let currentItems = d.posItems || [];
+            currentItems.push({ name: itemName, price: parseInt(itemPrice) });
+
+            let docId = `${currentSalon.name}_${devId}`;
+            await setDoc(doc(db, "salon_devices", docId), { ...d, posItems: currentItems });
+        }
+
+        window.stopDeviceCloud = async function(devId) {
+            stopSpeechAlert(devId);
+            let d = devicesData[devId];
             if (!d || !d.startTime) return;
 
             let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
             let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
             let totalHours = diffSeconds / 3600;
-            let timeCost = Math.round(totalHours * prices[d.type]);
+            let hourlyRate = prices[d.type] || 100;
+            let timeCost = Math.round(totalHours * hourlyRate);
             let totalMins = Math.ceil(diffSeconds / 60);
 
             let posTotal = 0;
@@ -360,148 +410,88 @@
             }
 
             let grandTotal = timeCost + posTotal;
-
-            alert(`🧾 إيصال فاتورة ${d.name}:\n- الموظف المسؤول: ${d.employee}\n- أجر الوقت (${totalMins} دقيقة): ${timeCost} ليرة${posDetails}\n------------------\n الإجمالي النهائي: ${grandTotal} ليرة سورية`);
+            alert(`🧾 إيصال فاتورة ${d.name}:\n- أجر الوقت (${totalMins} د): ${timeCost} ليرة${posDetails}\n------------------\n الإجمالي النهائي: ${grandTotal} ليرة`);
 
             totalRevenue += grandTotal;
             let timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             historyLogs.unshift({
-                text: `${d.name} (${d.type}) [بواسطة: ${d.employee}] - ${totalMins} د`,
+                text: `${d.name} (${d.type}) - ${totalMins} د`,
                 price: grandTotal,
                 time: timeString
             });
             renderHistory();
 
-            await setDoc(doc(db, "devices", "ps" + id), {
-                id: id,
-                name: `بلايستيشن ${id}`,
+            let docId = `${currentSalon.name}_${devId}`;
+            await setDoc(doc(db, "salon_devices", docId), {
+                ...d,
                 busy: false,
-                type: "فردي",
+                type: d.category === 'pc' ? 'PC' : 'فردي',
                 startTime: null,
                 durationMinutes: 0,
-                employee: "",
                 posItems: []
             });
         }
 
-        function updateCardUI(id, d) {
-            let card = document.getElementById(`card-${id}`);
-            if (!card) return;
-
-            card.className = `card ${d.busy ? 'busy' : 'available'}`;
-            let statusText = d.busy ? `مشغول 🔴 (${d.employee})` : 'متاح 🟢';
-            
-            let html = `
-                <div class="title">
-                    <span>${d.name}</span>
-                    <span class="status-badge">${statusText}</span>
-                </div>
-            `;
-
-            if (!d.busy) {
-                stopSpeechAlert(id);
-                let curType = tempTypes[id] || "فردي";
-                html += `
-                    <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 5px;">نوع اللعب:</div>
-                    <div class="type-buttons">
-                        <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" id="btn-${id}-فردي" onclick="setGameType(${id}, 'فردي')">فردي (100)</button>
-                        <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" id="btn-${id}-ثنائي" onclick="setGameType(${id}, 'ثنائي')">ثنائي (100)</button>
-                        <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" id="btn-${id}-ثلاثي" onclick="setGameType(${id}, 'ثلاثي')">ثلاثي (150)</button>
-                        <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" id="btn-${id}-رباعي" onclick="setGameType(${id}, 'رباعي')">رباعي (200)</button>
-                    </div>
-                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">مدة الجلسة (دقائق - 0 لوقت مفتوح):</div>
-                    <input type="number" id="duration-${id}" value="0" min="0">
-                    <div class="time-buttons">
-                        <button class="time-btn" onclick="setInitialDuration(${id}, 5)">+5د</button>
-                        <button class="time-btn" onclick="setInitialDuration(${id}, 15)">+15د</button>
-                        <button class="time-btn" onclick="setInitialDuration(${id}, 30)">+30د</button>
-                        <button class="time-btn" onclick="setInitialDuration(${id}, 60)">+1س</button>
-                        <button class="time-btn reduce" onclick="setInitialDuration(${id}, -5)">-5د</button>
-                        <button class="time-btn reduce" onclick="setInitialDuration(${id}, -15)">-15د</button>
-                    </div>
-                    <button class="start" onclick="startDeviceCloud(${id})">▶ بدء الجلسة</button>
-                `;
-            } else {
-                let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-                let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
-                let targetSeconds = (d.durationMinutes || 0) * 60;
-                let isTimeEnded = targetSeconds > 0 && diffSeconds >= targetSeconds;
-
-                if (isTimeEnded) startSpeechAlert(id, d.name);
-
-                let timeFormatted = "";
-                if (targetSeconds > 0) {
-                    let remaining = Math.max(0, targetSeconds - diffSeconds);
-                    let remMins = Math.floor(remaining / 60);
-                    let remSecs = remaining % 60;
-                    timeFormatted = isTimeEnded ? "⏰ انتهى الوقت!" : `⏳ متبقي: ${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
-                } else {
-                    let hours = Math.floor(diffSeconds / 3600);
-                    let mins = Math.floor((diffSeconds % 3600) / 60);
-                    let secs = diffSeconds % 60;
-                    timeFormatted = (hours > 0 ? hours + ':' : '') + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
-                }
-
-                let totalHours = diffSeconds / 3600;
-                let timeCost = Math.round(totalHours * prices[d.type]);
-
-                let posTotal = 0;
-                let itemsListHtml = "";
-                if (d.posItems && d.posItems.length > 0) {
-                    d.posItems.forEach(item => {
-                        posTotal += item.price;
-                        itemsListHtml += `<span style="background:#1f2937; padding:2px 8px; border-radius:4px; font-size:11px; margin-left:4px; color:#38bdf8;">${item.name} (${item.price})</span>`;
-                    });
-                }
-                let grandTotal = timeCost + posTotal;
-
-                html += `
-                    <div style="font-size: 13px; color: var(--text-muted);">تعديل نوع اللعب:</div>
-                    <div class="type-buttons">
-                        <button type="button" class="type-btn ${d.type === 'فردي' ? 'active' : ''}" onclick="setGameType(${id}, 'فردي')">فردي (100)</button>
-                        <button type="button" class="type-btn ${d.type === 'ثنائي' ? 'active' : ''}" onclick="setGameType(${id}, 'ثنائي')">ثنائي (100)</button>
-                        <button type="button" class="type-btn ${d.type === 'ثلاثي' ? 'active' : ''}" onclick="setGameType(${id}, 'ثلاثي')">ثلاثي (150)</button>
-                        <button type="button" class="type-btn ${d.type === 'رباعي' ? 'active' : ''}" onclick="setGameType(${id}, 'رباعي')">رباعي (200)</button>
-                    </div>
-                    <div class="info" style="margin-top: 12px;"><span>الوقت:</span> <span class="timer-val" id="timer-${id}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
-                    <div class="info"><span>حساب الوقت:</span> <span id="timecost-${id}">${timeCost} ليرة</span></div>
-                    <div class="info" style="align-items:center;"><span>الطلبات:</span> <div style="display:flex; flex-wrap:wrap; gap:2px;">${itemsListHtml || '<span style="color:#4b5563;font-size:12px;">لا توجد</span>'}</div></div>
-                    <div class="info"><span>الإجمالي:</span> <span class="cost-val" id="cost-${id}">${grandTotal} ليرة</span></div>
-                    
-                    <button class="pos-btn" onclick="addToDeviceTab(${id})">🛒 إضافة مشروب / طلب للفاتورة</button>
-
-                    <div class="time-buttons" style="margin-top:10px;">
-                        <button class="time-btn" onclick="adjustTimeCloud(${id}, 5)">+5د</button>
-                        <button class="time-btn" onclick="adjustTimeCloud(${id}, 15)">+15د</button>
-                        <button class="time-btn" onclick="adjustTimeCloud(${id}, 30)">+30د</button>
-                        <button class="time-btn reduce" onclick="adjustTimeCloud(${id}, -5)">-5د</button>
-                        <button class="time-btn reduce" onclick="adjustTimeCloud(${id}, -15)">-15د</button>
-                        <button class="time-btn reduce" onclick="adjustTimeCloud(${id}, -30)">-30د</button>
-                    </div>
-                    <button class="stop" onclick="stopDeviceCloud(${id})">⏹ إيقاف الجلسة والحساب</button>
-                `;
+        function renderDevicesGrid() {
+            let container = document.getElementById('devices-container');
+            if (salonDevicesList.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1/-1; padding: 20px;">لا توجد أجهزة مضافة في هذه الصالة بعد.</div>';
+                return;
             }
-            card.innerHTML = html;
-        }
 
-        function updateGlobalStats() {
-            let busyCount = Object.values(devicesData).filter(d => d.busy).length;
-            let availCount = 4 - busyCount;
-            document.getElementById('stat-avail').innerText = availCount;
-            document.getElementById('stat-busy').innerText = busyCount;
-            document.getElementById('stat-revenue').innerText = totalRevenue + " ليرة";
-        }
+            let html = "";
+            salonDevicesList.forEach(d => {
+                let isBusy = d.busy;
+                let iconSymbol = d.category === 'pc' ? '🖥️ PC' : '🎮 PS';
+                let cardClass = isBusy ? 'card busy' : 'card available';
+                let statusText = isBusy ? 'مشغول 🔴' : 'متاح 🟢';
 
-        setInterval(() => {
-            for (let id in devicesData) {
-                let d = devicesData[id];
-                if (d && d.busy && d.startTime) {
+                html += `<div class="${cardClass}" id="card-${d.deviceId}">`;
+                html += `
+                    <div class="title">
+                        <span>${iconSymbol} | ${d.name}</span>
+                        <span class="status-badge">${statusText}</span>
+                    </div>
+                `;
+
+                if (!isBusy) {
+                    stopSpeechAlert(d.deviceId);
+                    let curType = tempTypes[d.deviceId] || (d.category === 'pc' ? 'PC' : 'فردي');
+                    
+                    if (d.category === 'ps') {
+                        html += `
+                            <div style="font-size: 12px; color: var(--text-muted);">نوع اللعب:</div>
+                            <div class="type-buttons">
+                                <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">فردي (100)</button>
+                                <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">ثنائي (100)</button>
+                                <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">ثلاثي (150)</button>
+                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">رباعي (200)</button>
+                            </div>
+                        `;
+                    } else {
+                        html += `<div style="font-size: 12px; color: var(--text-muted);">نوع الجهاز: <b>حاسوب PC (150 ليرة/ساعة)</b></div>`;
+                    }
+
+                    html += `
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">مدة الجلسة (دقائق - 0 لمفتوح):</div>
+                        <input type="number" id="duration-${d.deviceId}" value="0" min="0">
+                        <div class="time-buttons">
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 5)">+5د</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 15)">+15د</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 30)">+30د</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 60)">+1س</button>
+                            <button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -5)">-5د</button>
+                            <button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -15)">-15د</button>
+                        </div>
+                        <button class="start" onclick="startDeviceCloud('${d.deviceId}')">▶ بدء الجلسة</button>
+                    `;
+                } else {
                     let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
                     let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
                     let targetSeconds = (d.durationMinutes || 0) * 60;
                     let isTimeEnded = targetSeconds > 0 && diffSeconds >= targetSeconds;
 
-                    if (isTimeEnded) startSpeechAlert(id, d.name);
+                    if (isTimeEnded) startSpeechAlert(d.deviceId, d.name);
 
                     let timeFormatted = "";
                     if (targetSeconds > 0) {
@@ -517,7 +507,77 @@
                     }
 
                     let totalHours = diffSeconds / 3600;
-                    let timeCost = Math.round(totalHours * prices[d.type]);
+                    let hourlyRate = prices[d.type] || 100;
+                    let timeCost = Math.round(totalHours * hourlyRate);
+
+                    let posTotal = 0;
+                    let itemsListHtml = "";
+                    if (d.posItems && d.posItems.length > 0) {
+                        d.posItems.forEach(item => {
+                            posTotal += item.price;
+                            itemsListHtml += `<span style="background:#1f2937; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:4px; color:#38bdf8;">${item.name} (${item.price})</span>`;
+                        });
+                    }
+                    let grandTotal = timeCost + posTotal;
+
+                    html += `
+                        <div class="info" style="margin-top: 5px;"><span>الوقت:</span> <span class="timer-val" id="timer-${d.deviceId}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
+                        <div class="info"><span>حساب الوقت:</span> <span id="timecost-${d.deviceId}">${timeCost} ليرة</span></div>
+                        <div class="info" style="align-items:center;"><span>الطلبات:</span> <div style="display:flex; flex-wrap:wrap; gap:2px;">${itemsListHtml || '<span style="color:#4b5563;font-size:11px;">لا توجد</span>'}</div></div>
+                        <div class="info"><span>الإجمالي:</span> <span class="cost-val" id="cost-${d.deviceId}">${grandTotal} ليرة</span></div>
+                        
+                        <button class="pos-btn" onclick="addToDeviceTab('${d.deviceId}')">🛒 إضافة طلب للفاتورة</button>
+
+                        <div class="time-buttons" style="margin-top:8px;">
+                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 5)">+5د</button>
+                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 15)">+15د</button>
+                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 30)">+30د</button>
+                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -5)">-5د</button>
+                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -15)">-15د</button>
+                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -30)">-30د</button>
+                        </div>
+                        <button class="stop" onclick="stopDeviceCloud('${d.deviceId}')">⏹ إيقاف الجلسة والحساب</button>
+                    `;
+                }
+                html += `</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function updateGlobalStats() {
+            let busyCount = salonDevicesList.filter(d => d.busy).length;
+            let availCount = salonDevicesList.length - busyCount;
+            document.getElementById('stat-avail').innerText = availCount;
+            document.getElementById('stat-busy').innerText = busyCount;
+            document.getElementById('stat-revenue').innerText = totalRevenue + " ليرة";
+        }
+
+        setInterval(() => {
+            salonDevicesList.forEach(d => {
+                if (d.busy && d.startTime) {
+                    let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
+                    let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
+                    let targetSeconds = (d.durationMinutes || 0) * 60;
+                    let isTimeEnded = targetSeconds > 0 && diffSeconds >= targetSeconds;
+
+                    if (isTimeEnded) startSpeechAlert(d.deviceId, d.name);
+
+                    let timeFormatted = "";
+                    if (targetSeconds > 0) {
+                        let remaining = Math.max(0, targetSeconds - diffSeconds);
+                        let remMins = Math.floor(remaining / 60);
+                        let remSecs = remaining % 60;
+                        timeFormatted = isTimeEnded ? "⏰ انتهى الوقت!" : `⏳ متبقي: ${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
+                    } else {
+                        let hours = Math.floor(diffSeconds / 3600);
+                        let mins = Math.floor((diffSeconds % 3600) / 60);
+                        let secs = diffSeconds % 60;
+                        timeFormatted = (hours > 0 ? hours + ':' : '') + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+                    }
+
+                    let totalHours = diffSeconds / 3600;
+                    let hourlyRate = prices[d.type] || 100;
+                    let timeCost = Math.round(totalHours * hourlyRate);
 
                     let posTotal = 0;
                     if (d.posItems && d.posItems.length > 0) {
@@ -525,9 +585,9 @@
                     }
                     let grandTotal = timeCost + posTotal;
 
-                    let timerEl = document.getElementById(`timer-${id}`);
-                    let timeCostEl = document.getElementById(`timecost-${id}`);
-                    let costEl = document.getElementById(`cost-${id}`);
+                    let timerEl = document.getElementById(`timer-${d.deviceId}`);
+                    let timeCostEl = document.getElementById(`timecost-${d.deviceId}`);
+                    let costEl = document.getElementById(`cost-${d.deviceId}`);
                     
                     if (timerEl) {
                         timerEl.innerText = timeFormatted;
@@ -536,13 +596,13 @@
                     if (timeCostEl) timeCostEl.innerText = timeCost + " ليرة";
                     if (costEl) costEl.innerText = grandTotal + " ليرة";
                 }
-            }
+            });
         }, 1000);
 
         window.renderHistory = function() {
             const histContainer = document.getElementById('history-container');
             if (historyLogs.length === 0) {
-                histContainer.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 10px;">لا توجد فواتير مسجلة اليوم حتى الآن</div>`;
+                histContainer.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 10px;">لا توجد جلسات مسجلة اليوم</div>`;
                 return;
             }
             let html = '';
@@ -555,22 +615,22 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول -->
+    <!-- شاشة تسجيل الدخول للصالة أو الإدارة العامة -->
     <div id="auth-screen" class="auth-container">
-        <img src="https://img.icons8.com/color/96/play-station.png" alt="PS Icon" style="width: 72px; margin-bottom: 15px;">
-        <h2>تسجيل دخول النظام الاحترافي</h2>
-        <input type="text" id="username" placeholder="اسم المستخدم">
+        <img src="https://img.icons8.com/color/96/play-station.png" alt="Icon" style="width: 64px; margin-bottom: 10px;">
+        <h2>تسجيل دخول الصالة / المركز</h2>
+        <input type="text" id="username" placeholder="اسم الصالة (أو HA للإدارة العامة)">
         <input type="password" id="password" placeholder="كلمة المرور">
-        <button class="main-btn" onclick="login()">تسجيل الدخول</button>
-        <div id="login-error" style="color: var(--accent-red); margin-top: 15px; font-size: 13px;"></div>
+        <button class="main-btn" onclick="login()">دخول النظام</button>
+        <div id="login-error" style="color: var(--accent-red); margin-top: 10px; font-size: 13px;"></div>
     </div>
 
     <!-- واجهة التطبيق الرئيسية -->
     <div id="app-screen" style="display: none;">
         <header>
-            <h1><img src="https://img.icons8.com/color/36/play-station.png" style="vertical-align: middle;"> نظام إدارة صالة البلايستيشن</h1>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <span id="user-welcome" style="font-size: 13px; color: var(--accent-blue); font-weight: bold;"></span>
+            <h1><img src="https://img.icons8.com/color/32/play-station.png" style="vertical-align: middle;"> نظام إدارة صالات الألعاب والـ PC</h1>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="salon-welcome" style="font-size: 13px; color: var(--accent-blue); font-weight: bold;"></span>
                 <button class="logout-btn" onclick="logout()">خروج</button>
             </div>
         </header>
@@ -579,38 +639,51 @@
             <span class="sync-status" id="sync-text">⏳ جاري الاتصال...</span>
         </div>
 
-        <!-- لوحة تحكم المسؤول الاحترافية -->
-        <div id="admin-section" class="admin-panel" style="display: none;">
-            <h3>👑 لوحة التحكم الإدارية المركزية (خاصة بالمسؤول HA)</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px;">
-                <input type="text" id="emp-name" placeholder="اسم حساب الموظف الجديد">
-                <input type="password" id="emp-pass" placeholder="كلمة مرور الموظف">
+        <!-- لوحة التحكم العامة (تظهر فقط للمدير العام HA لإضافة صالات جديدة) -->
+        <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple);">
+            <h3>👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <input type="text" id="new-salon-name" placeholder="اسم الصالة الجديدة (مثلاً: فرع_المزة)">
+                <input type="password" id="new-salon-pass" placeholder="كلمة مرور الصالة">
             </div>
-            <button class="main-btn" style="margin-top: 10px; background: var(--accent-purple);" onclick="addEmployee()">➕ إنشاء حساب موظف جديد</button>
-            <h4 style="margin: 18px 0 8px 0; font-size: 14px; color: var(--accent-blue);">قائمة حسابات الموظفين المفعلة:</h4>
-            <div id="employees-list-container" class="employee-list">جاري التحميل...</div>
+            <button class="main-btn" style="background: var(--accent-purple);" onclick="addSalonCenter()">➕ إنشاء صالة جديدة</button>
+            <h4 style="margin: 15px 0 5px 0; font-size: 14px; color: var(--accent-blue);">قائمة الصالات والمراكز المسجلة:</h4>
+            <div id="salons-list-container" class="item-list">جاري التحميل...</div>
+        </div>
+
+        <!-- لوحة تحكم الصالة (لإضافة وتعديل الأجهزة والبلايستيشن والـ PC) -->
+        <div id="salon-admin-section" class="admin-panel" style="display: none;">
+            <h3>🛠️ إدارة أجهزة الصالة (إضافة / تعديل أجهزة PS و PC)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
+                <input type="text" id="dev-id" placeholder="معرف رقمي (مثلاً: 1, 2)">
+                <input type="text" id="dev-name" placeholder="اسم الجهاز (مثلاً: PS5 Pro - VIP 1)">
+                <select id="dev-type">
+                    <option value="ps">بلايستيشن (PlayStation)</option>
+                    <option value="pc">كمبيوتر (PC)</option>
+                </select>
+            </div>
+            <button class="main-btn" style="background: var(--accent-green);" onclick="addDeviceToSalon()">➕ إضافة الجهاز للصالة</button>
+            <h4 style="margin: 15px 0 5px 0; font-size: 14px; color: var(--accent-blue);">أجهزة هذه الصالة الحالية:</h4>
+            <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
         </div>
 
         <!-- شريط الإحصائيات -->
         <div class="stats-bar">
-            <div class="stat-box" style="color: #34d399;">الأجهزة المتاحة <span id="stat-avail">4</span></div>
-            <div class="stat-box" style="color: #f87171;">الأجهزة المشغولة <span id="stat-busy">0</span></div>
+            <div class="stat-box" style="color: #34d399;">المتاح <span id="stat-avail">0</span></div>
+            <div class="stat-box" style="color: #f87171;">المشغول <span id="stat-busy">0</span></div>
             <div class="stat-box" style="color: #fbbf24;">إيرادات الصالة <span id="stat-revenue">0 ليرة</span></div>
         </div>
 
-        <!-- بطاقات الأجهزة -->
+        <!-- شبكة الأجهزة -->
         <div class="grid" id="devices-container">
-            <div class="card available" id="card-1">جاري التحميل...</div>
-            <div class="card available" id="card-2">جاري التحميل...</div>
-            <div class="card available" id="card-3">جاري التحميل...</div>
-            <div class="card available" id="card-4">جاري التحميل...</div>
+            <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">جاري تحميل الأجهزة...</div>
         </div>
 
         <!-- سجل الفواتير -->
         <div class="history-section">
-            <h3>📋 سجل الفواتير والجلسات المكتملة اليوم</h3>
+            <h3>📋 سجل فواتير وجلسات الصالة اليوم</h3>
             <div class="history-list" id="history-container">
-                <div style="color: var(--text-muted); text-align: center; padding: 15px;">لا توجد جلسات مسجلة اليوم حتى الآن</div>
+                <div style="color: var(--text-muted); text-align: center; padding: 10px;">لا توجد جلسات مسجلة اليوم حتى الآن</div>
             </div>
         </div>
     </div>
