@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة صالات الألعاب - إعادة التسعير الفردي</title>
+    <title>نظام إدارة صالات الألعاب - تسعير متعدد اللاعبين</title>
     <meta name="theme-color" content="#090d16">
     <link rel="icon" href="https://img.icons8.com/color/96/play-station.png">
     <style>
@@ -32,8 +32,8 @@
         
         .auth-container { max-width: 420px; margin: 60px auto; background: var(--card-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.6); text-align: center; }
         .auth-container h2 { color: var(--accent-blue); margin-top: 0; margin-bottom: 20px; font-size: 22px; }
-        input, select, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid var(--border-color); font-size: 14px; background: #030712; color: #fff; box-sizing: border-box; outline: none; }
-        button.main-btn { background: var(--accent-blue); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13px; background: #030712; color: #fff; box-sizing: border-box; outline: none; }
+        button.main-btn { background: var(--accent-blue); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; padding: 12px; }
         button.main-btn:hover { background: #0369a1; }
 
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; max-width: 1100px; margin-left: auto; margin-right: auto; }
@@ -74,7 +74,7 @@
         
         .admin-panel, .history-section { max-width: 1100px; margin: 20px auto; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
         .item-list { font-size: 13px; margin-top: 10px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; background: #030712; padding: 10px 14px; margin-top: 8px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap; gap: 8px; }
+        .item-row { background: #030712; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
 
         .history-section h3 { color: var(--accent-blue); margin-top: 0; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .history-list { font-size: 12px; color: var(--text-muted); max-height: 150px; overflow-y: auto; }
@@ -209,7 +209,7 @@
             let html = "";
             querySnapshot.forEach((docSnap) => {
                 let data = docSnap.data();
-                html += `<div class="item-row"><span>🏢 صالة: <b>${data.name}</b></span> <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; width:auto;">حذف</button></div>`;
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#030712; padding:8px; margin-top:5px; border-radius:6px;"><span>🏢 صالة: <b>${data.name}</b></span> <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:3px 8px; border-radius:4px; cursor:pointer; width:auto;">حذف</button></div>`;
             });
             listDiv.innerHTML = html;
         }
@@ -225,7 +225,12 @@
             let devId = document.getElementById('dev-id').value.trim();
             let devName = document.getElementById('dev-name').value.trim();
             let devType = document.getElementById('dev-type').value;
-            let devRate = parseInt(document.getElementById('dev-rate').value) || 100;
+
+            let rateSingle = parseInt(document.getElementById('rate-single').value) || 100;
+            let rateDouble = parseInt(document.getElementById('rate-double').value) || 100;
+            let rateTriple = parseInt(document.getElementById('rate-triple').value) || 150;
+            let rateQuad = parseInt(document.getElementById('rate-quad').value) || 200;
+            let ratePc = parseInt(document.getElementById('rate-pc').value) || 150;
 
             if (!devId || !devName) {
                 alert("الرجاء إدخال رقم المعرف واسم الجهاز");
@@ -238,7 +243,13 @@
                 deviceId: devId,
                 name: devName,
                 category: devType,
-                hourlyRate: devRate,
+                rates: {
+                    "فردي": rateSingle,
+                    "ثنائي": rateDouble,
+                    "ثلاثي": rateTriple,
+                    "رباعي": rateQuad,
+                    "PC": ratePc
+                },
                 busy: false,
                 type: devType === 'pc' ? 'PC' : 'فردي',
                 startTime: null,
@@ -272,34 +283,49 @@
             let html = "";
             salonDevicesList.forEach(dev => {
                 let icon = dev.category === 'pc' ? '🖥️ PC' : '🎮 PlayStation';
-                let currentRate = dev.hourlyRate || 100;
+                let r = dev.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
+                
                 html += `
                     <div class="item-row">
-                        <span>${icon} - <b>${dev.name}</b> (السعر: <input type="number" id="rate-input-${dev.deviceId}" value="${currentRate}" style="width:70px; display:inline-block; padding:4px; margin:0;" min="0"> ليرة/ساعة)</span>
-                        <div style="display:flex; gap:5px;">
-                            <button onclick="updateDeviceRate('${dev.deviceId}')" style="background:var(--accent-blue); border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px;">تحديث السعر</button>
-                            <button onclick="removeDevice('${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px;">حذف</button>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span>${icon} - <b>${dev.name}</b> (معرف: ${dev.deviceId})</span>
+                            <button onclick="removeDevice('${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px;">حذف الجهاز</button>
                         </div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">تعديل أسعار الساعة لكل نمط:</div>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:5px; margin-bottom:8px;">
+                            ${dev.category === 'ps' ? `
+                                <div>فردي: <input type="number" id="r-single-${dev.deviceId}" value="${r['فردي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>ثنائي: <input type="number" id="r-double-${dev.deviceId}" value="${r['ثنائي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>ثلاثي: <input type="number" id="r-triple-${dev.deviceId}" value="${r['ثلاثي'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>رباعي: <input type="number" id="r-quad-${dev.deviceId}" value="${r['رباعي'] || 200}" style="padding:4px; margin:0; text-align:center;"></div>
+                            ` : `
+                                <div style="grid-column: span 2;">سعر ساعة PC: <input type="number" id="r-pc-${dev.deviceId}" value="${r['PC'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                            `}
+                        </div>
+                        <button onclick="updateDeviceRates('${dev.deviceId}', '${dev.category}')" style="background:var(--accent-blue); border:none; color:#fff; padding:6px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">💾 حفظ التعديلات وتحديث الأسعار</button>
                     </div>`;
             });
             listDiv.innerHTML = html;
         }
 
-        window.updateDeviceRate = async function(devId) {
-            let rateInput = document.getElementById(`rate-input-${devId}`);
-            let newRate = parseInt(rateInput ? rateInput.value : 100) || 100;
-            let d = devicesData[devId];
-            if (!d) {
-                // البحث في القائمة مباشرة إذا لم يكن محملاً في الكائن
-                let target = salonDevicesList.find(item => item.deviceId === devId);
-                if (target) d = target;
+        window.updateDeviceRates = async function(devId, category) {
+            let d = devicesData[devId] || salonDevicesList.find(item => item.deviceId === devId);
+            if (!d) return;
+
+            let updatedRates = { ...d.rates };
+            if (category === 'ps') {
+                updatedRates["فردي"] = parseInt(document.getElementById(`r-single-${devId}`).value) || 100;
+                updatedRates["ثنائي"] = parseInt(document.getElementById(`r-double-${devId}`).value) || 100;
+                updatedRates["ثلاثي"] = parseInt(document.getElementById(`r-triple-${devId}`).value) || 150;
+                updatedRates["رباعي"] = parseInt(document.getElementById(`r-quad-${devId}`).value) || 200;
+            } else {
+                updatedRates["PC"] = parseInt(document.getElementById(`r-pc-${devId}`).value) || 150;
             }
-            if (d) {
-                let docId = `${currentSalon.name}_${devId}`;
-                await setDoc(doc(db, "salon_devices", docId), { ...d, hourlyRate: newRate }, { merge: true });
-                alert(`تم تحديث سعر الجهاز ${d.name} إلى ${newRate} ليرة/ساعة بنجاح!`);
-                loadSalonDevicesConfig();
-            }
+
+            let docId = `${currentSalon.name}_${devId}`;
+            await setDoc(doc(db, "salon_devices", docId), { ...d, rates: updatedRates }, { merge: true });
+            alert(`تم تحديث أسعار الجهاز ${d.name} بنجاح!`);
+            loadSalonDevicesConfig();
         }
 
         window.removeDevice = async function(devId) {
@@ -424,7 +450,9 @@
             let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
             let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
             let totalHours = diffSeconds / 3600;
-            let hourlyRate = d.hourlyRate || 100;
+            
+            let rates = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
+            let hourlyRate = rates[d.type] || 100;
             let timeCost = Math.round(totalHours * hourlyRate);
             let totalMins = Math.ceil(diffSeconds / 60);
 
@@ -438,7 +466,7 @@
             }
 
             let grandTotal = timeCost + posTotal;
-            alert(`🧾 إيصال فاتورة ${d.name}:\n- أجر الوقت (${totalMins} د): ${timeCost} ليرة${posDetails}\n------------------\n الإجمالي النهائي: ${grandTotal} ليرة`);
+            alert(`🧾 إيصال فاتورة ${d.name} (${d.type}):\n- أجر الوقت (${totalMins} د): ${timeCost} ليرة${posDetails}\n------------------\n الإجمالي النهائي: ${grandTotal} ليرة`);
 
             totalRevenue += grandTotal;
             let timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -473,6 +501,7 @@
                 let iconSymbol = d.category === 'pc' ? '🖥️ PC' : '🎮 PS';
                 let cardClass = isBusy ? 'card busy' : 'card available';
                 let statusText = isBusy ? 'مشغول 🔴' : 'متاح 🟢';
+                let r = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
 
                 html += `<div class="${cardClass}" id="card-${d.deviceId}">`;
                 html += `
@@ -485,21 +514,20 @@
                 if (!isBusy) {
                     stopSpeechAlert(d.deviceId);
                     let curType = tempTypes[d.deviceId] || (d.category === 'pc' ? 'PC' : 'فردي');
-                    let currentRate = d.hourlyRate || 100;
                     
                     if (d.category === 'ps') {
                         html += `
-                            <div style="font-size: 11px; color: var(--accent-blue); margin-bottom: 5px;">سعر الساعة لهذا الجهاز: <b>${currentRate} ليرة</b></div>
-                            <div style="font-size: 12px; color: var(--text-muted);">نوع اللعب:</div>
+                            <div style="font-size: 11px; color: var(--accent-blue); margin-bottom: 5px;">الأسعار: [فردي:${r['فردي']} | ثنائي:${r['ثنائي']} | ثلاثي:${r['ثلاثي']} | رباعي:${r['رباعي']}]</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">اختر نمط اللعب:</div>
                             <div class="type-buttons">
-                                <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">فردي</button>
-                                <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">ثنائي</button>
-                                <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">ثلاثي</button>
-                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">رباعي</button>
+                                <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">فردي (${r['فردي']})</button>
+                                <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">ثنائي (${r['ثنائي']})</button>
+                                <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">ثلاثي (${r['ثلاثي']})</button>
+                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">رباعي (${r['رباعي']})</button>
                             </div>
                         `;
                     } else {
-                        html += `<div style="font-size: 12px; color: var(--text-muted);">نوع الجهاز: <b>حاسوب PC (${currentRate} ليرة/ساعة)</b></div>`;
+                        html += `<div style="font-size: 12px; color: var(--text-muted);">نوع الجهاز: <b>حاسوب PC (${r['PC']} ليرة/ساعة)</b></div>`;
                     }
 
                     html += `
@@ -537,7 +565,7 @@
                     }
 
                     let totalHours = diffSeconds / 3600;
-                    let hourlyRate = d.hourlyRate || 100;
+                    let hourlyRate = r[d.type] || 100;
                     let timeCost = Math.round(totalHours * hourlyRate);
 
                     let posTotal = 0;
@@ -551,7 +579,8 @@
                     let grandTotal = timeCost + posTotal;
 
                     html += `
-                        <div class="info" style="margin-top: 5px;"><span>الوقت:</span> <span class="timer-val" id="timer-${d.deviceId}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
+                        <div class="info" style="margin-top: 5px;"><span>النمط:</span> <b style="color:var(--accent-blue);">${d.type}</b></div>
+                        <div class="info"><span>الوقت:</span> <span class="timer-val" id="timer-${d.deviceId}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
                         <div class="info"><span>حساب الوقت:</span> <span id="timecost-${d.deviceId}">${timeCost} ليرة</span></div>
                         <div class="info" style="align-items:center;"><span>الطلبات:</span> <div style="display:flex; flex-wrap:wrap; gap:2px;">${itemsListHtml || '<span style="color:#4b5563;font-size:11px;">لا توجد</span>'}</div></div>
                         <div class="info"><span>الإجمالي:</span> <span class="cost-val" id="cost-${d.deviceId}">${grandTotal} ليرة</span></div>
@@ -606,7 +635,8 @@
                     }
 
                     let totalHours = diffSeconds / 3600;
-                    let hourlyRate = d.hourlyRate || 100;
+                    let r = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
+                    let hourlyRate = r[d.type] || 100;
                     let timeCost = Math.round(totalHours * hourlyRate);
 
                     let posTotal = 0;
@@ -693,7 +723,7 @@
         <!-- واجهة إعدادات منفصلة بالكامل -->
         <div id="settings-view-panel" class="settings-view">
             <h2>
-                <span>⚙️ إعدادات النظام وإدارة الأجهزة</span>
+                <span>⚙️ إعدادات النظام وإدارة الأجهزة والتسعير</span>
                 <button onclick="closeSettingsView()" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
 
@@ -709,21 +739,30 @@
                 <div id="salons-list-container" class="item-list">جاري التحميل...</div>
             </div>
 
-            <!-- لوحة إدارة الأجهزة والتسعير الفردي -->
+            <!-- لوحة إضافة الجهاز وتسعيره حسب عدد اللاعبين -->
             <div class="admin-panel" style="margin-top: 15px;">
-                <h3 style="color: var(--accent-blue); margin-top:0;">🖥️➕ إضافة جهاز وتحديد سعر الساعة الفردي</h3>
-                <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 8px; margin-top: 10px;">
-                    <input type="text" id="dev-id" placeholder="الرقم المعرف">
-                    <input type="text" id="dev-name" placeholder="اسم الجهاز">
+                <h3 style="color: var(--accent-blue); margin-top:0;">🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط</h3>
+                <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
+                    <input type="text" id="dev-id" placeholder="الرقم المعرف (1, 2...)">
+                    <input type="text" id="dev-name" placeholder="اسم الجهاز (مثلاً: PS5 - VIP)">
                     <select id="dev-type">
-                        <option value="ps">بلايستيشن (PS)</option>
-                        <option value="pc">كمبيوتر (PC)</option>
+                        <option value="ps">بلايستيشن (PlayStation)</option>
+                        <option value="pc">حاسوب (PC)</option>
                     </select>
-                    <input type="number" id="dev-rate" placeholder="سعر الساعة" value="100" min="0">
                 </div>
+
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">تحديد سعر الساعة الافتراضي لكل نمط لاعبين:</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 6px; margin-top: 5px;">
+                    <div>فردي: <input type="number" id="rate-single" value="100"></div>
+                    <div>ثنائي: <input type="number" id="rate-double" value="100"></div>
+                    <div>ثلاثي: <input type="number" id="rate-triple" value="150"></div>
+                    <div>رباعي: <input type="number" id="rate-quad" value="200"></div>
+                    <div>ساعة PC: <input type="number" id="rate-pc" value="150"></div>
+                </div>
+
                 <button class="main-btn" style="background: var(--accent-green);" onclick="addDeviceToSalon()">➕ حفظ وإضافة الجهاز</button>
                 
-                <h4 style="margin: 20px 0 8px 0; font-size: 14px; color: var(--accent-blue);">قائمة الأجهزة وتعديل أسعارها الفردية (إعادة تسعير):</h4>
+                <h4 style="margin: 20px 0 8px 0; font-size: 14px; color: var(--accent-blue);">قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:</h4>
                 <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
             </div>
         </div>
