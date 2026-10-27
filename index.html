@@ -720,7 +720,6 @@
             }
         }
 
-        // وظائف تصدير وتنزيل السجل
         window.downloadHistoryReport = function(type) {
             if (historyLogs.length === 0) {
                 alert(currentLang === 'ar' ? "لا توجد سجلات متاحة للتنزيل حالياً." : "No records available for download.");
@@ -1182,53 +1181,14 @@
             </div>
         </div>
 
-        <!-- واجهة إعدادات منفصلة بالكامل -->
+        <!-- واجهة إعدادات منفصلة بالكامل (تم إعادة الترتيب: الأجهزة في الأعلى، اللغات والتقارير في الأسفل) -->
         <div id="settings-view-panel" class="settings-view">
             <h2>
                 <span id="settings-main-title-text">⚙️ إعدادات النظام وإدارة الأجهزة والتسعير</span>
                 <button onclick="closeSettingsView()" id="close-settings-btn" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
 
-            <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-blue);">
-                <h3 style="color: var(--accent-blue); margin-top:0; font-size:14px;" id="lang-header-text">🌐 لغة التطبيق / App Language</h3>
-                <select class="lang-select" onchange="changeLanguage(this.value)">
-                    <option value="ar">العربية (Arabic)</option>
-                    <option value="en">English</option>
-                    <option value="tr">Türkçe</option>
-                    <option value="fr">Français</option>
-                </select>
-            </div>
-
-            <!-- قسم تقارير وتنزيل السجل (يومي، أسبوعي، شهري، وتحديد مدة) -->
-            <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-orange);">
-                <h3 style="color: var(--accent-orange); margin-top:0; font-size:15px;" id="report-sec-title">📥 تقارير وتنزيل السجل والفواتير</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 10px;">
-                    <button class="main-btn" id="btn-download-daily" style="background: var(--accent-green); margin-top:0;" onclick="downloadHistoryReport('daily')">📥 تنزيل السجل اليومي</button>
-                    <button class="main-btn" id="btn-download-weekly" style="background: var(--accent-blue); margin-top:0;" onclick="downloadHistoryReport('weekly')">📥 تنزيل السجل الأسبوعي</button>
-                    <button class="main-btn" id="btn-download-monthly" style="background: var(--accent-purple); margin-top:0;" onclick="downloadHistoryReport('monthly')">📥 تنزيل السجل الشهري</button>
-                </div>
-
-                <div style="margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 12px;">
-                    <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;" id="custom-range-title-text">تحديد مدة مخصصة (من وإلى):</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                        <div><span id="from-date-lbl" style="font-size: 11px;">من تاريخ:</span> <input type="date" id="report-from-date" style="margin-top:2px;"></div>
-                        <div><span id="to-date-lbl" style="font-size: 11px;">إلى تاريخ:</span> <input type="date" id="report-to-date" style="margin-top:2px;"></div>
-                    </div>
-                    <button class="main-btn" id="btn-download-custom" style="background: var(--accent-orange); margin-top:0;" onclick="downloadHistoryReport('custom')">📥 تنزيل السجل للفترة المحددة</button>
-                </div>
-            </div>
-
-            <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple); margin-top: 15px;">
-                <h3 style="color: var(--accent-purple); margin-top:0;" id="superadmin-title-text">👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                    <input type="text" id="new-salon-name" placeholder="اسم الصالة الجديدة">
-                    <input type="password" id="new-salon-pass" placeholder="كلمة مرور الصالة">
-                </div>
-                <button class="main-btn" id="create-salon-btn" style="background: var(--accent-purple);" onclick="addSalonCenter()">➕ إنشاء صالة جديدة</button>
-                <h4 style="margin: 15px 0 5px 0; font-size: 14px; color: var(--accent-blue);" id="salons-list-title-text">قائمة الصالات والمراكز المسجلة:</h4>
-                <div id="salons-list-container" class="item-list">جاري التحميل...</div>
-            </div>
-
+            <!-- 1. لوحة إضافة الأجهزة وتحديد الأسعار (في الأعلى بناءً على طلبك) -->
             <div class="admin-panel" style="margin-top: 15px;">
                 <h3 style="color: var(--accent-blue); margin-top:0;" id="add-device-title-text">🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط</h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
@@ -1255,6 +1215,48 @@
                 <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
             </div>
 
+            <!-- لوحة المدير العام (إن وجدت) -->
+            <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple); margin-top: 15px;">
+                <h3 style="color: var(--accent-purple); margin-top:0;" id="superadmin-title-text">👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                    <input type="text" id="new-salon-name" placeholder="اسم الصالة الجديدة">
+                    <input type="password" id="new-salon-pass" placeholder="كلمة مرور الصالة">
+                </div>
+                <button class="main-btn" id="create-salon-btn" style="background: var(--accent-purple);" onclick="addSalonCenter()">➕ إنشاء صالة جديدة</button>
+                <h4 style="margin: 15px 0 5px 0; font-size: 14px; color: var(--accent-blue);" id="salons-list-title-text">قائمة الصالات والمراكز المسجلة:</h4>
+                <div id="salons-list-container" class="item-list">جاري التحميل...</div>
+            </div>
+
+            <!-- 2. خيارات اللغة وتنزيل التقارير (في الأسفل بناءً على طلبك) -->
+            <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-blue);">
+                <h3 style="color: var(--accent-blue); margin-top:0; font-size:14px;" id="lang-header-text">🌐 لغة التطبيق / App Language</h3>
+                <select class="lang-select" onchange="changeLanguage(this.value)">
+                    <option value="ar">العربية (Arabic)</option>
+                    <option value="en">English</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+
+            <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-orange);">
+                <h3 style="color: var(--accent-orange); margin-top:0; font-size:15px;" id="report-sec-title">📥 تقارير وتنزيل السجل والفواتير</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 10px;">
+                    <button class="main-btn" id="btn-download-daily" style="background: var(--accent-green); margin-top:0;" onclick="downloadHistoryReport('daily')">📥 تنزيل السجل اليومي</button>
+                    <button class="main-btn" id="btn-download-weekly" style="background: var(--accent-blue); margin-top:0;" onclick="downloadHistoryReport('weekly')">📥 تنزيل السجل الأسبوعي</button>
+                    <button class="main-btn" id="btn-download-monthly" style="background: var(--accent-purple); margin-top:0;" onclick="downloadHistoryReport('monthly')">📥 تنزيل السجل الشهري</button>
+                </div>
+
+                <div style="margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 12px;">
+                    <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;" id="custom-range-title-text">تحديد مدة مخصصة (من وإلى):</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <div><span id="from-date-lbl" style="font-size: 11px;">من تاريخ:</span> <input type="date" id="report-from-date" style="margin-top:2px;"></div>
+                        <div><span id="to-date-lbl" style="font-size: 11px;">إلى تاريخ:</span> <input type="date" id="report-to-date" style="margin-top:2px;"></div>
+                    </div>
+                    <button class="main-btn" id="btn-download-custom" style="background: var(--accent-orange); margin-top:0;" onclick="downloadHistoryReport('custom')">📥 تنزيل السجل للفترة المحددة</button>
+                </div>
+            </div>
+
+            <!-- زر تسجيل الخروج في أفل القائمة -->
             <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px; text-align: center;">
                 <button onclick="logout()" style="background: var(--accent-red); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; width: 100%;"><span id="logout-btn-text">🚪 تسجيل الخروج من الصالة</span></button>
             </div>
