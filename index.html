@@ -80,7 +80,7 @@
         .settings-view h2 { color: var(--accent-blue); margin-top: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; font-size: 20px; }
         
         .admin-panel, .history-section { max-width: 1100px; margin: 20px auto; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
-        .item-list { font-size: 13px; margin-top: 10px; }
+        .item-list { font-size: 13px; margin-top: 10px; max-height: 400px; overflow-y: auto; }
         .item-row { background: #030712; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
 
         .history-section h3 { color: var(--accent-blue); margin-top: 0; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
@@ -127,9 +127,9 @@
                 newSalonPassPh: "كلمة مرور الصالة",
                 createSalonBtn: "➕ إنشاء صالة جديدة",
                 salonsListTitle: "قائمة الصالات والمراكز المسجلة:",
-                addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط",
-                devIdPh: "الرقم المعرف (1, 2...)",
-                devNamePh: "اسم الجهاز (مثلاً: PS5 - VIP)",
+                addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط (غير محدود)",
+                devIdPh: "الرقم المعرف الفريد (1, 2, 3... 100)",
+                devNamePh: "اسم الجهاز (مثلاً: PS5 - 1)",
                 psOption: "بلايستيشن (PlayStation)",
                 pcOption: "حاسوب (PC)",
                 singleLabel: "فردي",
@@ -187,9 +187,9 @@
                 newSalonPassPh: "Salon Password",
                 createSalonBtn: "➕ Create New Salon",
                 salonsListTitle: "Registered Salons List:",
-                addDeviceTitle: "🖥️➕ Add New Device & Set Pricing",
-                devIdPh: "Device ID (1, 2...)",
-                devNamePh: "Device Name (e.g., PS5 - VIP)",
+                addDeviceTitle: "🖥️➕ Add New Device & Set Pricing (Unlimited)",
+                devIdPh: "Unique Device ID (1, 2, 3... 100)",
+                devNamePh: "Device Name (e.g., PS5 - 1)",
                 psOption: "PlayStation",
                 pcOption: "PC",
                 singleLabel: "Single",
@@ -247,9 +247,9 @@
                 newSalonPassPh: "Salon Şifresi",
                 createSalonBtn: "➕ Yeni Salon Oluştur",
                 salonsListTitle: "Kayıtlı Salonlar Listesi:",
-                addDeviceTitle: "🖥️➕ Yeni Cihaz Ekle ve Fiyat Belirle",
-                devIdPh: "Cihaz ID (1, 2...)",
-                devNamePh: "Cihaz Adı (örn: PS5 - VIP)",
+                addDeviceTitle: "🖥️➕ Yeni Cihaz Ekle ve Fiyat Belirle (Sınırsız)",
+                devIdPh: "Benzersiz Cihaz ID (1, 2, 3... 100)",
+                devNamePh: "Cihaz Adı (örn: PS5 - 1)",
                 psOption: "PlayStation",
                 pcOption: "Bilgisayar (PC)",
                 singleLabel: "Tek",
@@ -307,9 +307,9 @@
                 newSalonPassPh: "Mot de passe du Salon",
                 createSalonBtn: "➕ Créer un Nouveau Salon",
                 salonsListTitle: "Liste des Salons Enregistrés:",
-                addDeviceTitle: "🖥️➕ Ajouter un Appareil & Définir les Tarifs",
-                devIdPh: "ID de l'appareil (1, 2...)",
-                devNamePh: "Nom de l'appareil (ex: PS5 - VIP)",
+                addDeviceTitle: "🖥️➕ Ajouter un Appareil & Définir les Tarifs (Illimité)",
+                devIdPh: "ID Unique de l'appareil (1, 2, 3... 100)",
+                devNamePh: "Nom de l'appareil (ex: PS5 - 1)",
                 psOption: "PlayStation",
                 pcOption: "PC",
                 singleLabel: "Solo",
@@ -454,7 +454,6 @@
             let logoutBtnEl = document.getElementById('logout-btn-text');
             if(logoutBtnEl) logoutBtnEl.innerText = t('logoutBtn');
 
-            // تحديث نصوص قسم التقارير وتنزيل السجل
             let reportSecTitle = document.getElementById('report-sec-title');
             if(reportSecTitle) reportSecTitle.innerText = t('reportSectionTitle');
             let btnDaily = document.getElementById('btn-download-daily');
@@ -1181,19 +1180,19 @@
             </div>
         </div>
 
-        <!-- واجهة إعدادات منفصلة بالكامل (تم إعادة الترتيب: الأجهزة في الأعلى، اللغات والتقارير في الأسفل) -->
+        <!-- واجهة إعدادات منفصلة بالكامل -->
         <div id="settings-view-panel" class="settings-view">
             <h2>
                 <span id="settings-main-title-text">⚙️ إعدادات النظام وإدارة الأجهزة والتسعير</span>
                 <button onclick="closeSettingsView()" id="close-settings-btn" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
 
-            <!-- 1. لوحة إضافة الأجهزة وتحديد الأسعار (في الأعلى بناءً على طلبك) -->
+            <!-- 1. لوحة إضافة الأجهزة وتحديد الأسعار (في الأعلى) -->
             <div class="admin-panel" style="margin-top: 15px;">
-                <h3 style="color: var(--accent-blue); margin-top:0;" id="add-device-title-text">🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط</h3>
+                <h3 style="color: var(--accent-blue); margin-top:0;" id="add-device-title-text">🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط (غير محدود)</h3>
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
-                    <input type="text" id="dev-id" placeholder="الرقم المعرف (1, 2...)">
-                    <input type="text" id="dev-name" placeholder="اسم الجهاز (مثلاً: PS5 - VIP)">
+                    <input type="text" id="dev-id" placeholder="الرقم المعرف (1, 2, 3...)">
+                    <input type="text" id="dev-name" placeholder="اسم الجهاز (مثلاً: PS5 - 1)">
                     <select id="dev-type">
                         <option value="ps" id="opt-ps">بلايستيشن (PlayStation)</option>
                         <option value="pc" id="opt-pc">حاسوب (PC)</option>
@@ -1227,7 +1226,7 @@
                 <div id="salons-list-container" class="item-list">جاري التحميل...</div>
             </div>
 
-            <!-- 2. خيارات اللغة وتنزيل التقارير (في الأسفل بناءً على طلبك) -->
+            <!-- 2. خيارات اللغة وتنزيل التقارير (في الأسفل) -->
             <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-blue);">
                 <h3 style="color: var(--accent-blue); margin-top:0; font-size:14px;" id="lang-header-text">🌐 لغة التطبيق / App Language</h3>
                 <select class="lang-select" onchange="changeLanguage(this.value)">
@@ -1256,7 +1255,6 @@
                 </div>
             </div>
 
-            <!-- زر تسجيل الخروج في أفل القائمة -->
             <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px; text-align: center;">
                 <button onclick="logout()" style="background: var(--accent-red); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; width: 100%;"><span id="logout-btn-text">🚪 تسجيل الخروج من الصالة</span></button>
             </div>
