@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة صالات الألعاب الشامل - PlayStation & PC</title>
+    <title>نظام إدارة صالات الألعاب - واجهة الإعدادات المنفصلة</title>
     <meta name="theme-color" content="#090d16">
     <link rel="icon" href="https://img.icons8.com/color/96/play-station.png">
     <style>
@@ -23,6 +23,11 @@
         
         header { text-align: center; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 20px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
         header h1 { margin: 0; font-size: 18px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
+        
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .settings-icon-btn { background: #1f2937; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px; transition: background 0.2s; }
+        .settings-icon-btn:hover { background: #374151; }
+
         .sync-status { font-size: 12px; color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.1); padding: 4px 10px; border-radius: 20px; }
         
         .auth-container { max-width: 420px; margin: 60px auto; background: var(--card-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.6); text-align: center; }
@@ -31,7 +36,7 @@
         button.main-btn { background: var(--accent-blue); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; }
         button.main-btn:hover { background: #0369a1; }
         
-        .logout-btn { background: var(--accent-red); color: white; border: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .logout-btn { background: var(--accent-red); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; }
 
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; max-width: 1100px; margin-left: auto; margin-right: auto; }
         .stat-box { background: var(--card-bg); padding: 15px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); }
@@ -66,10 +71,13 @@
         .timer-val { font-family: monospace; font-size: 16px; font-weight: bold; color: #f8fafc; }
         .cost-val { color: #f43f5e; font-weight: bold; font-size: 18px; }
 
+        /* واجهة الإعدادات المنفصلة */
+        .settings-view { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 18px; border: 1px solid var(--border-color); display: none; }
+        .settings-view h2 { color: var(--accent-blue); margin-top: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; font-size: 20px; }
+        
         .admin-panel, .history-section { max-width: 1100px; margin: 20px auto; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
-        .admin-panel h3 { margin-top: 0; color: var(--accent-purple); font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .item-list { font-size: 13px; margin-top: 10px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; background: #030712; padding: 8px 12px; margin-top: 6px; border-radius: 6px; border: 1px solid var(--border-color); }
+        .item-row { display: flex; justify-content: space-between; align-items: center; background: #030712; padding: 10px 14px; margin-top: 8px; border-radius: 8px; border: 1px solid var(--border-color); }
 
         .history-section h3 { color: var(--accent-blue); margin-top: 0; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .history-list { font-size: 12px; color: var(--text-muted); max-height: 150px; overflow-y: auto; }
@@ -100,7 +108,7 @@
         let historyLogs = [];
         let speechIntervals = {};
         let tempTypes = {};
-        let currentSalon = null; // اسم الصالة النشطة حالياً
+        let currentSalon = null;
 
         window.onload = function() {
             let savedSalon = localStorage.getItem('ps_current_salon');
@@ -132,7 +140,6 @@
                 return;
             }
 
-            // حساب المسؤول الرئيسي العام
             if (u === "HA" && p === "hamodi296") {
                 currentSalon = { name: "الادارة العامة", role: "superadmin" };
                 localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
@@ -164,7 +171,7 @@
         function initSession() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-screen').style.display = 'block';
-            document.getElementById('salon-welcome').innerText = `الصالة النشطة: ${currentSalon.name} (${currentSalon.role === 'superadmin' ? 'مدير عام ⭐' : 'إدارة صالة 🎮'})`;
+            document.getElementById('salon-welcome').innerText = `${currentSalon.name}`;
             
             if (currentSalon.role === 'superadmin') {
                 document.getElementById('superadmin-section').style.display = 'block';
@@ -173,12 +180,21 @@
                 document.getElementById('superadmin-section').style.display = 'none';
             }
 
-            document.getElementById('salon-admin-section').style.display = 'block';
             loadSalonDevicesConfig();
             initCloudDevices();
         }
 
-        // --- إدارة الصالات (للمدير العام) ---
+        // --- التحكم بظهور واجهة الإعدادات المنفصلة ---
+        window.openSettingsView = function() {
+            document.getElementById('main-dashboard-view').style.display = 'none';
+            document.getElementById('settings-view-panel').style.display = 'block';
+        }
+
+        window.closeSettingsView = function() {
+            document.getElementById('settings-view-panel').style.display = 'none';
+            document.getElementById('main-dashboard-view').style.display = 'block';
+        }
+
         window.addSalonCenter = async function() {
             let name = document.getElementById('new-salon-name').value.trim();
             let pass = document.getElementById('new-salon-pass').value.trim();
@@ -204,7 +220,7 @@
             let html = "";
             querySnapshot.forEach((docSnap) => {
                 let data = docSnap.data();
-                html += `<div class="item-row"><span>🏢 صالة: <b>${data.name}</b></span> <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:3px 8px; border-radius:4px; cursor:pointer;">حذف</button></div>`;
+                html += `<div class="item-row"><span>🏢 صالة: <b>${data.name}</b></span> <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer;">حذف</button></div>`;
             });
             listDiv.innerHTML = html;
         }
@@ -216,11 +232,10 @@
             }
         }
 
-        // --- إدارة الأجهزة داخل الصالة ---
         window.addDeviceToSalon = async function() {
             let devId = document.getElementById('dev-id').value.trim();
             let devName = document.getElementById('dev-name').value.trim();
-            let devType = document.getElementById('dev-type').value; // ps4 أو pc
+            let devType = document.getElementById('dev-type').value;
 
             if (!devId || !devName) {
                 alert("الرجاء إدخال رقم المعرف واسم الجهاز");
@@ -232,7 +247,7 @@
                 salon: currentSalon.name,
                 deviceId: devId,
                 name: devName,
-                category: devType, // 'ps' أو 'pc'
+                category: devType,
                 busy: false,
                 type: devType === 'pc' ? 'PC' : 'فردي',
                 startTime: null,
@@ -259,21 +274,20 @@
             });
 
             if (salonDevicesList.length === 0) {
-                listDiv.innerHTML = "لا توجد أجهزة مضافة في هذه الصالة بعد. قم بإضافة أجهزة للبدء.";
-                document.getElementById('devices-container').innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">لا توجد أجهزة معروضة، أضف أجهزة من لوحة الإدارة أعلاه.</div>';
+                listDiv.innerHTML = "لا توجد أجهزة مضافة في هذه الصالة بعد.";
                 return;
             }
 
             let html = "";
             salonDevicesList.forEach(dev => {
                 let icon = dev.category === 'pc' ? '🖥️ PC' : '🎮 PlayStation';
-                html += `<div class="item-row"><span>${icon} - <b>${dev.name}</b> (معرف: ${dev.deviceId})</span> <button onclick="removeDevice('${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:3px 8px; border-radius:4px; cursor:pointer;">حذف</button></div>`;
+                html += `<div class="item-row"><span>${icon} - <b>${dev.name}</b> (معرف: ${dev.deviceId})</span> <button onclick="removeDevice('${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer;">حذف الجهاز</button></div>`;
             });
             listDiv.innerHTML = html;
         }
 
         window.removeDevice = async function(devId) {
-            if (confirm("هل تريد حذف هذا الجهاز نهائياً؟")) {
+            if (confirm("هل تريد حذف هذا الجهاز نهائياً من الصالة؟")) {
                 let docId = `${currentSalon.name}_${devId}`;
                 await deleteDoc(doc(db, "salon_devices", docId));
                 loadSalonDevicesConfig();
@@ -305,8 +319,6 @@
 
         function initCloudDevices() {
             document.getElementById('sync-text').innerText = "⚡ متزامن سحابياً";
-            
-            // الاستماع لتغييرات الأجهزة في قاعدة البيانات
             onSnapshot(collection(db, "salon_devices"), (snapshot) => {
                 salonDevicesList = [];
                 snapshot.forEach((docSnap) => {
@@ -435,7 +447,7 @@
         function renderDevicesGrid() {
             let container = document.getElementById('devices-container');
             if (salonDevicesList.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1/-1; padding: 20px;">لا توجد أجهزة مضافة في هذه الصالة بعد.</div>';
+                container.innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1/-1; padding: 30px;">لا توجد أجهزة مضافة. يرجى الضغط على أيقونة الإعدادات (⚙️) في الأعلى لإضافة الأجهزة.</div>';
                 return;
             }
 
@@ -615,7 +627,7 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول للصالة أو الإدارة العامة -->
+    <!-- شاشة تسجيل الدخول -->
     <div id="auth-screen" class="auth-container">
         <img src="https://img.icons8.com/color/96/play-station.png" alt="Icon" style="width: 64px; margin-bottom: 10px;">
         <h2>تسجيل دخول الصالة / المركز</h2>
@@ -627,10 +639,13 @@
 
     <!-- واجهة التطبيق الرئيسية -->
     <div id="app-screen" style="display: none;">
+        
+        <!-- الهيدر العلوي ويحتوي على أيقونة الإعدادات المنفصلة -->
         <header>
-            <h1><img src="https://img.icons8.com/color/32/play-station.png" style="vertical-align: middle;"> نظام إدارة صالات الألعاب والـ PC</h1>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span id="salon-welcome" style="font-size: 13px; color: var(--accent-blue); font-weight: bold;"></span>
+            <h1><img src="https://img.icons8.com/color/32/play-station.png" style="vertical-align: middle;"> صالة الألعاب</h1>
+            <div class="header-actions">
+                <span id="salon-welcome" style="font-size: 12px; color: var(--accent-blue); font-weight: bold;"></span>
+                <button class="settings-icon-btn" onclick="openSettingsView()" title="الإعدادات وإدارة الأجهزة">⚙️ الإعدادات</button>
                 <button class="logout-btn" onclick="logout()">خروج</button>
             </div>
         </header>
@@ -639,53 +654,63 @@
             <span class="sync-status" id="sync-text">⏳ جاري الاتصال...</span>
         </div>
 
-        <!-- لوحة التحكم العامة (تظهر فقط للمدير العام HA لإضافة صالات جديدة) -->
-        <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple);">
-            <h3>👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                <input type="text" id="new-salon-name" placeholder="اسم الصالة الجديدة (مثلاً: فرع_المزة)">
-                <input type="password" id="new-salon-pass" placeholder="كلمة مرور الصالة">
+        <!-- العرض الأساسي (لوحة الأجهزة والمراقبة) -->
+        <div id="main-dashboard-view">
+            <div class="stats-bar">
+                <div class="stat-box" style="color: #34d399;">المتاح <span id="stat-avail">0</span></div>
+                <div class="stat-box" style="color: #f87171;">المشغول <span id="stat-busy">0</span></div>
+                <div class="stat-box" style="color: #fbbf24;">إيرادات الصالة <span id="stat-revenue">0 ليرة</span></div>
             </div>
-            <button class="main-btn" style="background: var(--accent-purple);" onclick="addSalonCenter()">➕ إنشاء صالة جديدة</button>
-            <h4 style="margin: 15px 0 5px 0; font-size: 14px; color: var(--accent-blue);">قائمة الصالات والمراكز المسجلة:</h4>
-            <div id="salons-list-container" class="item-list">جاري التحميل...</div>
-        </div>
 
-        <!-- لوحة تحكم الصالة (لإضافة وتعديل الأجهزة والبلايستيشن والـ PC) -->
-        <div id="salon-admin-section" class="admin-panel" style="display: none;">
-            <h3>🛠️ إدارة أجهزة الصالة (إضافة / تعديل أجهزة PS و PC)</h3>
-            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
-                <input type="text" id="dev-id" placeholder="معرف رقمي (مثلاً: 1, 2)">
-                <input type="text" id="dev-name" placeholder="اسم الجهاز (مثلاً: PS5 Pro - VIP 1)">
-                <select id="dev-type">
-                    <option value="ps">بلايستيشن (PlayStation)</option>
-                    <option value="pc">كمبيوتر (PC)</option>
-                </select>
+            <div class="grid" id="devices-container">
+                <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">جاري تحميل الأجهزة...</div>
             </div>
-            <button class="main-btn" style="background: var(--accent-green);" onclick="addDeviceToSalon()">➕ إضافة الجهاز للصالة</button>
-            <h4 style="margin: 15px 0 5px 0; font-size: 14px; color: var(--accent-blue);">أجهزة هذه الصالة الحالية:</h4>
-            <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
-        </div>
 
-        <!-- شريط الإحصائيات -->
-        <div class="stats-bar">
-            <div class="stat-box" style="color: #34d399;">المتاح <span id="stat-avail">0</span></div>
-            <div class="stat-box" style="color: #f87171;">المشغول <span id="stat-busy">0</span></div>
-            <div class="stat-box" style="color: #fbbf24;">إيرادات الصالة <span id="stat-revenue">0 ليرة</span></div>
-        </div>
-
-        <!-- شبكة الأجهزة -->
-        <div class="grid" id="devices-container">
-            <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">جاري تحميل الأجهزة...</div>
-        </div>
-
-        <!-- سجل الفواتير -->
-        <div class="history-section">
-            <h3>📋 سجل فواتير وجلسات الصالة اليوم</h3>
-            <div class="history-list" id="history-container">
-                <div style="color: var(--text-muted); text-align: center; padding: 10px;">لا توجد جلسات مسجلة اليوم حتى الآن</div>
+            <div class="history-section">
+                <h3>📋 سجل فواتير وجلسات الصالة اليوم</h3>
+                <div class="history-list" id="history-container">
+                    <div style="color: var(--text-muted); text-align: center; padding: 10px;">لا توجد جلسات مسجلة اليوم حتى الآن</div>
+                </div>
             </div>
         </div>
+
+        <!-- واجهة إعدادات منفصلة بالكامل (تفتح عند الضغط على زر الإعدادات ⚙️) -->
+        <div id="settings-view-panel" class="settings-view">
+            <h2>
+                <span>⚙️ إعدادات النظام وإدارة الأجهزة</span>
+                <button onclick="closeSettingsView()" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
+            </h2>
+
+            <!-- لوحة المدير العام (للإدارة العامة) -->
+            <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple); margin-top: 15px;">
+                <h3 style="color: var(--accent-purple); margin-top:0;">👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                    <input type="text" id="new-salon-name" placeholder="اسم الصالة الجديدة">
+                    <input type="password" id="new-salon-pass" placeholder="كلمة مرور الصالة">
+                </div>
+                <button class="main-btn" style="background: var(--accent-purple);" onclick="addSalonCenter()">➕ إنشاء صالة جديدة</button>
+                <h4 style="margin: 15px 0 5px 0; font-size: 14px; color: var(--accent-blue);">قائمة الصالات والمراكز المسجلة:</h4>
+                <div id="salons-list-container" class="item-list">جاري التحميل...</div>
+            </div>
+
+            <!-- لوحة إضافة وإزالة الأجهزة للصالاة الحالية -->
+            <div class="admin-panel" style="margin-top: 15px;">
+                <h3 style="color: var(--accent-blue); margin-top:0;">🖥️➕ إضافة جهاز جديد (PlayStation أو PC)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
+                    <input type="text" id="dev-id" placeholder="الرقم المعرف (1, 2...)">
+                    <input type="text" id="dev-name" placeholder="اسم الجهاز (مثلاً: PS5 - VIP)">
+                    <select id="dev-type">
+                        <option value="ps">بلايستيشن (PlayStation)</option>
+                        <option value="pc">كمبيوتر (PC)</option>
+                    </select>
+                </div>
+                <button class="main-btn" style="background: var(--accent-green);" onclick="addDeviceToSalon()">➕ حفظ وإضافة الجهاز</button>
+                
+                <h4 style="margin: 20px 0 8px 0; font-size: 14px; color: var(--accent-blue);">قائمة الأجهزة الحالية في الصالة (إدارة وحذف):</h4>
+                <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
+            </div>
+        </div>
+
     </div>
 
 </body>
