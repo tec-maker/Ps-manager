@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة صالات الألعاب - تسعير متعدد اللاعبين</title>
+    <title>نظام إدارة صالات الألعاب - متعدد اللغات</title>
     <meta name="theme-color" content="#090d16">
     <link rel="icon" href="https://img.icons8.com/color/96/play-station.png">
     <style>
@@ -19,7 +19,7 @@
             --accent-orange: #d97706;
             --border-color: #1f2937;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; direction: rtl; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; }
         
         header { text-align: center; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 20px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
         header h1 { margin: 0; font-size: 18px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
@@ -98,6 +98,155 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // القواميس للغات الأربعة
+        const translations = {
+            ar: {
+                loginTitle: "تسجيل دخول الصالة / المركز",
+                usernamePh: "اسم الصالة (أو HA للإدارة العامة)",
+                passwordPh: "كلمة المرور",
+                loginBtn: "دخول النظام",
+                brandTitle: "صالة الألعاب",
+                settingsBtn: "⚙️ الإعدادات",
+                syncing: "⏳ جاري الاتصال...",
+                synced: "⚡ متزامن سحابياً",
+                available: "المتاح",
+                busy: "المشغول",
+                revenue: "إيرادات الصالة",
+                historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم",
+                noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن",
+                settingsTitle: "⚙️ إعدادات النظام وإدارة الأجهزة والتسعير",
+                closeSettings: "✖ إغلاق ورجوع",
+                superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)",
+                newSalonNamePh: "اسم الصالة الجديدة",
+                newSalonPassPh: "كلمة مرور الصالة",
+                createSalonBtn: "➕ إنشاء صالة جديدة",
+                salonsListTitle: "قائمة الصالات والمراكز المسجلة:",
+                addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط",
+                devIdPh: "الرقم المعرف (1, 2...)",
+                devNamePh: "اسم الجهاز (مثلاً: PS5 - VIP)",
+                psOption: "بلايستيشن (PlayStation)",
+                pcOption: "حاسوب (PC)",
+                singleLabel: "فردي",
+                doubleLabel: "ثنائي",
+                tripleLabel: "ثلاثي",
+                quadLabel: "رباعي",
+                pcRateLabel: "سعر ساعة PC",
+                addDeviceBtn: "➕ حفظ وإضافة الجهاز",
+                devicesListTitle: "قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:",
+                logoutBtn: "🚪 تسجيل الخروج من الصالة",
+                langLabel: "لغة التطبيق / App Language:"
+            },
+            en: {
+                loginTitle: "Salon / Center Login",
+                usernamePh: "Salon Name (or HA for Superadmin)",
+                passwordPh: "Password",
+                loginBtn: "Login",
+                brandTitle: "Gaming Lounge",
+                settingsBtn: "⚙️ Settings",
+                syncing: "⏳ Connecting...",
+                synced: "⚡ Cloud Synced",
+                available: "Available",
+                busy: "Busy",
+                revenue: "Salon Revenue",
+                historyTitle: "📋 Today's Invoices & Sessions History",
+                noHistory: "No sessions recorded today yet",
+                settingsTitle: "⚙️ System Settings & Device Management",
+                closeSettings: "✖ Close & Return",
+                superAdminTitle: "👑 Central Control Panel (Salons Management)",
+                newSalonNamePh: "New Salon Name",
+                newSalonPassPh: "Salon Password",
+                createSalonBtn: "➕ Create New Salon",
+                salonsListTitle: "Registered Salons List:",
+                addDeviceTitle: "🖥️➕ Add New Device & Set Pricing",
+                devIdPh: "Device ID (1, 2...)",
+                devNamePh: "Device Name (e.g., PS5 - VIP)",
+                psOption: "PlayStation",
+                pcOption: "PC",
+                singleLabel: "Single",
+                doubleLabel: "Double",
+                tripleLabel: "Triple",
+                quadLabel: "Quad",
+                pcRateLabel: "PC Hourly Rate",
+                addDeviceBtn: "➕ Save & Add Device",
+                devicesListTitle: "Devices List & Individual Repricing:",
+                logoutBtn: "🚪 Logout from Salon",
+                langLabel: "App Language / لغة التطبيق:"
+            },
+            tr: {
+                loginTitle: "Salon / Merkez Girişi",
+                usernamePh: "Salon Adı (veya Süper Yönetici için HA)",
+                passwordPh: "Şifre",
+                loginBtn: "Giriş Yap",
+                brandTitle: "Oyun Salonu",
+                settingsBtn: "⚙️ Ayarlar",
+                syncing: "⏳ Bağlanıyor...",
+                synced: "⚡ Bulut Senkronize",
+                available: "Müsait",
+                busy: "Meşgul",
+                revenue: "Salon Geliri",
+                historyTitle: "📋 Bugünkü Faturalar ve Oturum Geçmişi",
+                noHistory: "Bugün henüz kayıtlı oturum yok",
+                settingsTitle: "⚙️ Sistem Ayarları ve Cihaz Yönetimi",
+                closeSettings: "✖ Kapat ve Dön",
+                superAdminTitle: "👑 Merkezi Kontrol Paneli (Salon Yönetimi)",
+                newSalonNamePh: "Yeni Salon Adı",
+                newSalonPassPh: "Salon Şifresi",
+                createSalonBtn: "➕ Yeni Salon Oluştur",
+                salonsListTitle: "Kayıtlı Salonlar Listesi:",
+                addDeviceTitle: "🖥️➕ Yeni Cihaz Ekle ve Fiyat Belirle",
+                devIdPh: "Cihaz ID (1, 2...)",
+                devNamePh: "Cihaz Adı (örn: PS5 - VIP)",
+                psOption: "PlayStation",
+                pcOption: "Bilgisayar (PC)",
+                singleLabel: "Tek",
+                doubleLabel: "Çift",
+                tripleLabel: "Üçlü",
+                quadLabel: "Dörtlü",
+                pcRateLabel: "PC Saatlik Ücreti",
+                addDeviceBtn: "➕ Kaydet ve Cihaz Ekle",
+                devicesListTitle: "Cihaz Listesi ve Fiyatlandırma:",
+                logoutBtn: "🚪 Salondan Çıkış Yap",
+                langLabel: "Uygulama Dili / App Language:"
+            },
+            fr: {
+                loginTitle: "Connexion Salon / Centre",
+                usernamePh: "Nom du Salon (ou HA pour Superadmin)",
+                passwordPh: "Mot de passe",
+                loginBtn: "Connexion",
+                brandTitle: "Salon de Jeux",
+                settingsBtn: "⚙️ Paramètres",
+                syncing: "⏳ Connexion...",
+                synced: "⚡ Synchronisé Cloud",
+                available: "Disponible",
+                busy: "Occupé",
+                revenue: "Revenu du Salon",
+                historyTitle: "📋 Historique des Factures et Sessions",
+                noHistory: "Aucune session enregistrée aujourd'hui",
+                settingsTitle: "⚙️ Paramètres Système et Gestion des Appareils",
+                closeSettings: "✖ Fermer et Retour",
+                superAdminTitle: "👑 Panneau de Contrôle Central (Gestion Salons)",
+                newSalonNamePh: "Nom du Nouveau Salon",
+                newSalonPassPh: "Mot de passe du Salon",
+                createSalonBtn: "➕ Créer un Nouveau Salon",
+                salonsListTitle: "Liste des Salons Enregistrés:",
+                addDeviceTitle: "🖥️➕ Ajouter un Appareil & Définir les Tarifs",
+                devIdPh: "ID de l'appareil (1, 2...)",
+                devNamePh: "Nom de l'appareil (ex: PS5 - VIP)",
+                psOption: "PlayStation",
+                pcOption: "PC",
+                singleLabel: "Solo",
+                doubleLabel: "Duo",
+                tripleLabel: "Trio",
+                quadLabel: "Quاتو / Quatuor",
+                pcRateLabel: "Tarif Horaire PC",
+                addDeviceBtn: "➕ Enregistrer et Ajouter",
+                devicesListTitle: "Liste des Appareils & Tarification:",
+                logoutBtn: "🚪 Déconnexion du Salon",
+                langLabel: "Langue de l'App / لغة التطبيق:"
+            }
+        };
+
+        let currentLang = localStorage.getItem('ps_current_lang') || 'ar';
         let devicesData = {};
         let salonDevicesList = [];
         let totalRevenue = 0;
@@ -106,7 +255,45 @@
         let tempTypes = {};
         let currentSalon = null;
 
+        function t(key) {
+            return translations[currentLang][key] || translations['ar'][key] || key;
+        }
+
+        window.changeLanguage = function(lang) {
+            currentLang = lang;
+            localStorage.setItem('ps_current_lang', lang);
+            document.documentElement.lang = lang;
+            document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            
+            // تحديث قيم النصوص في واجهة تسجيل الدخول والإعدادات الحالية
+            updateStaticTexts();
+            if (salonDevicesList.length > 0) renderDevicesGrid();
+        }
+
+        function updateStaticTexts() {
+            // تحديث نصوص شاشة الدخول
+            let authH2 = document.querySelector('#auth-screen h2');
+            if(authH2) authH2.innerText = t('loginTitle');
+            let uInput = document.getElementById('username');
+            if(uInput) uInput.placeholder = t('usernamePh');
+            let pInput = document.getElementById('password');
+            if(pInput) pInput.placeholder = t('passwordPh');
+            let loginBtn = document.querySelector('#auth-screen button.main-btn');
+            if(loginBtn) loginBtn.innerText = t('loginBtn');
+
+            // تحديث لغة القوائم المنسدلة للغة
+            let langSelects = document.querySelectorAll('.lang-select');
+            langSelects.forEach(sel => sel.value = currentLang);
+        }
+
         window.onload = function() {
+            let savedLang = localStorage.getItem('ps_current_lang');
+            if (savedLang) {
+                currentLang = savedLang;
+            }
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+
             let savedSalon = localStorage.getItem('ps_current_salon');
             if (savedSalon) {
                 try {
@@ -124,6 +311,7 @@
         function showAuthScreen() {
             document.getElementById('auth-screen').style.display = 'block';
             document.getElementById('app-screen').style.display = 'none';
+            updateStaticTexts();
         }
 
         window.login = async function() {
@@ -132,7 +320,7 @@
             let err = document.getElementById('login-error');
 
             if (!u || !p) {
-                err.innerText = "الرجاء إدخال اسم الصالة وكلمة المرور";
+                err.innerText = currentLang === 'ar' ? "الرجاء إدخال اسم الصالة وكلمة المرور" : "Please enter salon name and password";
                 return;
             }
 
@@ -151,11 +339,17 @@
                     localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
                     initSession();
                 } else {
-                    err.innerText = "اسم الصالة أو كلمة المرور غير صحيحة!";
+                    err.innerText = currentLang === 'ar' ? "اسم الصالة أو كلمة المرور غير صحيحة!" : "Incorrect salon name or password!";
                 }
             } catch (e) {
-                err.innerText = "حدث خطأ أثناء الاتصال بقاعدة البيانات.";
+                err.innerText = currentLang === 'ar' ? "حدث خطأ أثناء الاتصال بقاعدة البيانات." : "Database connection error.";
             }
+        }
+
+        window.logout = function() {
+            currentSalon = null;
+            localStorage.removeItem('ps_current_salon');
+            showAuthScreen();
         }
 
         function initSession() {
@@ -172,6 +366,7 @@
 
             loadSalonDevicesConfig();
             initCloudDevices();
+            updateStaticTexts();
         }
 
         window.openSettingsView = function() {
@@ -188,11 +383,11 @@
             let name = document.getElementById('new-salon-name').value.trim();
             let pass = document.getElementById('new-salon-pass').value.trim();
             if (!name || !pass) {
-                alert("الرجاء إدخال اسم الصالة وكلمة المرور");
+                alert("Please fill all fields");
                 return;
             }
             await setDoc(doc(db, "salons", name), { name: name, password: pass });
-            alert(`تم إنشاء صالة ${name} بنجاح!`);
+            alert(`Salon ${name} created successfully!`);
             document.getElementById('new-salon-name').value = '';
             document.getElementById('new-salon-pass').value = '';
             loadSalonsList();
@@ -200,22 +395,22 @@
 
         async function loadSalonsList() {
             let listDiv = document.getElementById('salons-list-container');
-            listDiv.innerHTML = "جاري التحميل...";
+            listDiv.innerHTML = "Loading...";
             let querySnapshot = await getDocs(collection(db, "salons"));
             if (querySnapshot.empty) {
-                listDiv.innerHTML = "لا توجد صالات مضافة حتى الآن.";
+                listDiv.innerHTML = "No salons found.";
                 return;
             }
             let html = "";
             querySnapshot.forEach((docSnap) => {
                 let data = docSnap.data();
-                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#030712; padding:8px; margin-top:5px; border-radius:6px;"><span>🏢 صالة: <b>${data.name}</b></span> <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:3px 8px; border-radius:4px; cursor:pointer; width:auto;">حذف</button></div>`;
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#030712; padding:8px; margin-top:5px; border-radius:6px;"><span>🏢 Salon: <b>${data.name}</b></span> <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:3px 8px; border-radius:4px; cursor:pointer; width:auto;">Delete</button></div>`;
             });
             listDiv.innerHTML = html;
         }
 
         window.deleteSalon = async function(name) {
-            if (confirm(`هل أنت متأكد من حذف صالة ${name}؟`)) {
+            if (confirm(`Delete salon ${name}?`)) {
                 await deleteDoc(doc(db, "salons", name));
                 loadSalonsList();
             }
@@ -233,7 +428,7 @@
             let ratePc = parseInt(document.getElementById('rate-pc').value) || 150;
 
             if (!devId || !devName) {
-                alert("الرجاء إدخال رقم المعرف واسم الجهاز");
+                alert("Please enter ID and Device Name");
                 return;
             }
 
@@ -264,7 +459,7 @@
 
         async function loadSalonDevicesConfig() {
             let listDiv = document.getElementById('salon-devices-list');
-            listDiv.innerHTML = "جاري التحميل...";
+            listDiv.innerHTML = "Loading...";
             let querySnapshot = await getDocs(collection(db, "salon_devices"));
             salonDevicesList = [];
             
@@ -276,7 +471,7 @@
             });
 
             if (salonDevicesList.length === 0) {
-                listDiv.innerHTML = "لا توجد أجهزة مضافة في هذه الصالة بعد.";
+                listDiv.innerHTML = "No devices added yet.";
                 return;
             }
 
@@ -288,21 +483,21 @@
                 html += `
                     <div class="item-row">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <span>${icon} - <b>${dev.name}</b> (معرف: ${dev.deviceId})</span>
-                            <button onclick="removeDevice('${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px;">حذف الجهاز</button>
+                            <span>${icon} - <b>${dev.name}</b> (ID: ${dev.deviceId})</span>
+                            <button onclick="removeDevice('${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px;">Delete</button>
                         </div>
-                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">تعديل أسعار الساعة لكل نمط:</div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">Edit hourly rates:</div>
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:5px; margin-bottom:8px;">
                             ${dev.category === 'ps' ? `
-                                <div>فردي: <input type="number" id="r-single-${dev.deviceId}" value="${r['فردي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
-                                <div>ثنائي: <input type="number" id="r-double-${dev.deviceId}" value="${r['ثنائي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
-                                <div>ثلاثي: <input type="number" id="r-triple-${dev.deviceId}" value="${r['ثلاثي'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
-                                <div>رباعي: <input type="number" id="r-quad-${dev.deviceId}" value="${r['رباعي'] || 200}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>Single: <input type="number" id="r-single-${dev.deviceId}" value="${r['فردي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>Double: <input type="number" id="r-double-${dev.deviceId}" value="${r['ثنائي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>Triple: <input type="number" id="r-triple-${dev.deviceId}" value="${r['ثلاثي'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>Quad: <input type="number" id="r-quad-${dev.deviceId}" value="${r['رباعي'] || 200}" style="padding:4px; margin:0; text-align:center;"></div>
                             ` : `
-                                <div style="grid-column: span 2;">سعر ساعة PC: <input type="number" id="r-pc-${dev.deviceId}" value="${r['PC'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div style="grid-column: span 2;">PC Rate: <input type="number" id="r-pc-${dev.deviceId}" value="${r['PC'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
                             `}
                         </div>
-                        <button onclick="updateDeviceRates('${dev.deviceId}', '${dev.category}')" style="background:var(--accent-blue); border:none; color:#fff; padding:6px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">💾 حفظ التعديلات وتحديث الأسعار</button>
+                        <button onclick="updateDeviceRates('${dev.deviceId}', '${dev.category}')" style="background:var(--accent-blue); border:none; color:#fff; padding:6px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">💾 Save Rates</button>
                     </div>`;
             });
             listDiv.innerHTML = html;
@@ -324,12 +519,12 @@
 
             let docId = `${currentSalon.name}_${devId}`;
             await setDoc(doc(db, "salon_devices", docId), { ...d, rates: updatedRates }, { merge: true });
-            alert(`تم تحديث أسعار الجهاز ${d.name} بنجاح!`);
+            alert("Rates updated successfully!");
             loadSalonDevicesConfig();
         }
 
         window.removeDevice = async function(devId) {
-            if (confirm("هل تريد حذف هذا الجهاز نهائياً من الصالة؟")) {
+            if (confirm("Delete this device?")) {
                 let docId = `${currentSalon.name}_${devId}`;
                 await deleteDoc(doc(db, "salon_devices", docId));
                 loadSalonDevicesConfig();
@@ -339,8 +534,8 @@
         function speakDeviceNameLoud(deviceName) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                let utterance = new SpeechSynthesisUtterance(`انتهى وقت ${deviceName}`);
-                utterance.lang = 'ar-SA';
+                let utterance = new SpeechSynthesisUtterance(`Time ended for ${deviceName}`);
+                utterance.lang = currentLang === 'ar' ? 'ar-SA' : (currentLang === 'tr' ? 'tr-TR' : (currentLang === 'fr' ? 'fr-FR' : 'en-US'));
                 utterance.rate = 0.95;
                 window.speechSynthesis.speak(utterance);
             }
@@ -360,7 +555,7 @@
         }
 
         function initCloudDevices() {
-            document.getElementById('sync-text').innerText = "⚡ متزامن سحابياً";
+            document.getElementById('sync-text').innerText = t('synced');
             onSnapshot(collection(db, "salon_devices"), (snapshot) => {
                 salonDevicesList = [];
                 snapshot.forEach((docSnap) => {
@@ -429,9 +624,9 @@
         }
 
         window.addToDeviceTab = async function(devId) {
-            let itemName = prompt("أدخل اسم الطلب (مشروب / وجبة):", "مشروب");
+            let itemName = prompt("Enter item name (Drink / Meal):", "Drink");
             if (!itemName) return;
-            let itemPrice = prompt(`أدخل سعر ${itemName} (بالليرة):`, "50");
+            let itemPrice = prompt(`Enter price for ${itemName}:`, "50");
             if (!itemPrice || isNaN(itemPrice)) return;
 
             let d = devicesData[devId];
@@ -461,17 +656,17 @@
             if (d.posItems && d.posItems.length > 0) {
                 d.posItems.forEach(item => {
                     posTotal += item.price;
-                    posDetails += `\n- ${item.name}: ${item.price} ليرة`;
+                    posDetails += `\n- ${item.name}: ${item.price}`;
                 });
             }
 
             let grandTotal = timeCost + posTotal;
-            alert(`🧾 إيصال فاتورة ${d.name} (${d.type}):\n- أجر الوقت (${totalMins} د): ${timeCost} ليرة${posDetails}\n------------------\n الإجمالي النهائي: ${grandTotal} ليرة`);
+            alert(`🧾 Invoice for ${d.name} (${d.type}):\n- Time Cost (${totalMins} min): ${timeCost}${posDetails}\n------------------\n Grand Total: ${grandTotal}`);
 
             totalRevenue += grandTotal;
             let timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             historyLogs.unshift({
-                text: `${d.name} (${d.type}) - ${totalMins} د`,
+                text: `${d.name} (${d.type}) - ${totalMins}m`,
                 price: grandTotal,
                 time: timeString
             });
@@ -491,7 +686,7 @@
         function renderDevicesGrid() {
             let container = document.getElementById('devices-container');
             if (salonDevicesList.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:var(--text-muted); grid-column: 1/-1; padding: 30px;">لا توجد أجهزة مضافة. يرجى الضغط على أيقونة الإعدادات (⚙️) في الأعلى لإضافة الأجهزة وتحديد أسعارها.</div>';
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); grid-column: 1/-1; padding: 30px;">No devices found. Use Settings (⚙️) to add devices.</div>`;
                 return;
             }
 
@@ -500,7 +695,7 @@
                 let isBusy = d.busy;
                 let iconSymbol = d.category === 'pc' ? '🖥️ PC' : '🎮 PS';
                 let cardClass = isBusy ? 'card busy' : 'card available';
-                let statusText = isBusy ? 'مشغول 🔴' : 'متاح 🟢';
+                let statusText = isBusy ? 'Busy 🔴' : 'Available 🟢';
                 let r = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
 
                 html += `<div class="${cardClass}" id="card-${d.deviceId}">`;
@@ -517,31 +712,31 @@
                     
                     if (d.category === 'ps') {
                         html += `
-                            <div style="font-size: 11px; color: var(--accent-blue); margin-bottom: 5px;">الأسعار: [فردي:${r['فردي']} | ثنائي:${r['ثنائي']} | ثلاثي:${r['ثلاثي']} | رباعي:${r['رباعي']}]</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">اختر نمط اللعب:</div>
+                            <div style="font-size: 11px; color: var(--accent-blue); margin-bottom: 5px;">Rates: [1P:${r['فردي']} | 2P:${r['ثنائي']} | 3P:${r['ثلاثي']} | 4P:${r['رباعي']}]</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Select Game Mode:</div>
                             <div class="type-buttons">
-                                <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">فردي (${r['فردي']})</button>
-                                <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">ثنائي (${r['ثنائي']})</button>
-                                <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">ثلاثي (${r['ثلاثي']})</button>
-                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">رباعي (${r['رباعي']})</button>
+                                <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')} (${r['فردي']})</button>
+                                <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')} (${r['ثنائي']})</button>
+                                <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">${t('tripleLabel')} (${r['ثلاثي']})</button>
+                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')} (${r['رباعي']})</button>
                             </div>
                         `;
                     } else {
-                        html += `<div style="font-size: 12px; color: var(--text-muted);">نوع الجهاز: <b>حاسوب PC (${r['PC']} ليرة/ساعة)</b></div>`;
+                        html += `<div style="font-size: 12px; color: var(--text-muted);">Device Type: <b>PC (${r['PC']}/hr)</b></div>`;
                     }
 
                     html += `
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">مدة الجلسة (دقائق - 0 لمفتوح):</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Duration (mins - 0 for open):</div>
                         <input type="number" id="duration-${d.deviceId}" value="0" min="0">
                         <div class="time-buttons">
-                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 5)">+5د</button>
-                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 15)">+15د</button>
-                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 30)">+30د</button>
-                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 60)">+1س</button>
-                            <button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -5)">-5د</button>
-                            <button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -15)">-15د</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 5)">+5m</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 15)">+15m</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 30)">+30m</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 60)">+1h</button>
+                            <button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -5)">-5m</button>
+                            <button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -15)">-15m</button>
                         </div>
-                        <button class="start" onclick="startDeviceCloud('${d.deviceId}')">▶ بدء الجلسة</button>
+                        <button class="start" onclick="startDeviceCloud('${d.deviceId}')">▶ Start Session</button>
                     `;
                 } else {
                     let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
@@ -556,7 +751,7 @@
                         let remaining = Math.max(0, targetSeconds - diffSeconds);
                         let remMins = Math.floor(remaining / 60);
                         let remSecs = remaining % 60;
-                        timeFormatted = isTimeEnded ? "⏰ انتهى الوقت!" : `⏳ متبقي: ${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
+                        timeFormatted = isTimeEnded ? "⏰ Time Ended!" : `⏳ Left: ${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
                     } else {
                         let hours = Math.floor(diffSeconds / 3600);
                         let mins = Math.floor((diffSeconds % 3600) / 60);
@@ -579,23 +774,23 @@
                     let grandTotal = timeCost + posTotal;
 
                     html += `
-                        <div class="info" style="margin-top: 5px;"><span>النمط:</span> <b style="color:var(--accent-blue);">${d.type}</b></div>
-                        <div class="info"><span>الوقت:</span> <span class="timer-val" id="timer-${d.deviceId}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
-                        <div class="info"><span>حساب الوقت:</span> <span id="timecost-${d.deviceId}">${timeCost} ليرة</span></div>
-                        <div class="info" style="align-items:center;"><span>الطلبات:</span> <div style="display:flex; flex-wrap:wrap; gap:2px;">${itemsListHtml || '<span style="color:#4b5563;font-size:11px;">لا توجد</span>'}</div></div>
-                        <div class="info"><span>الإجمالي:</span> <span class="cost-val" id="cost-${d.deviceId}">${grandTotal} ليرة</span></div>
+                        <div class="info" style="margin-top: 5px;"><span>Mode:</span> <b style="color:var(--accent-blue);">${d.type}</b></div>
+                        <div class="info"><span>Time:</span> <span class="timer-val" id="timer-${d.deviceId}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
+                        <div class="info"><span>Time Cost:</span> <span id="timecost-${d.deviceId}">${timeCost}</span></div>
+                        <div class="info" style="align-items:center;"><span>Orders:</span> <div style="display:flex; flex-wrap:wrap; gap:2px;">${itemsListHtml || '<span style="color:#4b5563;font-size:11px;">None</span>'}</div></div>
+                        <div class="info"><span>Total:</span> <span class="cost-val" id="cost-${d.deviceId}">${grandTotal}</span></div>
                         
-                        <button class="pos-btn" onclick="addToDeviceTab('${d.deviceId}')">🛒 إضافة طلب للفاتورة</button>
+                        <button class="pos-btn" onclick="addToDeviceTab('${d.deviceId}')">🛒 Add Order</button>
 
                         <div class="time-buttons" style="margin-top:8px;">
-                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 5)">+5د</button>
-                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 15)">+15د</button>
-                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 30)">+30د</button>
-                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -5)">-5د</button>
-                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -15)">-15د</button>
-                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -30)">-30د</button>
+                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 5)">+5m</button>
+                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 15)">+15m</button>
+                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 30)">+30m</button>
+                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -5)">-5m</button>
+                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -15)">-15m</button>
+                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -30)">-30m</button>
                         </div>
-                        <button class="stop" onclick="stopDeviceCloud('${d.deviceId}')">⏹ إيقاف الجلسة والحساب</button>
+                        <button class="stop" onclick="stopDeviceCloud('${d.deviceId}')">⏹ Stop & Bill</button>
                     `;
                 }
                 html += `</div>`;
@@ -608,7 +803,7 @@
             let availCount = salonDevicesList.length - busyCount;
             document.getElementById('stat-avail').innerText = availCount;
             document.getElementById('stat-busy').innerText = busyCount;
-            document.getElementById('stat-revenue').innerText = totalRevenue + " ليرة";
+            document.getElementById('stat-revenue').innerText = totalRevenue;
         }
 
         setInterval(() => {
@@ -626,7 +821,7 @@
                         let remaining = Math.max(0, targetSeconds - diffSeconds);
                         let remMins = Math.floor(remaining / 60);
                         let remSecs = remaining % 60;
-                        timeFormatted = isTimeEnded ? "⏰ انتهى الوقت!" : `⏳ متبقي: ${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
+                        timeFormatted = isTimeEnded ? "⏰ Time Ended!" : `⏳ Left: ${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
                     } else {
                         let hours = Math.floor(diffSeconds / 3600);
                         let mins = Math.floor((diffSeconds % 3600) / 60);
@@ -653,8 +848,8 @@
                         timerEl.innerText = timeFormatted;
                         if (isTimeEnded) timerEl.style.color = '#dc2626';
                     }
-                    if (timeCostEl) timeCostEl.innerText = timeCost + " ليرة";
-                    if (costEl) costEl.innerText = grandTotal + " ليرة";
+                    if (timeCostEl) timeCostEl.innerText = timeCost;
+                    if (costEl) costEl.innerText = grandTotal;
                 }
             });
         }, 1000);
@@ -662,12 +857,12 @@
         window.renderHistory = function() {
             const histContainer = document.getElementById('history-container');
             if (historyLogs.length === 0) {
-                histContainer.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 10px;">لا توجد جلسات مسجلة اليوم</div>`;
+                histContainer.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 10px;">No sessions recorded today</div>`;
                 return;
             }
             let html = '';
             historyLogs.forEach(item => {
-                html += `<div class="history-item"><span>${item.text} <small style="color: var(--text-muted);">(${item.time})</small></span><b style="color: #34d399;">+${item.price} ليرة</b></div>`;
+                html += `<div class="history-item"><span>${item.text} <small style="color: var(--text-muted);">(${item.time})</small></span><b style="color: #34d399;">+${item.price}</b></div>`;
             });
             histContainer.innerHTML = html;
         }
@@ -681,6 +876,18 @@
         <h2>تسجيل دخول الصالة / المركز</h2>
         <input type="text" id="username" placeholder="اسم الصالة (أو HA للإدارة العامة)">
         <input type="password" id="password" placeholder="كلمة المرور">
+        
+        <!-- خيار تغيير اللغة عند تسجيل الدخول -->
+        <div style="margin-top: 15px; text-align: left;">
+            <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Language / اللغة:</label>
+            <select class="lang-select" onchange="changeLanguage(this.value)" style="margin-top:0;">
+                <option value="ar">العربية (Arabic)</option>
+                <option value="en">English</option>
+                <option value="tr">Türkçe</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+
         <button class="main-btn" onclick="login()">دخول النظام</button>
         <div id="login-error" style="color: var(--accent-red); margin-top: 10px; font-size: 13px;"></div>
     </div>
@@ -692,7 +899,7 @@
             <h1><img src="https://img.icons8.com/color/32/play-station.png" style="vertical-align: middle;"> صالة الألعاب</h1>
             <div class="header-actions">
                 <span id="salon-welcome" style="font-size: 12px; color: var(--accent-blue); font-weight: bold;"></span>
-                <button class="settings-icon-btn" onclick="openSettingsView()" title="الإعدادات وإدارة الأجهزة">⚙️ الإعدادات</button>
+                <button class="settings-icon-btn" onclick="openSettingsView()" title="الإعدادات">⚙️ الإعدادات</button>
             </div>
         </header>
 
@@ -705,11 +912,11 @@
             <div class="stats-bar">
                 <div class="stat-box" style="color: #34d399;">المتاح <span id="stat-avail">0</span></div>
                 <div class="stat-box" style="color: #f87171;">المشغول <span id="stat-busy">0</span></div>
-                <div class="stat-box" style="color: #fbbf24;">إيرادات الصالة <span id="stat-revenue">0 ليرة</span></div>
+                <div class="stat-box" style="color: #fbbf24;">إيرادات الصالة <span id="stat-revenue">0</span></div>
             </div>
 
             <div class="grid" id="devices-container">
-                <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">جاري تحميل الأجهزة...</div>
+                <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Loading devices...</div>
             </div>
 
             <div class="history-section">
@@ -726,6 +933,17 @@
                 <span>⚙️ إعدادات النظام وإدارة الأجهزة والتسعير</span>
                 <button onclick="closeSettingsView()" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
+
+            <!-- خيار تغيير اللغات داخل الإعدادات (أسفل العنوان) -->
+            <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-blue);">
+                <h3 style="color: var(--accent-blue); margin-top:0; font-size:14px;">🌐 لغة التطبيق / App Language / Uygulama Dili / Langue</h3>
+                <select class="lang-select" onchange="changeLanguage(this.value)">
+                    <option value="ar">العربية (Arabic)</option>
+                    <option value="en">English</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
 
             <!-- لوحة المدير العام -->
             <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple); margin-top: 15px;">
@@ -764,6 +982,11 @@
                 
                 <h4 style="margin: 20px 0 8px 0; font-size: 14px; color: var(--accent-blue);">قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:</h4>
                 <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
+            </div>
+
+            <!-- زر تسجيل الخروج بأسفل قائمة الإعدادات -->
+            <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px; text-align: center;">
+                <button onclick="logout()" style="background: var(--accent-red); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; width: 100%;">🚪 تسجيل الخروج من الصالة</button>
             </div>
         </div>
 
