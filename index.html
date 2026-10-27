@@ -348,7 +348,23 @@
             }
         };
 
-        let currentLang = localStorage.getItem('ps_current_lang') || 'ar';
+        // دالة تحديد اللغة الافتراضية الذكية حسب المتصفح / المكان، أو الإنجليزية إذا لم تطابق المدعومة
+        function getInitialLanguage() {
+            let savedLang = localStorage.getItem('ps_current_lang');
+            if (savedLang && translations[savedLang]) {
+                return savedLang;
+            }
+            let browserLang = navigator.language || navigator.userLanguage || 'en';
+            let shortLang = browserLang.substring(0, 2).toLowerCase();
+            
+            // إذا كانت لغة المتصفح مدعومة (ar, tr, fr) استخدمها، وإلا افتراضياً الإنجليزية (en)
+            if (translations[shortLang]) {
+                return shortLang;
+            }
+            return 'en';
+        }
+
+        let currentLang = getInitialLanguage();
         let devicesData = {};
         let salonDevicesList = [];
         let totalRevenue = 0;
@@ -358,7 +374,7 @@
         let currentSalon = null;
 
         function t(key) {
-            return translations[currentLang][key] || translations['ar'][key] || key;
+            return translations[currentLang][key] || translations['en'][key] || key;
         }
 
         window.changeLanguage = function(lang) {
@@ -476,8 +492,6 @@
         }
 
         window.onload = function() {
-            let savedLang = localStorage.getItem('ps_current_lang');
-            if (savedLang) currentLang = savedLang;
             document.documentElement.lang = currentLang;
             document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
 
