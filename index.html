@@ -156,7 +156,15 @@
                 statusBusy: "مشغول 🔴",
                 timeEnded: "⏰ انتهى الوقت!",
                 timeLeft: "⏳ متبقي: ",
-                defaultRatesPrompt: "تحديد سعر الساعة الافتراضي لكل نمط لاعبين:"
+                defaultRatesPrompt: "تحديد سعر الساعة الافتراضي لكل نمط لاعبين:",
+                reportSectionTitle: "📥 تقارير وتنزيل السجل والفواتير",
+                downloadDaily: "📥 تنزيل السجل اليومي",
+                downloadWeekly: "📥 تنزيل السجل الأسبوعي",
+                downloadMonthly: "📥 تنزيل السجل الشهري",
+                customRangeTitle: "تحديد مدة مخصصة (من وإلى):",
+                fromDate: "من تاريخ:",
+                toDate: "إلى تاريخ:",
+                downloadCustom: "📥 تنزيل السجل للفترة المحددة"
             },
             en: {
                 loginTitle: "Salon / Center Login",
@@ -208,7 +216,15 @@
                 statusBusy: "Busy 🔴",
                 timeEnded: "⏰ Time Ended!",
                 timeLeft: "⏳ Left: ",
-                defaultRatesPrompt: "Set default hourly rate for each mode:"
+                defaultRatesPrompt: "Set default hourly rate for each mode:",
+                reportSectionTitle: "📥 Reports & History Downloads",
+                downloadDaily: "📥 Download Daily History",
+                downloadWeekly: "📥 Download Weekly History",
+                downloadMonthly: "📥 Download Monthly History",
+                customRangeTitle: "Custom Date Range (From - To):",
+                fromDate: "From Date:",
+                toDate: "To Date:",
+                downloadCustom: "📥 Download Custom Range"
             },
             tr: {
                 loginTitle: "Salon / Merkez Girişi",
@@ -260,7 +276,15 @@
                 statusBusy: "Meşgul 🔴",
                 timeEnded: "⏰ Süre Bitti!",
                 timeLeft: "⏳ Kalan: ",
-                defaultRatesPrompt: "Her mod için varsayılan saatlik ücreti belirleyin:"
+                defaultRatesPrompt: "Her mod için varsayılan saatlik ücreti belirleyin:",
+                reportSectionTitle: "📥 Raporlar ve Geçmiş İndirmeleri",
+                downloadDaily: "📥 Günlük Geçmişi İndir",
+                downloadWeekly: "📥 Haftalık Geçmişi İndir",
+                downloadMonthly: "📥 Aylık Geçmişi İndir",
+                customRangeTitle: "Özel Tarih Aralığı (Kimden - Kime):",
+                fromDate: "Başlangıç Tarihi:",
+                toDate: "Bitiş Tarihi:",
+                downloadCustom: "📥 Özel Aralığı İndir"
             },
             fr: {
                 loginTitle: "Connexion Salon / Centre",
@@ -312,7 +336,15 @@
                 statusBusy: "Occupé 🔴",
                 timeEnded: "⏰ Temps écoulé !",
                 timeLeft: "⏳ Restant: ",
-                defaultRatesPrompt: "Définir le tarif horaire par défaut pour chaque mode:"
+                defaultRatesPrompt: "Définir le tarif horaire par défaut pour chaque mode:",
+                reportSectionTitle: "📥 Rapports et Téléchargement de l'historique",
+                downloadDaily: "📥 Télécharger l'historique quotidien",
+                downloadWeekly: "📥 Télécharger l'historique hebdomadaire",
+                downloadMonthly: "📥 Télécharger l'historique mensuel",
+                customRangeTitle: "Plage de dates personnalisée (Du - Au):",
+                fromDate: "Date de début:",
+                toDate: "Date de fin:",
+                downloadCustom: "📥 Télécharger la période personnalisée"
             }
         };
 
@@ -421,6 +453,24 @@
 
             let logoutBtnEl = document.getElementById('logout-btn-text');
             if(logoutBtnEl) logoutBtnEl.innerText = t('logoutBtn');
+
+            // تحديث نصوص قسم التقارير وتنزيل السجل
+            let reportSecTitle = document.getElementById('report-sec-title');
+            if(reportSecTitle) reportSecTitle.innerText = t('reportSectionTitle');
+            let btnDaily = document.getElementById('btn-download-daily');
+            if(btnDaily) btnDaily.innerText = t('downloadDaily');
+            let btnWeekly = document.getElementById('btn-download-weekly');
+            if(btnWeekly) btnWeekly.innerText = t('downloadWeekly');
+            let btnMonthly = document.getElementById('btn-download-monthly');
+            if(btnMonthly) btnMonthly.innerText = t('downloadMonthly');
+            let customRangeLbl = document.getElementById('custom-range-title-text');
+            if(customRangeLbl) customRangeLbl.innerText = t('customRangeTitle');
+            let fromDateLbl = document.getElementById('from-date-lbl');
+            if(fromDateLbl) fromDateLbl.innerText = t('fromDate');
+            let toDateLbl = document.getElementById('to-date-lbl');
+            if(toDateLbl) toDateLbl.innerText = t('toDate');
+            let btnCustom = document.getElementById('btn-download-custom');
+            if(btnCustom) btnCustom.innerText = t('downloadCustom');
 
             let langSelects = document.querySelectorAll('.lang-select');
             langSelects.forEach(sel => sel.value = currentLang);
@@ -670,6 +720,66 @@
             }
         }
 
+        // وظائف تصدير وتنزيل السجل
+        window.downloadHistoryReport = function(type) {
+            if (historyLogs.length === 0) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات متاحة للتنزيل حالياً." : "No records available for download.");
+                return;
+            }
+
+            let filteredLogs = [...historyLogs];
+            let now = new Date();
+
+            if (type === 'daily') {
+                let todayStr = now.toLocaleDateString();
+                filteredLogs = historyLogs.filter(item => item.dateStr === todayStr);
+            } else if (type === 'weekly') {
+                let weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                filteredLogs = historyLogs.filter(item => new Date(item.rawDate || now) >= weekAgo);
+            } else if (type === 'monthly') {
+                let monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                filteredLogs = historyLogs.filter(item => new Date(item.rawDate || now) >= monthAgo);
+            } else if (type === 'custom') {
+                let fromVal = document.getElementById('report-from-date').value;
+                let toVal = document.getElementById('report-to-date').value;
+                if (!fromVal || !toVal) {
+                    alert(currentLang === 'ar' ? "الرجاء تحديد تاريخ البدء وتاريخ النهاية" : "Please select start and end dates");
+                    return;
+                }
+                let fromDate = new Date(fromVal);
+                let toDate = new Date(toVal);
+                toDate.setHours(23, 59, 59);
+
+                filteredLogs = historyLogs.filter(item => {
+                    let itemDate = new Date(item.rawDate || now);
+                    return itemDate >= fromDate && itemDate <= toDate;
+                });
+            }
+
+            if (filteredLogs.length === 0) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة لهذه الفترة." : "No records found for this period.");
+                return;
+            }
+
+            let content = `Salon: ${currentSalon.name}\nReport Type: ${type.toUpperCase()}\nGenerated: ${now.toLocaleString()}\n----------------------------------------\n\n`;
+            let totalSum = 0;
+            filteredLogs.forEach(item => {
+                content += `Time: [${item.time}] | Session: ${item.text} | Total Price: ${item.price}\n`;
+                totalSum += item.price;
+            });
+            content += `\n----------------------------------------\nGrand Total Revenue: ${totalSum}`;
+
+            let blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = `Salon_Report_${type}_${currentSalon.name}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
         function speakDeviceNameLoud(deviceName) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
@@ -803,11 +913,16 @@
             alert(`🧾 Invoice for ${d.name} (${d.type}):\n- Time Cost (${totalMins} min): ${timeCost}${posDetails}\n------------------\n Grand Total: ${grandTotal}`);
 
             totalRevenue += grandTotal;
-            let timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let nowObj = new Date();
+            let timeString = nowObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let dateStr = nowObj.toLocaleDateString();
+            
             historyLogs.unshift({
                 text: `${d.name} (${d.type}) - ${totalMins}m`,
                 price: grandTotal,
-                time: timeString
+                time: timeString,
+                dateStr: dateStr,
+                rawDate: nowObj.toISOString()
             });
             renderHistory();
 
@@ -1082,6 +1197,25 @@
                     <option value="tr">Türkçe</option>
                     <option value="fr">Français</option>
                 </select>
+            </div>
+
+            <!-- قسم تقارير وتنزيل السجل (يومي، أسبوعي، شهري، وتحديد مدة) -->
+            <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-orange);">
+                <h3 style="color: var(--accent-orange); margin-top:0; font-size:15px;" id="report-sec-title">📥 تقارير وتنزيل السجل والفواتير</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 10px;">
+                    <button class="main-btn" id="btn-download-daily" style="background: var(--accent-green); margin-top:0;" onclick="downloadHistoryReport('daily')">📥 تنزيل السجل اليومي</button>
+                    <button class="main-btn" id="btn-download-weekly" style="background: var(--accent-blue); margin-top:0;" onclick="downloadHistoryReport('weekly')">📥 تنزيل السجل الأسبوعي</button>
+                    <button class="main-btn" id="btn-download-monthly" style="background: var(--accent-purple); margin-top:0;" onclick="downloadHistoryReport('monthly')">📥 تنزيل السجل الشهري</button>
+                </div>
+
+                <div style="margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 12px;">
+                    <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;" id="custom-range-title-text">تحديد مدة مخصصة (من وإلى):</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <div><span id="from-date-lbl" style="font-size: 11px;">من تاريخ:</span> <input type="date" id="report-from-date" style="margin-top:2px;"></div>
+                        <div><span id="to-date-lbl" style="font-size: 11px;">إلى تاريخ:</span> <input type="date" id="report-to-date" style="margin-top:2px;"></div>
+                    </div>
+                    <button class="main-btn" id="btn-download-custom" style="background: var(--accent-orange); margin-top:0;" onclick="downloadHistoryReport('custom')">📥 تنزيل السجل للفترة المحددة</button>
+                </div>
             </div>
 
             <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple); margin-top: 15px;">
