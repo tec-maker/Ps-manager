@@ -348,7 +348,6 @@
             }
         };
 
-        // دالة تحديد اللغة الافتراضية الذكية حسب المتصفح / المكان، أو الإنجليزية إذا لم تطابق المدعومة
         function getInitialLanguage() {
             let savedLang = localStorage.getItem('ps_current_lang');
             if (savedLang && translations[savedLang]) {
@@ -356,8 +355,6 @@
             }
             let browserLang = navigator.language || navigator.userLanguage || 'en';
             let shortLang = browserLang.substring(0, 2).toLowerCase();
-            
-            // إذا كانت لغة المتصفح مدعومة (ar, tr, fr) استخدمها، وإلا افتراضياً الإنجليزية (en)
             if (translations[shortLang]) {
                 return shortLang;
             }
@@ -898,10 +895,24 @@
             await setDoc(doc(db, "salon_devices", docId), { ...d, posItems: currentItems });
         }
 
+        // دالة الضغط على إيقاف الجلسة مع إعطاء خيار للمستخدم (إنهاء الفاتورة أو متابعة الجلسة)
         window.stopDeviceCloud = async function(devId) {
-            stopSpeechAlert(devId);
             let d = devicesData[devId];
             if (!d || !d.startTime) return;
+
+            let confirmMsg = currentLang === 'ar' 
+                ? `هل تريد إنهاء الفاتورة وحساب التكلفة لجهاز (${d.name})؟\n\n- اضغط (موافق) لإنهاء الفاتورة.\n- اضغط (إلغاء) لمتابعة الجلسة.`
+                : `Do you want to finalize the invoice for (${d.name})?\n\n- Click (OK) to end invoice.\n- Click (Cancel) to continue session.`;
+
+            let wantToStop = confirm(confirmMsg);
+
+            // إذا اختر المستخدم متابعة الجلسة (إلغاء)
+            if (!wantToStop) {
+                return;
+            }
+
+            // إذا اختر المستخدم إنهاء الفاتورة (موافق)
+            stopSpeechAlert(devId);
 
             let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
             let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
