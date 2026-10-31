@@ -460,9 +460,9 @@
                     loadAllSalonsDevicesForAdmin();
                 } else {
                     loadSalonDevicesConfig();
+                    renderDevicesGrid();
+                    renderHistory();
                 }
-                renderDevicesGrid();
-                renderHistory();
             }
         }
 
@@ -691,20 +691,27 @@
             
             let superAdminSection = document.getElementById('superadmin-section');
             let adminDeviceSection = document.getElementById('admin-device-management-section');
+            let mainDashboardView = document.getElementById('main-dashboard-view');
 
             if (currentSalon.role === 'superadmin') {
                 superAdminSection.style.display = 'block';
                 adminDeviceSection.style.display = 'block';
+                // إخفاء لوحة الجلسات التشغيلية عن الإدارة العامة لتكون مخصصة حصرياً لإدارة الصالات والأجهزة
+                mainDashboardView.style.display = 'none';
+                document.getElementById('settings-view-panel').style.display = 'block';
+                
                 loadSalonsList();
                 loadAdminSalonsDropdown();
                 loadAllSalonsDevicesForAdmin();
             } else {
                 superAdminSection.style.display = 'none';
                 adminDeviceSection.style.display = 'none';
+                mainDashboardView.style.display = 'block';
+                document.getElementById('settings-view-panel').style.display = 'none';
                 loadSalonDevicesConfig();
+                initCloudDevices();
             }
 
-            initCloudDevices();
             updateStaticTexts();
             onDeviceTypeChange();
         }
@@ -716,6 +723,7 @@
         }
 
         window.closeSettingsView = function() {
+            if (currentSalon.role === 'superadmin') return; // الإدارة العامة تبقى في لوحة التحكم الإدارية
             document.getElementById('settings-view-panel').style.display = 'none';
             document.getElementById('main-dashboard-view').style.display = 'block';
         }
@@ -992,7 +1000,6 @@
                 let dev = docSnap.data();
                 count++;
                 let icon = dev.category === 'pc' ? '🖥️ PC' : '🎮 PlayStation';
-                let r = dev.rates || {};
                 
                 html += `
                     <div class="item-row">
@@ -1121,12 +1128,13 @@
         }
 
         function initCloudDevices() {
+            if (currentSalon.role === 'superadmin') return; // الإدارة العامة لا تشغل جلسات الأجهزة
             document.getElementById('sync-text').innerText = t('synced');
             onSnapshot(collection(db, "salon_devices"), (snapshot) => {
                 salonDevicesList = [];
                 snapshot.forEach((docSnap) => {
                     let data = docSnap.data();
-                    if (currentSalon.role === 'superadmin' || data.salon === currentSalon.name) {
+                    if (data.salon === currentSalon.name) {
                         salonDevicesList.push(data);
                         devicesData[data.deviceId] = data;
                     }
@@ -1288,10 +1296,7 @@
 
         function renderDevicesGrid() {
             let container = document.getElementById('devices-container');
-            let filteredList = salonDevicesList;
-            if (currentSalon.role !== 'superadmin') {
-                filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
-            }
+            let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
 
             if (filteredList.length === 0) {
                 container.innerHTML = `<div style="text-align:center; color:var(--text-muted); grid-column: 1/-1; padding: 30px;">No devices found.</div>`;
@@ -1309,7 +1314,7 @@
                 html += `<div class="${cardClass}" id="card-${d.deviceId}">`;
                 html += `
                     <div class="title">
-                        <span>${iconSymbol} | ${d.name} ${currentSalon.role === 'superadmin' ? '<small style="color:var(--accent-blue)">(' + d.salon + ')</small>' : ''}</span>
+                        <span>${iconSymbol} | ${d.name}</span>
                         <span class="status-badge">${statusText}</span>
                     </div>
                 `;
@@ -1409,10 +1414,7 @@
         }
 
         function updateGlobalStats() {
-            let filteredList = salonDevicesList;
-            if (currentSalon.role !== 'superadmin') {
-                filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
-            }
+            let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
             let busyCount = filteredList.filter(d => d.busy).length;
             let availCount = filteredList.length - busyCount;
             document.getElementById('stat-avail').innerText = availCount;
@@ -1421,10 +1423,8 @@
         }
 
         setInterval(() => {
-            let filteredList = salonDevicesList;
-            if (currentSalon && currentSalon.role !== 'superadmin') {
-                filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
-            }
+            if (!currentSalon || currentSalon.role === 'superadmin') return;
+            let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
             filteredList.forEach(d => {
                 if (d.busy && d.startTime) {
                     let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
@@ -1474,6 +1474,7 @@
 
         window.renderHistory = function() {
             const histContainer = document.getElementById('history-container');
+            if(!histContainer) return;
             if (historyLogs.length === 0) {
                 histContainer.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 10px;">${t('noHistory')}</div>`;
                 return;
@@ -1533,7 +1534,7 @@
             <span class="sync-status" id="sync-text">⏳ جاري الاتصال...</span>
         </div>
 
-        <!-- العرض الأساسي -->
+        <!-- العرض الأساسي (لأصحاب الصالات فقط) -->
         <div id="main-dashboard-view">
             <div class="stats-bar">
                 <div class="stat-box" style="color: #34d399;"><span id="stat-avail-lbl">المتاح</span> <span id="stat-avail">0</span></div>
@@ -1553,7 +1554,7 @@
             </div>
         </div>
 
-        <!-- واجهة إعدادات منفصلة بالكامل -->
+        <!-- واجهة إعدادات / لوحة تحكم المسؤول العام -->
         <div id="settings-view-panel" class="settings-view">
             <h2>
                 <span id="settings-main-title-text">⚙️ إعدادات النظام وإدارة الأجهزة والتسعير</span>
@@ -1594,7 +1595,7 @@
                 <button class="main-btn" id="add-device-btn" style="background: var(--accent-green);" onclick="addDeviceToSalon()">➕ حفظ وإضافة الجهاز</button>
             </div>
 
-            <!-- قائمة الأجهزة (تعديل الأسعار لصاحب الصالة، وحذف وإدارة كاملة للمسؤول) -->
+            <!-- قائمة الأجهزة -->
             <div class="admin-panel" style="margin-top: 15px;">
                 <h4 style="margin: 0 0 8px 0; font-size: 14px; color: var(--accent-blue);" id="devices-list-title-text">قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:</h4>
                 <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
