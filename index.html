@@ -1292,7 +1292,7 @@
         window.setGameType = async function(devId, type) {
             let d = devicesData[devId];
             let docId = `${d.salon}_${devId}`;
-            if (d && d.busy) {
+            if (d && (d.busy || d.paused)) {
                 await setDoc(doc(db, "salon_devices", docId), { ...d, type: type });
             } else {
                 tempTypes[devId] = type;
@@ -1331,29 +1331,32 @@
 
         window.pauseDeviceCloud = async function(devId) {
             let d = devicesData[devId];
-            if (!d || !d.busy) return;
+            if (!d) return;
             let docId = `${d.salon}_${devId}`;
 
-            if (!d.paused) {
-                // إيقاف مؤقت: حساب الثواني المنقضية حتى اللحظة وتخزينها
+            if (!d.paused && d.busy) {
+                // إيقاف مؤقت: حساب الوقت الفعلي المنقضي بدقة وتخزينه في السيرفر
                 let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
                 let currentElapsed = Math.floor((Date.now() - startTimeVal) / 1000) + (d.pausedElapsedSeconds || 0);
                 stopSpeechAlert(devId);
 
                 await setDoc(doc(db, "salon_devices", docId), {
                     ...d,
+                    busy: false,
                     paused: true,
                     pausedElapsedSeconds: currentElapsed,
                     startTime: null
-                });
-            } else {
-                // استئناف الجلسة: ضبط وقت البداية الجديد بناءً على الثواني السابقة المنقضية
+                }, { merge: true });
+            } else if (d.paused) {
+                // استئناف الجلسة: ضبط وقت بداية جديد بحيث يطرح الثواني المنقضية السابقة تماماً
                 let newStartTime = Date.now() - ((d.pausedElapsedSeconds || 0) * 1000);
+
                 await setDoc(doc(db, "salon_devices", docId), {
                     ...d,
+                    busy: true,
                     paused: false,
                     startTime: newStartTime
-                });
+                }, { merge: true });
             }
         }
 
@@ -1362,14 +1365,15 @@
             if (!d) return;
             stopSpeechAlert(devId);
             let currentDuration = d.durationMinutes || 0;
-            if (currentDuration === 0 && d.startTime) {
-                let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-                let diffMins = Math.floor((Date.now() - startTimeVal) / 60000);
+            let baseSeconds = d.paused ? (d.pausedElapsedSeconds || 0) : Math.floor((Date.now() - (d.startTime || Date.now())) / 1000) + (d.pausedElapsedSeconds || 0);
+            
+            if (currentDuration === 0) {
+                let diffMins = Math.floor(baseSeconds / 60);
                 currentDuration = Math.max(0, diffMins);
             }
             let newDuration = Math.max(0, currentDuration + mins);
             let docId = `${d.salon}_${devId}`;
-            await setDoc(doc(db, "salon_devices", docId), { ...d, durationMinutes: newDuration });
+            await setDoc(doc(db, "salon_devices", docId), { ...d, durationMinutes: newDuration }, { merge: true });
         }
 
         window.addToDeviceTab = async function(devId) {
@@ -1383,7 +1387,7 @@
             currentItems.push({ name: itemName, price: parseInt(itemPrice) });
 
             let docId = `${d.salon}_${devId}`;
-            await setDoc(doc(db, "salon_devices", docId), { ...d, posItems: currentItems });
+            await setDoc(doc(db, "salon_devices", docId), { ...d, posItems: currentItems }, { merge: true });
         }
 
         window.stopDeviceCloud = async function(devId) {
