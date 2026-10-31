@@ -128,6 +128,7 @@
                 revenue: "إيرادات الصالة",
                 historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم",
                 noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن",
+                downloadLogsBtn: "📥 تحميل سجلات اليوم (Excel/CSV)",
                 settingsTitle: "⚙️ لوحة تحكم المسؤول العام (إدارة الصالات والأجهزة)",
                 closeSettings: "✖ إغلاق ورجوع",
                 superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)",
@@ -197,6 +198,7 @@
                 revenue: "Salon Revenue",
                 historyTitle: "📋 Today's Invoices & Sessions History",
                 noHistory: "No sessions recorded today yet",
+                downloadLogsBtn: "📥 Download Today's Logs (Excel/CSV)",
                 settingsTitle: "⚙️ General Admin Control Panel (Salons & Devices)",
                 closeSettings: "✖ Close & Return",
                 superAdminTitle: "👑 Central Control Panel (Salons Management)",
@@ -266,6 +268,7 @@
                 revenue: "Salon Geliri",
                 historyTitle: "📋 Bugünkü Faturalar ve Oturum Geçmişi",
                 noHistory: "Bugün henüz kayıtlı oturum yok",
+                downloadLogsBtn: "📥 Bugünkü Kayıtları İndir (Excel/CSV)",
                 settingsTitle: "⚙️ Genel Yönetim Paneli (Salon ve Cihazlar)",
                 closeSettings: "✖ Kapat ve Dön",
                 superAdminTitle: "👑 Merkezi Kontrol Paneli (Salon Yönetimi)",
@@ -335,6 +338,7 @@
                 revenue: "Revenu du Salon",
                 historyTitle: "📋 Historique des Factures et Sessions",
                 noHistory: "Aucune session enregistrée aujourd'hui",
+                downloadLogsBtn: "📥 Télécharger les journaux (Excel/CSV)",
                 settingsTitle: "⚙️ Panneau d'Administration Général (Salons & Appareils)",
                 closeSettings: "✖ Fermer et Retour",
                 superAdminTitle: "👑 Panneau de Contrôle Central (Gestion Salons)",
@@ -485,6 +489,9 @@
 
             let historyTitleEl = document.getElementById('history-title-text');
             if(historyTitleEl) historyTitleEl.innerText = t('historyTitle');
+
+            let downloadLogsBtnEl = document.getElementById('download-logs-btn-text');
+            if(downloadLogsBtnEl) downloadLogsBtnEl.innerText = t('downloadLogsBtn');
 
             let settingsMainTitle = document.getElementById('settings-main-title-text');
             if(settingsMainTitle) settingsMainTitle.innerText = t('settingsTitle');
@@ -657,6 +664,7 @@
             let adminFilterContainer = document.getElementById('admin-filter-container');
             let settingsPanel = document.getElementById('settings-view-panel');
             let closeSettingsBtn = document.getElementById('close-settings-btn');
+            let downloadLogsContainer = document.getElementById('download-logs-container');
 
             if (currentSalon.role === 'superadmin') {
                 superAdminSection.style.display = 'block';
@@ -666,6 +674,7 @@
                 if(adminFilterContainer) adminFilterContainer.style.display = 'block';
                 if(settingsPanel) settingsPanel.style.display = 'block';
                 if(closeSettingsBtn) closeSettingsBtn.style.display = 'none';
+                if(downloadLogsContainer) downloadLogsContainer.style.display = 'block';
                 
                 loadSalonsList();
                 loadAdminSalonsDropdowns();
@@ -678,6 +687,7 @@
                 if(adminFilterContainer) adminFilterContainer.style.display = 'none';
                 if(settingsPanel) settingsPanel.style.display = 'none';
                 if(closeSettingsBtn) closeSettingsBtn.style.display = 'inline-block';
+                if(downloadLogsContainer) downloadLogsContainer.style.display = 'none'; // مخفي عن الصالات، خاص بالمسؤول فقط
                 
                 loadSalonDevicesConfig();
                 initCloudDevices();
@@ -698,6 +708,27 @@
             if (currentSalon.role === 'superadmin') return;
             document.getElementById('settings-view-panel').style.display = 'none';
             document.getElementById('main-dashboard-view').style.display = 'block';
+        }
+
+        window.downloadLogsExcel = function() {
+            if (historyLogs.length === 0) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات لتحميلها اليوم." : "No logs to download today.");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += (currentLang === 'ar' ? "التفاصيل,المبلغ,الوقت,التاريخ\n" : "Details,Price,Time,Date\n");
+            
+            historyLogs.forEach(item => {
+                csvContent += `"${item.text}",${item.price},"${item.time}","${item.dateStr || ''}"\n`;
+            });
+
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `salon_logs_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         window.addSalonCenter = async function() {
@@ -1438,7 +1469,7 @@
             const histContainer = document.getElementById('history-container');
             if(!histContainer) return;
             if (historyLogs.length === 0) {
-                histContainer.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 10px;">${t('noHistory')}</div>`;
+                histContainer.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 10px;" id="no-history-text">${t('noHistory')}</div>`;
                 return;
             }
             let html = '';
@@ -1509,6 +1540,7 @@
                 <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Loading devices...</div>
             </div>
 
+            <!-- سجل الفواتير والجلسات (مرتبط بلغة التطبيق) -->
             <div class="history-section">
                 <h3 id="history-title-text">📋 سجل فواتير وجلسات الصالة اليوم</h3>
                 <div class="history-list" id="history-container">
@@ -1523,6 +1555,11 @@
                 <span id="settings-main-title-text">⚙️ إعدادات النظام وإدارة الأجهزة والتسعير</span>
                 <button onclick="closeSettingsView()" id="close-settings-btn" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
+
+            <!-- زر تحميل السجلات (يظهر حصراً في لوحة المسؤول العام) -->
+            <div id="download-logs-container" class="admin-panel" style="display: none; border-color: var(--accent-orange); text-align: center; margin-top: 15px;">
+                <button class="main-btn" id="download-logs-btn-text" style="background: var(--accent-orange);" onclick="downloadLogsExcel()">📥 تحميل سجلات اليوم (Excel/CSV)</button>
+            </div>
 
             <!-- لوحة إضافة الأجهزة (للمسؤول فقط) -->
             <div id="admin-device-management-section" class="admin-panel" style="display: none; border-color: var(--accent-green); margin-top: 15px;">
