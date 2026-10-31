@@ -166,7 +166,15 @@
                 fromDate: "من تاريخ:",
                 toDate: "إلى تاريخ:",
                 downloadCustom: "📥 تنزيل السجل للفترة المحددة",
-                generalAdminText: "الادارة العامة"
+                generalAdminText: "الادارة العامة",
+                activeStatus: "نشط",
+                suspendedStatus: "موقوف مؤقتاً",
+                suspendBtn: "إيقاف مؤقت",
+                activateBtn: "تفعيل",
+                confirmSuspend: "هل أنت متأكد من رغبتك في إيقاف هذه الصالة مؤقتاً؟ لن يتمكن صاحب الصالة من تسجيل الدخول حتى إعادة تفعيلها.",
+                confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟",
+                confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.",
+                salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة."
             },
             en: {
                 loginTitle: "Salon / Center Login",
@@ -228,7 +236,15 @@
                 fromDate: "From Date:",
                 toDate: "To Date:",
                 downloadCustom: "📥 Download Custom Range",
-                generalAdminText: "General Admin"
+                generalAdminText: "General Admin",
+                activeStatus: "Active",
+                suspendedStatus: "Suspended",
+                suspendBtn: "Suspend",
+                activateBtn: "Activate",
+                confirmSuspend: "Are you sure you want to temporarily suspend this salon?",
+                confirmActivate: "Are you sure you want to reactivate this salon?",
+                confirmDelete: "⚠️ Warning: Are you sure you want to permanently delete this salon and its data?",
+                salonSuspendedError: "This account is temporarily suspended by administration."
             },
             tr: {
                 loginTitle: "Salon / Merkez Girişi",
@@ -290,7 +306,15 @@
                 fromDate: "Başlangıç Tarihi:",
                 toDate: "Bitiş Tarihi:",
                 downloadCustom: "📥 Özel Aralığı İndir",
-                generalAdminText: "Genel Yönetim"
+                generalAdminText: "Genel Yönetim",
+                activeStatus: "Aktif",
+                suspendedStatus: "Askıda",
+                suspendBtn: "Askıya Al",
+                activateBtn: "Etkinleştir",
+                confirmSuspend: "Bu salonu geçici olarak askıya almak istediğinizden emin misiniz?",
+                confirmActivate: "Bu salonu yeniden etkinleştirmek istediğinizden emin misiniz?",
+                confirmDelete: "⚠️ Uyarı: Bu salonu ve verilerini kalıcı olarak silmek istediğinizden emin misiniz?",
+                salonSuspendedError: "Bu hesap yönetim tarafından geçici olarak askıya alınmıştır."
             },
             fr: {
                 loginTitle: "Connexion Salon / Centre",
@@ -352,7 +376,15 @@
                 fromDate: "Date de début:",
                 toDate: "Date de fin:",
                 downloadCustom: "📥 Télécharger la période personnalisée",
-                generalAdminText: "Admin Général"
+                generalAdminText: "Admin Général",
+                activeStatus: "Actيف",
+                suspendedStatus: "Suspendu",
+                suspendBtn: "Suspendre",
+                activateBtn: "Activer",
+                confirmSuspend: "Êtes-vous sûr de vouloir suspendre temporairement ce salon ?",
+                confirmActivate: "Êtes-vous sûr de vouloir réactiver ce salon ?",
+                confirmDelete: "⚠️ Avertissement : Voulez-vous vraiment supprimer définitivement ce salon ?",
+                salonSuspendedError: "Ce compte est temporairement suspendu par l'administration."
             }
         };
 
@@ -580,11 +612,20 @@
             try {
                 let docRef = doc(db, "salons", u);
                 let docSnap = await getDoc(docRef);
-                if (docSnap.exists() && docSnap.data().password === p) {
-                    currentSalon = { name: u, role: "salon" };
-                    localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
-                    localStorage.setItem('ps_login_time', Date.now().toString());
-                    initSession();
+                if (docSnap.exists()) {
+                    let salonData = docSnap.data();
+                    if (salonData.suspended) {
+                        err.innerText = t('salonSuspendedError');
+                        return;
+                    }
+                    if (salonData.password === p) {
+                        currentSalon = { name: u, role: "salon" };
+                        localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
+                        localStorage.setItem('ps_login_time', Date.now().toString());
+                        initSession();
+                    } else {
+                        err.innerText = currentLang === 'ar' ? "اسم الصالة أو كلمة المرور غير صحيحة!" : "Incorrect salon name or password!";
+                    }
                 } else {
                     err.innerText = currentLang === 'ar' ? "اسم الصالة أو كلمة المرور غير صحيحة!" : "Incorrect salon name or password!";
                 }
@@ -634,7 +675,14 @@
                 alert("Please fill all fields");
                 return;
             }
-            await setDoc(doc(db, "salons", name), { name: name, password: pass });
+            let docRef = doc(db, "salons", name);
+            let docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                alert("Salon name already exists!");
+                return;
+            }
+
+            await setDoc(docRef, { name: name, password: pass, suspended: false });
             alert(`Salon ${name} created successfully!`);
             document.getElementById('new-salon-name').value = '';
             document.getElementById('new-salon-pass').value = '';
@@ -652,13 +700,41 @@
             let html = "";
             querySnapshot.forEach((docSnap) => {
                 let data = docSnap.data();
-                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#030712; padding:8px; margin-top:5px; border-radius:6px;"><span>🏢 Salon: <b>${data.name}</b></span> <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:3px 8px; border-radius:4px; cursor:pointer; width:auto;">${t('deleteBtn')}</button></div>`;
+                let isSuspended = data.suspended || false;
+                let statusBadge = isSuspended 
+                    ? `<span style="color:#ef4444; font-size:11px; background:rgba(239,68,68,0.1); padding:2px 6px; border-radius:4px; font-weight:bold;">${t('suspendedStatus')}</span>` 
+                    : `<span style="color:#34d399; font-size:11px; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px; font-weight:bold;">${t('activeStatus')}</span>`;
+                
+                let toggleBtnText = isSuspended ? t('activateBtn') : t('suspendBtn');
+                let toggleBtnColor = isSuspended ? '#059669' : '#d97706';
+
+                html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#030712; padding:10px; margin-top:8px; border-radius:8px; border: 1px solid var(--border-color);">
+                        <div>🏢 <b>${data.name}</b> <div style="margin-top:2px;">${statusBadge}</div></div>
+                        <div style="display:flex; gap:6px;">
+                            <button onclick="toggleSalonStatus('${data.name}', ${isSuspended})" style="background:${toggleBtnColor}; border:none; color:#fff; padding:5px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px; font-weight:bold;">${toggleBtnText}</button>
+                            <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:5px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px; font-weight:bold;">${t('deleteBtn')}</button>
+                        </div>
+                    </div>`;
             });
             listDiv.innerHTML = html;
         }
 
+        window.toggleSalonStatus = async function(name, currentSuspended) {
+            let confirmMsg = currentSuspended ? t('confirmActivate') : t('confirmSuspend');
+            if (confirm(confirmMsg)) {
+                let docRef = doc(db, "salons", name);
+                let docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    let data = docSnap.data();
+                    await setDoc(docRef, { ...data, suspended: !currentSuspended });
+                    loadSalonsList();
+                }
+            }
+        }
+
         window.deleteSalon = async function(name) {
-            if (confirm(`Delete salon ${name}?`)) {
+            if (confirm(t('confirmDelete'))) {
                 await deleteDoc(doc(db, "salons", name));
                 loadSalonsList();
             }
@@ -669,30 +745,32 @@
             let devName = document.getElementById('dev-name').value.trim();
             let devType = document.getElementById('dev-type').value;
 
-            let rateSingle = parseInt(document.getElementById('rate-single').value) || 100;
-            let rateDouble = parseInt(document.getElementById('rate-double').value) || 100;
-            let rateTriple = parseInt(document.getElementById('rate-triple').value) || 150;
-            let rateQuad = parseInt(document.getElementById('rate-quad').value) || 200;
-            let ratePc = parseInt(document.getElementById('rate-pc').value) || 150;
-
             if (!devId || !devName) {
                 alert("Please enter ID and Device Name");
                 return;
             }
 
             let docId = `${currentSalon.name}_${devId}`;
+            let ratesObj = {};
+            if (devType === 'ps') {
+                ratesObj = {
+                    "فردي": parseInt(document.getElementById('rate-single').value) || 100,
+                    "ثنائي": parseInt(document.getElementById('rate-double').value) || 100,
+                    "ثلاثي": parseInt(document.getElementById('rate-triple').value) || 150,
+                    "رباعي": parseInt(document.getElementById('rate-quad').value) || 200
+                };
+            } else {
+                ratesObj = {
+                    "PC": parseInt(document.getElementById('rate-pc').value) || 150
+                };
+            }
+
             await setDoc(doc(db, "salon_devices", docId), {
                 salon: currentSalon.name,
                 deviceId: devId,
                 name: devName,
                 category: devType,
-                rates: {
-                    "فردي": rateSingle,
-                    "ثنائي": rateDouble,
-                    "ثلاثي": rateTriple,
-                    "رباعي": rateQuad,
-                    "PC": ratePc
-                },
+                rates: ratesObj,
                 busy: false,
                 type: devType === 'pc' ? 'PC' : 'فردي',
                 startTime: null,
@@ -726,7 +804,7 @@
             let html = "";
             salonDevicesList.forEach(dev => {
                 let icon = dev.category === 'pc' ? '🖥️ PC' : '🎮 PlayStation';
-                let r = dev.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
+                let r = dev.rates || {};
                 
                 html += `
                     <div class="item-row">
@@ -944,66 +1022,91 @@
             await setDoc(doc(db, "salon_devices", docId), { ...d, posItems: currentItems });
         }
 
+        // دالة إيقاف الجلسة المحسنة مع إمكانية (إنهاء الفاتورة، أو إضافة وقت، أو متابعة الجلسة)
         window.stopDeviceCloud = async function(devId) {
             let d = devicesData[devId];
             if (!d || !d.startTime) return;
 
-            let confirmMsg = currentLang === 'ar' 
-                ? `هل تريد إنهاء الفاتورة وحساب التكلفة لجهاز (${d.name})؟\n\n- اضغط (موافق) لإنهاء الفاتورة.\n- اضغط (إلغاء) لمتابعة الجلسة.`
-                : `Do you want to finalize the invoice for (${d.name})?\n\n- Click (OK) to end invoice.\n- Click (Cancel) to continue session.`;
+            let choice = prompt(
+                currentLang === 'ar' 
+                    ? `إدارة جلسة جهاز (${d.name}):\n1- أدخل عدد الدقائق لإضافتها للجلسة (مثلاً: 15 أو 30).\n2- أو اكتب كلمة (stop) أو (إنهاء) لإنهاء الفاتورة.\n3- اضغط إلغاء لمتابعة الجلسة.`
+                    : `Manage session for (${d.name}):\n1- Enter minutes to add (e.g. 15 or 30).\n2- Type (stop) to end invoice.\n3- Click cancel to continue.`,
+                ""
+            );
 
-            let wantToStop = confirm(confirmMsg);
-
-            if (!wantToStop) {
+            // إذا ضغط المستخدم إلغاء (Cancel)
+            if (choice === null) {
                 return;
             }
 
-            stopSpeechAlert(devId);
+            let trimmedChoice = choice.trim().toLowerCase();
 
-            let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-            let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
-            let totalHours = diffSeconds / 3600;
-            
-            let rates = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
-            let hourlyRate = rates[d.type] || 100;
-            let timeCost = Math.round(totalHours * hourlyRate);
-            let totalMins = Math.ceil(diffSeconds / 60);
-
-            let posTotal = 0;
-            let posDetails = "";
-            if (d.posItems && d.posItems.length > 0) {
-                d.posItems.forEach(item => {
-                    posTotal += item.price;
-                    posDetails += `\n- ${item.name}: ${item.price}`;
-                });
+            // إذا أدخل المستخدم دقائق لإضافتها للجلسة
+            if (trimmedChoice !== "" && !isNaN(trimmedChoice)) {
+                let addMins = parseInt(trimmedChoice);
+                if (addMins !== 0) {
+                    await adjustTimeCloud(devId, addMins);
+                    alert(currentLang === 'ar' ? `تمت إضافة ${addMins} دقيقة بنجاح للجلسة!` : `Successfully added ${addMins} mins!`);
+                }
+                return;
             }
 
-            let grandTotal = timeCost + posTotal;
-            alert(`🧾 Invoice for ${d.name} (${d.type}):\n- Time Cost (${totalMins} min): ${timeCost}${posDetails}\n------------------\n Grand Total: ${grandTotal}`);
+            // إذا اختر إنهاء الفاتورة (عبر كتابة stop أو إنهاء، أو تركها فارغة واختيار موافق)
+            if (trimmedChoice === "stop" || trimmedChoice === "إنهاء" || trimmedChoice === "") {
+                let confirmEnd = confirm(
+                    currentLang === 'ar' 
+                        ? `هل أنت متأكد من رغبتك في إنهاء الفاتورة وحساب التكلفة لجهاز (${d.name})؟`
+                        : `Are you sure you want to finalize the invoice for (${d.name})?`
+                );
+                if (!confirmEnd) return;
 
-            totalRevenue += grandTotal;
-            let nowObj = new Date();
-            let timeString = nowObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            let dateStr = nowObj.toLocaleDateString();
-            
-            historyLogs.unshift({
-                text: `${d.name} (${d.type}) - ${totalMins}m`,
-                price: grandTotal,
-                time: timeString,
-                dateStr: dateStr,
-                rawDate: nowObj.toISOString()
-            });
-            renderHistory();
+                stopSpeechAlert(devId);
 
-            let docId = `${currentSalon.name}_${devId}`;
-            await setDoc(doc(db, "salon_devices", docId), {
-                ...d,
-                busy: false,
-                type: d.category === 'pc' ? 'PC' : 'فردي',
-                startTime: null,
-                durationMinutes: 0,
-                posItems: []
-            });
+                let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
+                let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
+                let totalHours = diffSeconds / 3600;
+                
+                let rates = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
+                let hourlyRate = rates[d.type] || 100;
+                let timeCost = Math.round(totalHours * hourlyRate);
+                let totalMins = Math.ceil(diffSeconds / 60);
+
+                let posTotal = 0;
+                let posDetails = "";
+                if (d.posItems && d.posItems.length > 0) {
+                    d.posItems.forEach(item => {
+                        posTotal += item.price;
+                        posDetails += `\n- ${item.name}: ${item.price}`;
+                    });
+                }
+
+                let grandTotal = timeCost + posTotal;
+                alert(`🧾 Invoice for ${d.name} (${d.type}):\n- Time Cost (${totalMins} min): ${timeCost}${posDetails}\n------------------\n Grand Total: ${grandTotal}`);
+
+                totalRevenue += grandTotal;
+                let nowObj = new Date();
+                let timeString = nowObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let dateStr = nowObj.toLocaleDateString();
+                
+                historyLogs.unshift({
+                    text: `${d.name} (${d.type}) - ${totalMins}m`,
+                    price: grandTotal,
+                    time: timeString,
+                    dateStr: dateStr,
+                    rawDate: nowObj.toISOString()
+                });
+                renderHistory();
+
+                let docId = `${currentSalon.name}_${devId}`;
+                await setDoc(doc(db, "salon_devices", docId), {
+                    ...d,
+                    busy: false,
+                    type: d.category === 'pc' ? 'PC' : 'فردي',
+                    startTime: null,
+                    durationMinutes: 0,
+                    posItems: []
+                });
+            }
         }
 
         function renderDevicesGrid() {
