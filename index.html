@@ -1087,9 +1087,9 @@
                 rates: ratesObj,
                 busy: false,
                 paused: false,
-                pausedElapsedSeconds: 0,
+                accumulatedSeconds: 0,
+                lastStartTime: 0,
                 type: devType === 'pc' ? 'PC' : 'فردي',
-                startTime: null,
                 durationMinutes: 0,
                 posItems: []
             });
@@ -1293,7 +1293,7 @@
             let d = devicesData[devId];
             let docId = `${d.salon}_${devId}`;
             if (d && (d.busy || d.paused)) {
-                await setDoc(doc(db, "salon_devices", docId), { ...d, type: type });
+                await setDoc(doc(db, "salon_devices", docId), { ...d, type: type }, { merge: true });
             } else {
                 tempTypes[devId] = type;
                 renderDevicesGrid();
@@ -1321,9 +1321,9 @@
                 ...d,
                 busy: true,
                 paused: false,
-                pausedElapsedSeconds: 0,
+                accumulatedSeconds: 0,
+                lastStartTime: nowTime,
                 type: selectedType,
-                startTime: nowTime,
                 durationMinutes: durationMins,
                 posItems: []
             });
@@ -1333,29 +1333,28 @@
             let d = devicesData[devId];
             if (!d) return;
             let docId = `${d.salon}_${devId}`;
+            let now = Date.now();
 
-            if (!d.paused && d.busy) {
-                // إيقاف مؤقت: حساب الوقت الفعلي المنقضي بدقة وتخزينه في السيرفر
-                let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-                let currentElapsed = Math.floor((Date.now() - startTimeVal) / 1000) + (d.pausedElapsedSeconds || 0);
+            if (d.busy && !d.paused) {
+                // إيقاف مؤقت: حساب الثواني التي مرت منذ آخر بداية وإضافتها للمتراكم
+                let elapsed = Math.floor((now - (d.lastStartTime || now)) / 1000);
+                let totalAccumulated = (d.accumulatedSeconds || 0) + Math.max(0, elapsed);
                 stopSpeechAlert(devId);
 
                 await setDoc(doc(db, "salon_devices", docId), {
                     ...d,
                     busy: false,
                     paused: true,
-                    pausedElapsedSeconds: currentElapsed,
-                    startTime: null
+                    accumulatedSeconds: totalAccumulated,
+                    lastStartTime: 0
                 }, { merge: true });
             } else if (d.paused) {
-                // استئناف الجلسة: ضبط وقت بداية جديد بحيث يطرح الثواني المنقضية السابقة تماماً
-                let newStartTime = Date.now() - ((d.pausedElapsedSeconds || 0) * 1000);
-
+                // استئناف الجلسة: إعادة تعيين وقت البداية الحالي دون ضياع الثواني السابقة
                 await setDoc(doc(db, "salon_devices", docId), {
                     ...d,
                     busy: true,
                     paused: false,
-                    startTime: newStartTime
+                    lastStartTime: now
                 }, { merge: true });
             }
         }
@@ -1365,10 +1364,13 @@
             if (!d) return;
             stopSpeechAlert(devId);
             let currentDuration = d.durationMinutes || 0;
-            let baseSeconds = d.paused ? (d.pausedElapsedSeconds || 0) : Math.floor((Date.now() - (d.startTime || Date.now())) / 1000) + (d.pausedElapsedSeconds || 0);
+            
+            // حساب الثواني الحالية بدقة
+            let activeElapsed = d.busy && !d.paused ? Math.floor((Date.now() - (d.lastStartTime || Date.now())) / 1000) : 0;
+            let totalSecs = (d.accumulatedSeconds || 0) + activeElapsed;
             
             if (currentDuration === 0) {
-                let diffMins = Math.floor(baseSeconds / 60);
+                let diffMins = Math.floor(totalSecs / 60);
                 currentDuration = Math.max(0, diffMins);
             }
             let newDuration = Math.max(0, currentDuration + mins);
@@ -1392,7 +1394,7 @@
 
         window.stopDeviceCloud = async function(devId) {
             let d = devicesData[devId];
-            if (!d || (!d.startTime && !d.paused)) return;
+            if (!d || (!d.busy && !d.paused)) return;
 
             let choice = prompt(
                 currentLang === 'ar' 
@@ -1426,19 +1428,14 @@
 
                 stopSpeechAlert(devId);
 
-                let diffSeconds = 0;
-                if (d.paused) {
-                    diffSeconds = d.pausedElapsedSeconds || 0;
-                } else if (d.startTime) {
-                    let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-                    diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000) + (d.pausedElapsedSeconds || 0);
-                }
+                let activeElapsed = d.busy && !d.paused ? Math.floor((Date.now() - (d.lastStartTime || Date.now())) / 1000) : 0;
+                let totalSeconds = (d.accumulatedSeconds || 0) + activeElapsed;
 
-                let totalHours = diffSeconds / 3600;
+                let totalHours = totalSeconds / 3600;
                 let rates = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
                 let hourlyRate = rates[d.type] || 100;
                 let timeCost = Math.round(totalHours * hourlyRate);
-                let totalMins = Math.ceil(diffSeconds / 60);
+                let totalMins = Math.ceil(totalSeconds / 60);
 
                 let posTotal = 0;
                 let posDetails = "";
@@ -1479,9 +1476,9 @@
                     ...d,
                     busy: false,
                     paused: false,
-                    pausedElapsedSeconds: 0,
+                    accumulatedSeconds: 0,
+                    lastStartTime: 0,
                     type: d.category === 'pc' ? 'PC' : 'فردي',
-                    startTime: null,
                     durationMinutes: 0,
                     posItems: []
                 });
@@ -1547,33 +1544,28 @@
                         <button class="start" onclick="startDeviceCloud('${d.deviceId}')">${t('startSession')}</button>
                     `;
                 } else {
-                    let diffSeconds = 0;
-                    if (isPaused) {
-                        diffSeconds = d.pausedElapsedSeconds || 0;
-                    } else {
-                        let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-                        diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000) + (d.pausedElapsedSeconds || 0);
-                    }
+                    let activeElapsed = isBusy ? Math.floor((Date.now() - (d.lastStartTime || Date.now())) / 1000) : 0;
+                    let totalSeconds = (d.accumulatedSeconds || 0) + Math.max(0, activeElapsed);
 
                     let targetSeconds = (d.durationMinutes || 0) * 60;
-                    let isTimeEnded = !isPaused && targetSeconds > 0 && diffSeconds >= targetSeconds;
+                    let isTimeEnded = !isPaused && targetSeconds > 0 && totalSeconds >= targetSeconds;
 
                     if (isTimeEnded) startSpeechAlert(d.deviceId, d.name);
 
                     let timeFormatted = "";
                     if (targetSeconds > 0) {
-                        let remaining = Math.max(0, targetSeconds - diffSeconds);
+                        let remaining = Math.max(0, targetSeconds - totalSeconds);
                         let remMins = Math.floor(remaining / 60);
                         let remSecs = remaining % 60;
                         timeFormatted = isTimeEnded ? t('timeEnded') : `${t('timeLeft')}${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
                     } else {
-                        let hours = Math.floor(diffSeconds / 3600);
-                        let mins = Math.floor((diffSeconds % 3600) / 60);
-                        let secs = diffSeconds % 60;
+                        let hours = Math.floor(totalSeconds / 3600);
+                        let mins = Math.floor((totalSeconds % 3600) / 60);
+                        let secs = totalSeconds % 60;
                         timeFormatted = (hours > 0 ? hours + ':' : '') + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
                     }
 
-                    let totalHours = diffSeconds / 3600;
+                    let totalHours = totalSeconds / 3600;
                     let hourlyRate = r[d.type] || 100;
                     let timeCost = Math.round(totalHours * hourlyRate);
 
@@ -1632,30 +1624,28 @@
             if (!currentSalon || currentSalon.role === 'superadmin') return;
             let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
             filteredList.forEach(d => {
-                if ((d.busy || d.paused) && (d.startTime || d.paused)) {
-                    if (d.paused) return; // إذا كانت متوقفة مؤقتاً لا نحدث العداد تلقائياً
-
-                    let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-                    let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000) + (d.pausedElapsedSeconds || 0);
+                if (d.busy && !d.paused && d.lastStartTime) {
+                    let activeElapsed = Math.floor((Date.now() - d.lastStartTime) / 1000);
+                    let totalSeconds = (d.accumulatedSeconds || 0) + Math.max(0, activeElapsed);
                     let targetSeconds = (d.durationMinutes || 0) * 60;
-                    let isTimeEnded = targetSeconds > 0 && diffSeconds >= targetSeconds;
+                    let isTimeEnded = targetSeconds > 0 && totalSeconds >= targetSeconds;
 
                     if (isTimeEnded) startSpeechAlert(d.deviceId, d.name);
 
                     let timeFormatted = "";
                     if (targetSeconds > 0) {
-                        let remaining = Math.max(0, targetSeconds - diffSeconds);
+                        let remaining = Math.max(0, targetSeconds - totalSeconds);
                         let remMins = Math.floor(remaining / 60);
                         let remSecs = remaining % 60;
                         timeFormatted = isTimeEnded ? t('timeEnded') : `${t('timeLeft')}${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
                     } else {
-                        let hours = Math.floor(diffSeconds / 3600);
-                        let mins = Math.floor((diffSeconds % 3600) / 60);
-                        let secs = diffSeconds % 60;
+                        let hours = Math.floor(totalSeconds / 3600);
+                        let mins = Math.floor((totalSeconds % 3600) / 60);
+                        let secs = totalSeconds % 60;
                         timeFormatted = (hours > 0 ? hours + ':' : '') + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
                     }
 
-                    let totalHours = diffSeconds / 3600;
+                    let totalHours = totalSeconds / 3600;
                     let r = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
                     let hourlyRate = r[d.type] || 100;
                     let timeCost = Math.round(totalHours * hourlyRate);
