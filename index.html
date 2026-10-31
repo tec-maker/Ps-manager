@@ -188,7 +188,8 @@
                 newSalonUserPh: "اسم المستخدم الجديد",
                 newSalonPassUpdatePh: "كلمة المرور الجديدة",
                 supportText: "💬 الدعم الفني عبر واتساب:",
-                selectSalonForDevice: "اختر الصالة المراد إضافة الجهاز إليها:"
+                selectSalonForDevice: "اختر الصالة المراد إضافة الجهاز إليها:",
+                selectSalonForDevicesList: "اختر الصالة لعرض وإدارة أجهزتها:"
             },
             en: {
                 loginTitle: "Salon / Center Login",
@@ -264,7 +265,8 @@
                 newSalonUserPh: "New Username",
                 newSalonPassUpdatePh: "New Password",
                 supportText: "💬 Technical Support via WhatsApp:",
-                selectSalonForDevice: "Select target salon for this device:"
+                selectSalonForDevice: "Select target salon for this device:",
+                selectSalonForDevicesList: "Select salon to view and manage its devices:"
             },
             tr: {
                 loginTitle: "Salon / Merkez Girişi",
@@ -340,7 +342,8 @@
                 newSalonUserPh: "Yeni Kullanıcı Adı",
                 newSalonPassUpdatePh: "Yeni Şifre",
                 supportText: "💬 WhatsApp Destek Hattı:",
-                selectSalonForDevice: "Bu cihazın ekleneceği salonu seçin:"
+                selectSalonForDevice: "Bu cihazın ekleneceği salonu seçin:",
+                selectSalonForDevicesList: "Cihazlarını görüntülemek ve yönetmek için salon seçin:"
             },
             fr: {
                 loginTitle: "Connexion Salon / Centre",
@@ -416,7 +419,8 @@
                 newSalonUserPh: "Nouveau Nom d'utilisateur",
                 newSalonPassUpdatePh: "Nouveau Mot de passe",
                 supportText: "💬 Support technique WhatsApp :",
-                selectSalonForDevice: "Sélectionnez le salon cible pour cet appareil :"
+                selectSalonForDevice: "Sélectionnez le salon cible pour cet appareil :",
+                selectSalonForDevicesList: "Sélectionnez le salon pour afficher et gérer ses appareils :"
             }
         };
 
@@ -456,8 +460,8 @@
                 if (currentSalon.role === 'superadmin') {
                     document.getElementById('salon-welcome').innerText = t('generalAdminText');
                     loadSalonsList();
-                    loadAdminSalonsDropdown();
-                    loadAllSalonsDevicesForAdmin();
+                    loadAdminSalonsDropdowns();
+                    loadAdminDevicesList();
                 } else {
                     loadSalonDevicesConfig();
                     renderDevicesGrid();
@@ -596,6 +600,9 @@
             let selectSalonLbl = document.getElementById('select-salon-lbl');
             if(selectSalonLbl) selectSalonLbl.innerText = t('selectSalonForDevice');
 
+            let selectSalonFilterLbl = document.getElementById('select-salon-filter-lbl');
+            if(selectSalonFilterLbl) selectSalonFilterLbl.innerText = t('selectSalonForDevicesList');
+
             let langSelects = document.querySelectorAll('.lang-select');
             langSelects.forEach(sel => sel.value = currentLang);
         }
@@ -692,21 +699,23 @@
             let superAdminSection = document.getElementById('superadmin-section');
             let adminDeviceSection = document.getElementById('admin-device-management-section');
             let mainDashboardView = document.getElementById('main-dashboard-view');
+            let settingsBtnEl = document.getElementById('settings-btn-container');
 
             if (currentSalon.role === 'superadmin') {
                 superAdminSection.style.display = 'block';
                 adminDeviceSection.style.display = 'block';
-                // إخفاء لوحة الجلسات التشغيلية عن الإدارة العامة لتكون مخصصة حصرياً لإدارة الصالات والأجهزة
                 mainDashboardView.style.display = 'none';
+                if(settingsBtnEl) settingsBtnEl.style.display = 'none'; // حذف واختفاء زر الإعدادات من واجهة المسؤول تماماً
                 document.getElementById('settings-view-panel').style.display = 'block';
                 
                 loadSalonsList();
-                loadAdminSalonsDropdown();
-                loadAllSalonsDevicesForAdmin();
+                loadAdminSalonsDropdowns();
+                loadAdminDevicesList();
             } else {
                 superAdminSection.style.display = 'none';
                 adminDeviceSection.style.display = 'none';
                 mainDashboardView.style.display = 'block';
+                if(settingsBtnEl) settingsBtnEl.style.display = 'flex';
                 document.getElementById('settings-view-panel').style.display = 'none';
                 loadSalonDevicesConfig();
                 initCloudDevices();
@@ -717,13 +726,14 @@
         }
 
         window.openSettingsView = function() {
+            if (currentSalon.role === 'superadmin') return;
             document.getElementById('main-dashboard-view').style.display = 'none';
             document.getElementById('settings-view-panel').style.display = 'block';
             updateStaticTexts();
         }
 
         window.closeSettingsView = function() {
-            if (currentSalon.role === 'superadmin') return; // الإدارة العامة تبقى في لوحة التحكم الإدارية
+            if (currentSalon.role === 'superadmin') return;
             document.getElementById('settings-view-panel').style.display = 'none';
             document.getElementById('main-dashboard-view').style.display = 'block';
         }
@@ -747,19 +757,27 @@
             document.getElementById('new-salon-name').value = '';
             document.getElementById('new-salon-pass').value = '';
             loadSalonsList();
-            loadAdminSalonsDropdown();
+            loadAdminSalonsDropdowns();
         }
 
-        async function loadAdminSalonsDropdown() {
+        async function loadAdminSalonsDropdowns() {
             let dropdown = document.getElementById('admin-target-salon');
-            if (!dropdown) return;
+            let filterDropdown = document.getElementById('admin-filter-salon');
+            if (!dropdown || !filterDropdown) return;
+            
             let querySnapshot = await getDocs(collection(db, "salons"));
             let html = "";
+            let filterHtml = "";
+            
             querySnapshot.forEach((docSnap) => {
                 let data = docSnap.data();
                 html += `<option value="${data.name}">${data.name}</option>`;
+                filterHtml += `<option value="${data.name}">${data.name}</option>`;
             });
             dropdown.innerHTML = html;
+            filterHtml = `<option value="ALL">-- عرض الكل --</option>` + filterHtml;
+            filterDropdown.innerHTML = filterHtml;
+            loadAdminDevicesList();
         }
 
         async function loadSalonsList() {
@@ -827,7 +845,7 @@
             if (confirm(t('confirmDelete'))) {
                 await deleteDoc(doc(db, "salons", name));
                 loadSalonsList();
-                loadAdminSalonsDropdown();
+                loadAdminSalonsDropdowns();
             }
         }
 
@@ -877,7 +895,7 @@
 
                     alert("Salon credentials updated successfully without losing data!");
                     loadSalonsList();
-                    loadAdminSalonsDropdown();
+                    loadAdminSalonsDropdowns();
                 }
             }
         }
@@ -935,7 +953,7 @@
             document.getElementById('dev-name').value = '';
             
             if (currentSalon.role === 'superadmin') {
-                loadAllSalonsDevicesForAdmin();
+                loadAdminDevicesList();
             } else {
                 loadSalonDevicesConfig();
             }
@@ -988,30 +1006,49 @@
             listDiv.innerHTML = html;
         }
 
-        async function loadAllSalonsDevicesForAdmin() {
+        window.loadAdminDevicesList = async function() {
             let listDiv = document.getElementById('salon-devices-list');
-            if(!listDiv) return;
+            let filterDropdown = document.getElementById('admin-filter-salon');
+            if(!listDiv || !filterDropdown) return;
+            
+            let selectedSalonFilter = filterDropdown.value;
             listDiv.innerHTML = "Loading...";
+            
             let querySnapshot = await getDocs(collection(db, "salon_devices"));
             let html = "";
             let count = 0;
 
             querySnapshot.forEach((docSnap) => {
                 let dev = docSnap.data();
-                count++;
-                let icon = dev.category === 'pc' ? '🖥️ PC' : '🎮 PlayStation';
-                
-                html += `
-                    <div class="item-row">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <span>🏢 [<b>${dev.salon}</b>] ${icon} - <b>${dev.name}</b> (ID: ${dev.deviceId})</span>
-                            <button onclick="removeDeviceAdmin('${dev.salon}', '${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px;">${t('deleteBtn')}</button>
-                        </div>
-                    </div>`;
+                if (selectedSalonFilter === 'ALL' || dev.salon === selectedSalonFilter) {
+                    count++;
+                    let icon = dev.category === 'pc' ? '🖥️ PC' : '🎮 PlayStation';
+                    let r = dev.rates || {};
+
+                    html += `
+                        <div class="item-row">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <span>🏢 [<b>${dev.salon}</b>] ${icon} - <b>${dev.name}</b> (ID: ${dev.deviceId})</span>
+                                <button onclick="removeDeviceAdmin('${dev.salon}', '${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px;">${t('deleteBtn')}</button>
+                            </div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">${t('editRatesTitle')}</div>
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:5px; margin-bottom:8px;">
+                                ${dev.category === 'ps' ? `
+                                    <div>${t('singleLabel')}: <input type="number" id="admin-r-single-${dev.salon}-${dev.deviceId}" value="${r['فردي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                    <div>${t('doubleLabel')}: <input type="number" id="admin-r-double-${dev.salon}-${dev.deviceId}" value="${r['ثنائي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                    <div>${t('tripleLabel')}: <input type="number" id="admin-r-triple-${dev.salon}-${dev.deviceId}" value="${r['ثلاثي'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                                    <div>${t('quadLabel')}: <input type="number" id="admin-r-quad-${dev.salon}-${dev.deviceId}" value="${r['رباعي'] || 200}" style="padding:4px; margin:0; text-align:center;"></div>
+                                ` : `
+                                    <div style="grid-column: span 2;">PC Rate: <input type="number" id="admin-r-pc-${dev.salon}-${dev.deviceId}" value="${r['PC'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                                `}
+                            </div>
+                            <button onclick="updateAdminDeviceRates('${dev.salon}', '${dev.deviceId}', '${dev.category}')" style="background:var(--accent-blue); border:none; color:#fff; padding:6px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">${t('saveRates')}</button>
+                        </div>`;
+                }
             });
 
             if (count === 0) {
-                listDiv.innerHTML = "No devices found across any salon.";
+                listDiv.innerHTML = "No devices found for this salon.";
                 return;
             }
             listDiv.innerHTML = html;
@@ -1021,12 +1058,32 @@
             if (confirm("Delete this device from salon " + salonName + "?")) {
                 let docId = `${salonName}_${devId}`;
                 await deleteDoc(doc(db, "salon_devices", docId));
-                loadAllSalonsDevicesForAdmin();
+                loadAdminDevicesList();
             }
         }
 
+        window.updateAdminDeviceRates = async function(salonName, devId, category) {
+            let docId = `${salonName}_${devId}`;
+            let docRef = doc(db, "salon_devices", docId);
+            let docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) return;
+            let d = docSnap.data();
+
+            let updatedRates = { ...d.rates };
+            if (category === 'ps') {
+                updatedRates["فردي"] = parseInt(document.getElementById(`admin-r-single-${salonName}-${devId}`).value) || 100;
+                updatedRates["ثنائي"] = parseInt(document.getElementById(`admin-r-double-${salonName}-${devId}`).value) || 100;
+                updatedRates["ثلاثي"] = parseInt(document.getElementById(`admin-r-triple-${salonName}-${devId}`).value) || 150;
+                updatedRates["رباعي"] = parseInt(document.getElementById(`admin-r-quad-${salonName}-${devId}`).value) || 200;
+            } else {
+                updatedRates["PC"] = parseInt(document.getElementById(`admin-r-pc-${salonName}-${devId}`).value) || 150;
+            }
+
+            await setDoc(docRef, { ...d, rates: updatedRates }, { merge: true });
+            alert("Rates updated successfully!");
+        }
+
         window.updateDeviceRates = async function(devId, category) {
-            let salonTarget = currentSalon.role === 'superadmin' ? (document.getElementById('admin-target-salon').value || currentSalon.name) : currentSalon.name;
             let d = devicesData[devId] || salonDevicesList.find(item => item.deviceId === devId);
             if (!d) return;
 
@@ -1040,7 +1097,7 @@
                 updatedRates["PC"] = parseInt(document.getElementById(`r-pc-${devId}`).value) || 150;
             }
 
-            let docId = `${d.salon || salonTarget}_${devId}`;
+            let docId = `${d.salon}_${devId}`;
             await setDoc(doc(db, "salon_devices", docId), { ...d, rates: updatedRates }, { merge: true });
             alert("Rates updated successfully!");
         }
@@ -1128,7 +1185,7 @@
         }
 
         function initCloudDevices() {
-            if (currentSalon.role === 'superadmin') return; // الإدارة العامة لا تشغل جلسات الأجهزة
+            if (currentSalon.role === 'superadmin') return;
             document.getElementById('sync-text').innerText = t('synced');
             onSnapshot(collection(db, "salon_devices"), (snapshot) => {
                 salonDevicesList = [];
@@ -1509,7 +1566,6 @@
         <button class="main-btn" onclick="login()">دخول النظام</button>
         <div id="login-error" style="color: var(--accent-red); margin-top: 10px; font-size: 13px;"></div>
 
-        <!-- دعم واتساب في شاشة تسجيل الدخول -->
         <div class="whatsapp-support">
             <span id="support-text-label" style="color: var(--text-muted); display: block;">💬 الدعم الفني عبر واتساب:</span>
             <a href="https://wa.me/963940593391" target="_blank">
@@ -1526,7 +1582,9 @@
             <h1 id="brand-title"><img src="https://img.icons8.com/color/32/play-station.png" style="vertical-align: middle;"> صالة الألعاب</h1>
             <div class="header-actions">
                 <span id="salon-welcome" style="font-size: 12px; color: var(--accent-blue); font-weight: bold;"></span>
-                <button class="settings-icon-btn" onclick="openSettingsView()" title="الإعدادات"><span id="settings-btn-text">⚙️ الإعدادات</span></button>
+                <div id="settings-btn-container" style="display:flex;">
+                    <button class="settings-icon-btn" onclick="openSettingsView()" title="الإعدادات"><span id="settings-btn-text">⚙️ الإعدادات</span></button>
+                </div>
             </div>
         </header>
 
@@ -1561,7 +1619,7 @@
                 <button onclick="closeSettingsView()" id="close-settings-btn" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
 
-            <!-- لوحة إضافة وإدارة الأجهزة (تظهر للمسؤول العام فقط) -->
+            <!-- لوحة إضافة الأجهزة (للمسؤول فقط) -->
             <div id="admin-device-management-section" class="admin-panel" style="display: none; border-color: var(--accent-green); margin-top: 15px;">
                 <h3 style="color: var(--accent-green); margin-top:0;" id="add-device-title-text">🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط (للمسؤول فقط)</h3>
                 
@@ -1595,8 +1653,12 @@
                 <button class="main-btn" id="add-device-btn" style="background: var(--accent-green);" onclick="addDeviceToSalon()">➕ حفظ وإضافة الجهاز</button>
             </div>
 
-            <!-- قائمة الأجهزة -->
+            <!-- قائمة الأجهزة وإدارة التسعير مع قائمة منسدلة خاصة بالصالات للمسؤول -->
             <div class="admin-panel" style="margin-top: 15px;">
+                <div id="admin-filter-container" style="margin-bottom: 12px; display: none;">
+                    <span id="select-salon-filter-lbl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">اختر الصالة لعرض وإدارة أجهزتها:</span>
+                    <select id="admin-filter-salon" onchange="loadAdminDevicesList()" style="margin-top:0;"></select>
+                </div>
                 <h4 style="margin: 0 0 8px 0; font-size: 14px; color: var(--accent-blue);" id="devices-list-title-text">قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:</h4>
                 <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
             </div>
