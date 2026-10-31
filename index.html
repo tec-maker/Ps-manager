@@ -105,10 +105,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        const ADMIN_USER = "admin_master_secure_99";
+        const ADMIN_PASS = "G#9mP!2$vK9xL*";
+
         const translations = {
             ar: {
                 loginTitle: "تسجيل دخول الصالة / المركز",
-                usernamePh: "اسم الصالة (أو HA للإدارة العامة)",
+                usernamePh: "اسم الصالة",
                 passwordPh: "كلمة المرور",
                 loginBtn: "دخول النظام",
                 brandTitle: "صالة الألعاب",
@@ -174,11 +177,15 @@
                 confirmSuspend: "هل أنت متأكد من رغبتك في إيقاف هذه الصالة مؤقتاً؟ لن يتمكن صاحب الصالة من تسجيل الدخول حتى إعادة تفعيلها.",
                 confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟",
                 confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.",
-                salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة."
+                salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة.",
+                editSalonCredentials: "تعديل بيانات الدخول",
+                saveCredentials: "💾 حفظ البيانات الجديدة",
+                newSalonUserPh: "اسم المستخدم الجديد",
+                newSalonPassUpdatePh: "كلمة المرور الجديدة"
             },
             en: {
                 loginTitle: "Salon / Center Login",
-                usernamePh: "Salon Name (or HA for Superadmin)",
+                usernamePh: "Salon Name",
                 passwordPh: "Password",
                 loginBtn: "Login",
                 brandTitle: "Gaming Lounge",
@@ -244,11 +251,15 @@
                 confirmSuspend: "Are you sure you want to temporarily suspend this salon?",
                 confirmActivate: "Are you sure you want to reactivate this salon?",
                 confirmDelete: "⚠️ Warning: Are you sure you want to permanently delete this salon and its data?",
-                salonSuspendedError: "This account is temporarily suspended by administration."
+                salonSuspendedError: "This account is temporarily suspended by administration.",
+                editSalonCredentials: "Edit Credentials",
+                saveCredentials: "💾 Save New Info",
+                newSalonUserPh: "New Username",
+                newSalonPassUpdatePh: "New Password"
             },
             tr: {
                 loginTitle: "Salon / Merkez Girişi",
-                usernamePh: "Salon Adı (veya Süper Yönetici için HA)",
+                usernamePh: "Salon Adı",
                 passwordPh: "Şifre",
                 loginBtn: "Giriş Yap",
                 brandTitle: "Oyun Salonu",
@@ -314,11 +325,15 @@
                 confirmSuspend: "Bu salonu geçici olarak askıya almak istediğinizden emin misiniz?",
                 confirmActivate: "Bu salonu yeniden etkinleştirmek istediğinizden emin misiniz?",
                 confirmDelete: "⚠️ Uyarı: Bu salonu ve verilerini kalıcı olarak silmek istediğinizden emin misiniz?",
-                salonSuspendedError: "Bu hesap yönetim tarafından geçici olarak askıya alınmıştır."
+                salonSuspendedError: "Bu hesap yönetim tarafından geçici olarak askıya alınmıştır.",
+                editSalonCredentials: "Bilgileri Düzenle",
+                saveCredentials: "💾 Yeni Bilgileri Kaydet",
+                newSalonUserPh: "Yeni Kullanıcı Adı",
+                newSalonPassUpdatePh: "Yeni Şifre"
             },
             fr: {
                 loginTitle: "Connexion Salon / Centre",
-                usernamePh: "Nom du Salon (ou HA pour Superadmin)",
+                usernamePh: "Nom du Salon",
                 passwordPh: "Mot de passe",
                 loginBtn: "Connexion",
                 brandTitle: "Salon de Jeux",
@@ -377,14 +392,18 @@
                 toDate: "Date de fin:",
                 downloadCustom: "📥 Télécharger la période personnalisée",
                 generalAdminText: "Admin Général",
-                activeStatus: "Actيف",
+                activeStatus: "Actif",
                 suspendedStatus: "Suspendu",
                 suspendBtn: "Suspendre",
                 activateBtn: "Activer",
                 confirmSuspend: "Êtes-vous sûr de vouloir suspendre temporairement ce salon ?",
                 confirmActivate: "Êtes-vous sûr de vouloir réactiver ce salon ?",
                 confirmDelete: "⚠️ Avertissement : Voulez-vous vraiment supprimer définitivement ce salon ?",
-                salonSuspendedError: "Ce compte est temporairement suspendu par l'administration."
+                salonSuspendedError: "Ce compte est temporairement suspendu par l'administration.",
+                editSalonCredentials: "Modifier les identifiants",
+                saveCredentials: "💾 Enregistrer",
+                newSalonUserPh: "Nouveau Nom d'utilisateur",
+                newSalonPassUpdatePh: "Nouveau Mot de passe"
             }
         };
 
@@ -601,7 +620,7 @@
                 return;
             }
 
-            if (u === "HA" && p === "hamodi296") {
+            if (u === ADMIN_USER && p === ADMIN_PASS) {
                 currentSalon = { name: "الادارة العامة", role: "superadmin" };
                 localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
                 localStorage.setItem('ps_login_time', Date.now().toString());
@@ -709,15 +728,75 @@
                 let toggleBtnColor = isSuspended ? '#059669' : '#d97706';
 
                 html += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#030712; padding:10px; margin-top:8px; border-radius:8px; border: 1px solid var(--border-color);">
-                        <div>🏢 <b>${data.name}</b> <div style="margin-top:2px;">${statusBadge}</div></div>
-                        <div style="display:flex; gap:6px;">
-                            <button onclick="toggleSalonStatus('${data.name}', ${isSuspended})" style="background:${toggleBtnColor}; border:none; color:#fff; padding:5px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px; font-weight:bold;">${toggleBtnText}</button>
-                            <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:5px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px; font-weight:bold;">${t('deleteBtn')}</button>
+                    <div style="background:#030712; padding:10px; margin-top:8px; border-radius:8px; border: 1px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>🏢 <b>${data.name}</b> <div style="margin-top:2px;">${statusBadge}</div></div>
+                            <div style="display:flex; gap:6px;">
+                                <button onclick="toggleSalonStatus('${data.name}', ${isSuspended})" style="background:${toggleBtnColor}; border:none; color:#fff; padding:5px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px; font-weight:bold;">${toggleBtnText}</button>
+                                <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:5px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px; font-weight:bold;">${t('deleteBtn')}</button>
+                            </div>
+                        </div>
+                        <div style="margin-top:8px; border-top:1px dashed var(--border-color); padding-top:8px; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px; align-items:center;">
+                            <input type="text" id="edit-user-${data.name}" value="${data.name}" placeholder="${t('newSalonUserPh')}" style="margin:0; padding:4px; font-size:11px;">
+                            <input type="password" id="edit-pass-${data.name}" value="${data.password}" placeholder="${t('newSalonPassUpdatePh')}" style="margin:0; padding:4px; font-size:11px;">
+                            <button onclick="updateSalonCredentials('${data.name}')" style="background:var(--accent-blue); border:none; color:#fff; padding:5px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:bold; margin:0;">${t('saveCredentials')}</button>
                         </div>
                     </div>`;
             });
             listDiv.innerHTML = html;
+        }
+
+        window.updateSalonCredentials = async function(oldName) {
+            let newUser = document.getElementById(`edit-user-${oldName}`).value.trim();
+            let newPass = document.getElementById(`edit-pass-${oldName}`).value.trim();
+
+            if (!newUser || !newPass) {
+                alert("Please fill both username and password fields.");
+                return;
+            }
+
+            if (newUser === ADMIN_USER) {
+                alert("Cannot use reserved admin username.");
+                return;
+            }
+
+            if (confirm(`Update credentials for salon ${oldName} to User: ${newUser}?`)) {
+                let oldDocRef = doc(db, "salons", oldName);
+                let oldDocSnap = await getDoc(oldDocRef);
+                if (oldDocSnap.exists()) {
+                    let salonData = oldDocSnap.data();
+                    
+                    // إذا تم تغيير اسم الصالة، أنشئ مستند جديد وانقل الأجهزة والسجلات ثم احذف القديم مع الحفاظ على البيانات
+                    if (newUser !== oldName) {
+                        let newDocRef = doc(db, "salons", newUser);
+                        let newDocSnap = await getDoc(newDocRef);
+                        if (newDocSnap.exists()) {
+                            alert("Username already exists!");
+                            return;
+                        }
+                        await setDoc(newDocRef, { ...salonData, name: newUser, password: newPass });
+                        
+                        // تحديث الأجهزة المرتبطة بالصالة في سحابة الأجهزة
+                        let devsSnapshot = await getDocs(collection(db, "salon_devices"));
+                        devsSnapshot.forEach(async (dSnap) => {
+                            let dData = dSnap.data();
+                            if (dData.salon === oldName) {
+                                let newDevDocId = `${newUser}_${dData.deviceId}`;
+                                await setDoc(doc(db, "salon_devices", newDevDocId), { ...dData, salon: newUser });
+                                await deleteDoc(dSnap.ref);
+                            }
+                        });
+
+                        await deleteDoc(oldDocRef);
+                    } else {
+                        // فقط تحديث كلمة المرور
+                        await setDoc(oldDocRef, { ...salonData, password: newPass });
+                    }
+
+                    alert("Salon credentials updated successfully without losing data!");
+                    loadSalonsList();
+                }
+            }
         }
 
         window.toggleSalonStatus = async function(name, currentSuspended) {
@@ -1022,7 +1101,6 @@
             await setDoc(doc(db, "salon_devices", docId), { ...d, posItems: currentItems });
         }
 
-        // دالة إيقاف الجلسة المحسنة مع إمكانية (إنهاء الفاتورة، أو إضافة وقت، أو متابعة الجلسة)
         window.stopDeviceCloud = async function(devId) {
             let d = devicesData[devId];
             if (!d || !d.startTime) return;
@@ -1034,14 +1112,12 @@
                 ""
             );
 
-            // إذا ضغط المستخدم إلغاء (Cancel)
             if (choice === null) {
                 return;
             }
 
             let trimmedChoice = choice.trim().toLowerCase();
 
-            // إذا أدخل المستخدم دقائق لإضافتها للجلسة
             if (trimmedChoice !== "" && !isNaN(trimmedChoice)) {
                 let addMins = parseInt(trimmedChoice);
                 if (addMins !== 0) {
@@ -1051,7 +1127,6 @@
                 return;
             }
 
-            // إذا اختر إنهاء الفاتورة (عبر كتابة stop أو إنهاء، أو تركها فارغة واختيار موافق)
             if (trimmedChoice === "stop" || trimmedChoice === "إنهاء" || trimmedChoice === "") {
                 let confirmEnd = confirm(
                     currentLang === 'ar' 
@@ -1302,7 +1377,7 @@
     <div id="auth-screen" class="auth-container">
         <img src="https://img.icons8.com/color/96/play-station.png" alt="Icon" style="width: 64px; margin-bottom: 10px;">
         <h2>تسجيل دخول الصالة / المركز</h2>
-        <input type="text" id="username" placeholder="اسم الصالة (أو HA للإدارة العامة)">
+        <input type="text" id="username" placeholder="اسم الصالة">
         <input type="password" id="password" placeholder="كلمة المرور">
         
         <div style="margin-top: 15px; text-align: left;">
