@@ -131,7 +131,7 @@
                 revenue: "إيرادات الصالة",
                 historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم",
                 noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن",
-                exportSectionTitle: "📊 تقارير وتحميل السجلات (Excel / CSV)",
+                exportSectionTitle: "📊 تقارير وتحميل السجلات (ملف Excel)",
                 reportTypeLbl: "نوع التقرير:",
                 optDaily: "يومي (اليوم الحالي)",
                 optWeekly: "أسبوعي (آخر 7 أيام)",
@@ -139,7 +139,7 @@
                 optCustom: "تحديد بين تاريخين",
                 fromDateLbl: "من تاريخ:",
                 toDateLbl: "إلى تاريخ:",
-                downloadReportBtn: "📥 تحميل السجلات المحددة",
+                downloadReportBtn: "📥 تحميل السجلات كملف Excel",
                 settingsTitle: "⚙️ لوحة تحكم المسؤول العام (إدارة الصالات والأجهزة)",
                 closeSettings: "✖ إغلاق ورجوع",
                 superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)",
@@ -212,7 +212,7 @@
                 revenue: "Salon Revenue",
                 historyTitle: "📋 Today's Invoices & Sessions History",
                 noHistory: "No sessions recorded today yet",
-                exportSectionTitle: "📊 Reports & Logs Download (Excel / CSV)",
+                exportSectionTitle: "📊 Reports & Logs Download (Excel File)",
                 reportTypeLbl: "Report Type:",
                 optDaily: "Daily (Today)",
                 optWeekly: "Weekly (Last 7 Days)",
@@ -220,7 +220,7 @@
                 optCustom: "Custom Date Range",
                 fromDateLbl: "From Date:",
                 toDateLbl: "To Date:",
-                downloadReportBtn: "📥 Download Selected Logs",
+                downloadReportBtn: "📥 Download Logs as Excel",
                 settingsTitle: "⚙️ General Admin Control Panel (Salons & Devices)",
                 closeSettings: "✖ Close & Return",
                 superAdminTitle: "👑 Central Control Panel (Salons Management)",
@@ -293,7 +293,7 @@
                 revenue: "Salon Geliri",
                 historyTitle: "📋 Bugünkü Faturalar ve Oturum Geçmişi",
                 noHistory: "Bugün henüz kayıtlı oturum yok",
-                exportSectionTitle: "📊 Raporlar ve Kayıt İndirme (Excel / CSV)",
+                exportSectionTitle: "📊 Raporlar ve Kayıt İndirme (Excel Dosyası)",
                 reportTypeLbl: "Rapor Türü:",
                 optDaily: "Günlük (Bugün)",
                 optWeekly: "Haftalık (Son 7 Gün)",
@@ -301,7 +301,7 @@
                 optCustom: "Özel Tarih Aralığı",
                 fromDateLbl: "Başlangıç Tarihi:",
                 toDateLbl: "Bitiş Tarihi:",
-                downloadReportBtn: "📥 Seçilen Kayıtları İndir",
+                downloadReportBtn: "📥 Kayıtları Excel Olarak İndir",
                 settingsTitle: "⚙️ Genel Yönetim Paneli (Salon ve Cihazlar)",
                 closeSettings: "✖ Kapat ve Dön",
                 superAdminTitle: "👑 Merkezi Kontrol Paneli (Salon Yönetimi)",
@@ -374,7 +374,7 @@
                 revenue: "Revenu du Salon",
                 historyTitle: "📋 Historique des Factures et Sessions",
                 noHistory: "Aucune session enregistrée aujourd'hui",
-                exportSectionTitle: "📊 Rapports et Téléchargement (Excel / CSV)",
+                exportSectionTitle: "📊 Rapports et Téléchargement (Fichier Excel)",
                 reportTypeLbl: "Type de rapport :",
                 optDaily: "Quotidien (Aujourd'hui)",
                 optWeekly: "Hebdomadaire (7 derniers jours)",
@@ -382,7 +382,7 @@
                 optCustom: "Plage de dates personnalisée",
                 fromDateLbl: "De la date :",
                 toDateLbl: "À la date :",
-                downloadReportBtn: "📥 Télécharger les journaux sélectionnés",
+                downloadReportBtn: "📥 Télécharger en Excel",
                 settingsTitle: "⚙️ Panneau d'Administration Général (Salons & Appareils)",
                 closeSettings: "✖ Fermer et Retour",
                 superAdminTitle: "👑 Panneau de Contrôle Central (Gestion Salons)",
@@ -845,37 +845,36 @@
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            if (currentLang === 'ar') {
-                csvContent += "الصالة,التفاصيل,المبلغ,الوقت,التاريخ\n";
-                filtered.forEach(item => {
-                    let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
-                    csvContent += `"${item.salon}","${item.text}",${item.price},"${item.time}","${dateStr}"\n`;
-                });
-            } else if (currentLang === 'tr') {
-                csvContent += "Salon,Detaylar,Tutar,Saat,Tarih\n";
-                filtered.forEach(item => {
-                    let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
-                    csvContent += `"${item.salon}","${item.text}",${item.price},"${item.time}","${dateStr}"\n`;
-                });
-            } else if (currentLang === 'fr') {
-                csvContent += "Salon,Détails,Montant,Heure,Date\n";
-                filtered.forEach(item => {
-                    let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
-                    csvContent += `"${item.salon}","${item.text}",${item.price},"${item.time}","${dateStr}"\n`;
-                });
-            } else {
-                csvContent += "Salon,Details,Price,Time,Date\n";
-                filtered.forEach(item => {
-                    let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
-                    csvContent += `"${item.salon}","${item.text}",${item.price},"${item.time}","${dateStr}"\n`;
-                });
-            }
+            // إنشاء جدول HTML متوافق تماماً مع Excel بصيغة .xls لفتح الأعمدة بوضوح وجداول رسمية
+            let excelHTML = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/1999/xhtml">
+            <head><meta charset="UTF-8"></head>
+            <body>
+            <table border="1">
+                <tr style="background-color: #0284c7; color: #ffffff; font-weight: bold;">
+                    <th>${currentLang === 'ar' ? 'الصالة' : 'Salon'}</th>
+                    <th>${currentLang === 'ar' ? 'التفاصيل' : 'Details'}</th>
+                    <th>${currentLang === 'ar' ? 'المبلغ' : 'Price'}</th>
+                    <th>${currentLang === 'ar' ? 'الوقت' : 'Time'}</th>
+                    <th>${currentLang === 'ar' ? 'التاريخ' : 'Date'}</th>
+                </tr>`;
 
-            let encodedUri = encodeURI(csvContent);
+            filtered.forEach(item => {
+                let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                excelHTML += `<tr>
+                    <td>${item.salon || ''}</td>
+                    <td>${item.text || ''}</td>
+                    <td>${item.price || 0}</td>
+                    <td>${item.time || ''}</td>
+                    <td>${dateStr}</td>
+                </tr>`;
+            });
+
+            excelHTML += `</table></body></html>`;
+
+            let blob = new Blob([excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8;' });
             let link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `lounge_report_${reportType}_${new Date().toISOString().slice(0,10)}.csv`);
+            link.href = URL.createObjectURL(blob);
+            link.download = `lounge_report_${reportType}_${new Date().toISOString().slice(0,10)}.xls`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1760,7 +1759,7 @@
 
             <!-- قسم تقارير وتحميل السجلات (متاح لصاحب الصالة وللمسؤول حسب صلاحياته) -->
             <div id="export-logs-container" class="admin-panel" style="display: none; border-color: var(--accent-orange); margin-top: 15px;">
-                <h3 style="color: var(--accent-orange); margin-top:0; font-size: 16px;" id="export-section-title">📊 تقارير وتحميل السجلات (Excel / CSV)</h3>
+                <h3 style="color: var(--accent-orange); margin-top:0; font-size: 16px;" id="export-section-title">📊 تقارير وتحميل السجلات (ملف Excel)</h3>
                 
                 <div style="margin-bottom: 10px;">
                     <span id="report-type-lbl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">نوع التقرير:</span>
@@ -1783,7 +1782,7 @@
                     </div>
                 </div>
 
-                <button class="main-btn" id="download-report-btn-text" style="background: var(--accent-orange);" onclick="exportLogsReport()">📥 تحميل السجلات المحددة</button>
+                <button class="main-btn" id="download-report-btn-text" style="background: var(--accent-orange);" onclick="exportLogsReport()">📥 تحميل السجلات كملف Excel</button>
             </div>
 
             <!-- لوحة إضافة الأجهزة (للمسؤول فقط) -->
