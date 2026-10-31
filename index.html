@@ -157,7 +157,7 @@
                 statusBusy: "مشغول 🔴",
                 timeEnded: "⏰ انتهى الوقت!",
                 timeLeft: "⏳ متبقي: ",
-                defaultRatesPrompt: "تحديد سعر الساعة الافتراضي لكل نمط لاعبين:",
+                defaultRatesPrompt: "تحديد سعر الساعة الافتراضي:",
                 reportSectionTitle: "📥 تقارير وتنزيل السجل والفواتير",
                 downloadDaily: "📥 تنزيل السجل اليومي",
                 downloadWeekly: "📥 تنزيل السجل الأسبوعي",
@@ -219,7 +219,7 @@
                 statusBusy: "Busy 🔴",
                 timeEnded: "⏰ Time Ended!",
                 timeLeft: "⏳ Left: ",
-                defaultRatesPrompt: "Set default hourly rate for each mode:",
+                defaultRatesPrompt: "Set default hourly rate:",
                 reportSectionTitle: "📥 Reports & History Downloads",
                 downloadDaily: "📥 Download Daily History",
                 downloadWeekly: "📥 Download Weekly History",
@@ -281,7 +281,7 @@
                 statusBusy: "Meşgul 🔴",
                 timeEnded: "⏰ Süre Bitti!",
                 timeLeft: "⏳ Kalan: ",
-                defaultRatesPrompt: "Her mod için varsayılan saatlik ücreti belirleyin:",
+                defaultRatesPrompt: "Varsayılan saatlik ücreti belirleyin:",
                 reportSectionTitle: "📥 Raporlar ve Geçmiş İndirmeleri",
                 downloadDaily: "📥 Günlük Geçmişi İndir",
                 downloadWeekly: "📥 Haftalık Geçmişi İndir",
@@ -343,7 +343,7 @@
                 statusBusy: "Occupé 🔴",
                 timeEnded: "⏰ Temps écoulé !",
                 timeLeft: "⏳ Restant: ",
-                defaultRatesPrompt: "Définir le tarif horaire par défaut pour chaque mode:",
+                defaultRatesPrompt: "Définir le tarif horaire:",
                 reportSectionTitle: "📥 Rapports et Téléchargement de l'historique",
                 downloadDaily: "📥 Télécharger l'historique quotidien",
                 downloadWeekly: "📥 Télécharger l'historique hebdomadaire",
@@ -396,6 +396,20 @@
                 loadSalonDevicesConfig();
                 renderDevicesGrid();
                 renderHistory();
+            }
+        }
+
+        window.onDeviceTypeChange = function() {
+            let typeVal = document.getElementById('dev-type').value;
+            let psRatesContainer = document.getElementById('ps-rates-container');
+            let pcRatesContainer = document.getElementById('pc-rates-container');
+
+            if (typeVal === 'ps') {
+                psRatesContainer.style.display = 'grid';
+                pcRatesContainer.style.display = 'none';
+            } else {
+                psRatesContainer.style.display = 'none';
+                pcRatesContainer.style.display = 'block';
             }
         }
 
@@ -599,6 +613,7 @@
             loadSalonDevicesConfig();
             initCloudDevices();
             updateStaticTexts();
+            onDeviceTypeChange();
         }
 
         window.openSettingsView = function() {
@@ -1249,18 +1264,24 @@
                 <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
                     <input type="text" id="dev-id" placeholder="الرقم المعرف (1, 2, 3...)">
                     <input type="text" id="dev-name" placeholder="اسم الجهاز (مثلاً: PS5 - 1)">
-                    <select id="dev-type">
+                    <select id="dev-type" onchange="onDeviceTypeChange()">
                         <option value="ps" id="opt-ps">بلايستيشن (PlayStation)</option>
                         <option value="pc" id="opt-pc">حاسوب (PC)</option>
                     </select>
                 </div>
 
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="default-rates-prompt-text">تحديد سعر الساعة الافتراضي لكل نمط لاعبين:</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 6px; margin-top: 5px;">
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="default-rates-prompt-text">تحديد سعر الساعة الافتراضي:</div>
+                
+                <!-- خانات أسعار البلايستيشن تظهر فقط عند اختيار بلايستيشن -->
+                <div id="ps-rates-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 5px;">
                     <div><span id="rate-lbl-single">فردي</span>: <input type="number" id="rate-single" value="100"></div>
                     <div><span id="rate-lbl-double">ثنائي</span>: <input type="number" id="rate-double" value="100"></div>
                     <div><span id="rate-lbl-triple">ثلاثي</span>: <input type="number" id="rate-triple" value="150"></div>
                     <div><span id="rate-lbl-quad">رباعي</span>: <input type="number" id="rate-quad" value="200"></div>
+                </div>
+
+                <!-- خانة سعر الحاسوب تظهر فقط عند اختيار PC -->
+                <div id="pc-rates-container" style="display: none; margin-top: 5px;">
                     <div><span id="rate-lbl-pc">ساعة PC</span>: <input type="number" id="rate-pc" value="150"></div>
                 </div>
 
