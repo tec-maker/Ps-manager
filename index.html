@@ -174,10 +174,10 @@
                 suspendedStatus: "موقوف مؤقتاً",
                 suspendBtn: "إيقاف مؤقت",
                 activateBtn: "تفعيل",
-                confirmSuspend: "هل أنت متأكد من رغبتك في إيقاف هذه الصالة مؤقتاً؟ لن يتمكن صاحب الصالة من تسجيل الدخول حتى إعادة تفعيلها.",
+                confirmSuspend: "أدخل سبب الإيقاف المؤقت لهذه الصالة:",
                 confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟",
                 confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.",
-                salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة.",
+                salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة. السبب: ",
                 editSalonCredentials: "تعديل بيانات الدخول",
                 saveCredentials: "💾 حفظ البيانات الجديدة",
                 newSalonUserPh: "اسم المستخدم الجديد",
@@ -248,10 +248,10 @@
                 suspendedStatus: "Suspended",
                 suspendBtn: "Suspend",
                 activateBtn: "Activate",
-                confirmSuspend: "Are you sure you want to temporarily suspend this salon?",
+                confirmSuspend: "Enter suspension reason for this salon:",
                 confirmActivate: "Are you sure you want to reactivate this salon?",
                 confirmDelete: "⚠️ Warning: Are you sure you want to permanently delete this salon and its data?",
-                salonSuspendedError: "This account is temporarily suspended by administration.",
+                salonSuspendedError: "This account is temporarily suspended by administration. Reason: ",
                 editSalonCredentials: "Edit Credentials",
                 saveCredentials: "💾 Save New Info",
                 newSalonUserPh: "New Username",
@@ -322,10 +322,10 @@
                 suspendedStatus: "Askıda",
                 suspendBtn: "Askıya Al",
                 activateBtn: "Etkinleştir",
-                confirmSuspend: "Bu salonu geçici olarak askıya almak istediğinizden emin misiniz?",
+                confirmSuspend: "Bu salonun askıya alınma nedenini girin:",
                 confirmActivate: "Bu salonu yeniden etkinleştirmek istediğinizden emin misiniz?",
                 confirmDelete: "⚠️ Uyarı: Bu salonu ve verilerini kalıcı olarak silmek istediğinizden emin misiniz?",
-                salonSuspendedError: "Bu hesap yönetim tarafından geçici olarak askıya alınmıştır.",
+                salonSuspendedError: "Bu hesap yönetim tarafından geçici olarak askıya alınmıştır. Neden: ",
                 editSalonCredentials: "Bilgileri Düzenle",
                 saveCredentials: "💾 Yeni Bilgileri Kaydet",
                 newSalonUserPh: "Yeni Kullanıcı Adı",
@@ -396,10 +396,10 @@
                 suspendedStatus: "Suspendu",
                 suspendBtn: "Suspendre",
                 activateBtn: "Activer",
-                confirmSuspend: "Êtes-vous sûr de vouloir suspendre temporairement ce salon ?",
+                confirmSuspend: "Entrez la raison de la suspension de ce salon :",
                 confirmActivate: "Êtes-vous sûr de vouloir réactiver ce salon ?",
                 confirmDelete: "⚠️ Avertissement : Voulez-vous vraiment supprimer définitivement ce salon ?",
-                salonSuspendedError: "Ce compte est temporairement suspendu par l'administration.",
+                salonSuspendedError: "Ce compte est temporairement suspendu par l'administration. Raison : ",
                 editSalonCredentials: "Modifier les identifiants",
                 saveCredentials: "💾 Enregistrer",
                 newSalonUserPh: "Nouveau Nom d'utilisateur",
@@ -634,7 +634,8 @@
                 if (docSnap.exists()) {
                     let salonData = docSnap.data();
                     if (salonData.suspended) {
-                        err.innerText = t('salonSuspendedError');
+                        let reasonText = salonData.suspendReason ? salonData.suspendReason : (currentLang === 'ar' ? 'بدون سبب محدد' : 'No reason provided');
+                        err.innerText = t('salonSuspendedError') + reasonText;
                         return;
                     }
                     if (salonData.password === p) {
@@ -701,7 +702,7 @@
                 return;
             }
 
-            await setDoc(docRef, { name: name, password: pass, suspended: false });
+            await setDoc(docRef, { name: name, password: pass, suspended: false, suspendReason: "" });
             alert(`Salon ${name} created successfully!`);
             document.getElementById('new-salon-name').value = '';
             document.getElementById('new-salon-pass').value = '';
@@ -720,8 +721,10 @@
             querySnapshot.forEach((docSnap) => {
                 let data = docSnap.data();
                 let isSuspended = data.suspended || false;
+                let suspendReason = data.suspendReason || "";
+                
                 let statusBadge = isSuspended 
-                    ? `<span style="color:#ef4444; font-size:11px; background:rgba(239,68,68,0.1); padding:2px 6px; border-radius:4px; font-weight:bold;">${t('suspendedStatus')}</span>` 
+                    ? `<span style="color:#ef4444; font-size:11px; background:rgba(239,68,68,0.1); padding:2px 6px; border-radius:4px; font-weight:bold;">${t('suspendedStatus')} ${suspendReason ? '(' + suspendReason + ')' : ''}</span>` 
                     : `<span style="color:#34d399; font-size:11px; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px; font-weight:bold;">${t('activeStatus')}</span>`;
                 
                 let toggleBtnText = isSuspended ? t('activateBtn') : t('suspendBtn');
@@ -746,6 +749,35 @@
             listDiv.innerHTML = html;
         }
 
+        window.toggleSalonStatus = async function(name, currentSuspended) {
+            let docRef = doc(db, "salons", name);
+            let docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) return;
+            let data = docSnap.data();
+
+            if (!currentSuspended) {
+                // إيقاف مؤقت مع إدخال السبب
+                let reason = prompt(t('confirmSuspend'), "");
+                if (reason === null) return; // تم الإلغاء
+                
+                await setDoc(docRef, { ...data, suspended: true, suspendReason: reason.trim() });
+                loadSalonsList();
+            } else {
+                // إعادة تفعيل
+                if (confirm(t('confirmActivate'))) {
+                    await setDoc(docRef, { ...data, suspended: false, suspendReason: "" });
+                    loadSalonsList();
+                }
+            }
+        }
+
+        window.deleteSalon = async function(name) {
+            if (confirm(t('confirmDelete'))) {
+                await deleteDoc(doc(db, "salons", name));
+                loadSalonsList();
+            }
+        }
+
         window.updateSalonCredentials = async function(oldName) {
             let newUser = document.getElementById(`edit-user-${oldName}`).value.trim();
             let newPass = document.getElementById(`edit-pass-${oldName}`).value.trim();
@@ -766,7 +798,6 @@
                 if (oldDocSnap.exists()) {
                     let salonData = oldDocSnap.data();
                     
-                    // إذا تم تغيير اسم الصالة، أنشئ مستند جديد وانقل الأجهزة والسجلات ثم احذف القديم مع الحفاظ على البيانات
                     if (newUser !== oldName) {
                         let newDocRef = doc(db, "salons", newUser);
                         let newDocSnap = await getDoc(newDocRef);
@@ -776,7 +807,6 @@
                         }
                         await setDoc(newDocRef, { ...salonData, name: newUser, password: newPass });
                         
-                        // تحديث الأجهزة المرتبطة بالصالة في سحابة الأجهزة
                         let devsSnapshot = await getDocs(collection(db, "salon_devices"));
                         devsSnapshot.forEach(async (dSnap) => {
                             let dData = dSnap.data();
@@ -789,33 +819,12 @@
 
                         await deleteDoc(oldDocRef);
                     } else {
-                        // فقط تحديث كلمة المرور
                         await setDoc(oldDocRef, { ...salonData, password: newPass });
                     }
 
                     alert("Salon credentials updated successfully without losing data!");
                     loadSalonsList();
                 }
-            }
-        }
-
-        window.toggleSalonStatus = async function(name, currentSuspended) {
-            let confirmMsg = currentSuspended ? t('confirmActivate') : t('confirmSuspend');
-            if (confirm(confirmMsg)) {
-                let docRef = doc(db, "salons", name);
-                let docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    let data = docSnap.data();
-                    await setDoc(docRef, { ...data, suspended: !currentSuspended });
-                    loadSalonsList();
-                }
-            }
-        }
-
-        window.deleteSalon = async function(name) {
-            if (confirm(t('confirmDelete'))) {
-                await deleteDoc(doc(db, "salons", name));
-                loadSalonsList();
             }
         }
 
