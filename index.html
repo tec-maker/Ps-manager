@@ -129,6 +129,7 @@
                 historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم",
                 noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن",
                 settingsTitle: "⚙️ لوحة تحكم المسؤول العام (إدارة الصالات والأجهزة)",
+                closeSettings: "✖ إغلاق ورجوع",
                 superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)",
                 newSalonNamePh: "اسم الصالة الجديدة (مثلاً: فرع_المزة)",
                 newSalonPassPh: "كلمة مرور الصالة",
@@ -197,6 +198,7 @@
                 historyTitle: "📋 Today's Invoices & Sessions History",
                 noHistory: "No sessions recorded today yet",
                 settingsTitle: "⚙️ General Admin Control Panel (Salons & Devices)",
+                closeSettings: "✖ Close & Return",
                 superAdminTitle: "👑 Central Control Panel (Salons Management)",
                 newSalonNamePh: "New Salon Name (e.g., branch_1)",
                 newSalonPassPh: "Salon Password",
@@ -265,6 +267,7 @@
                 historyTitle: "📋 Bugünkü Faturalar ve Oturum Geçmişi",
                 noHistory: "Bugün henüz kayıtlı oturum yok",
                 settingsTitle: "⚙️ Genel Yönetim Paneli (Salon ve Cihazlar)",
+                closeSettings: "✖ Kapat ve Dön",
                 superAdminTitle: "👑 Merkezi Kontrol Paneli (Salon Yönetimi)",
                 newSalonNamePh: "Yeni Salon Adı",
                 newSalonPassPh: "Salon Şifresi",
@@ -333,6 +336,7 @@
                 historyTitle: "📋 Historique des Factures et Sessions",
                 noHistory: "Aucune session enregistrée aujourd'hui",
                 settingsTitle: "⚙️ Panneau d'Administration Général (Salons & Appareils)",
+                closeSettings: "✖ Fermer et Retour",
                 superAdminTitle: "👑 Panneau de Contrôle Central (Gestion Salons)",
                 newSalonNamePh: "Nom du Nouveau Salon",
                 newSalonPassPh: "Mot de passe du Salon",
@@ -484,6 +488,9 @@
 
             let settingsMainTitle = document.getElementById('settings-main-title-text');
             if(settingsMainTitle) settingsMainTitle.innerText = t('settingsTitle');
+
+            let closeSettingsBtn = document.getElementById('close-settings-btn');
+            if(closeSettingsBtn) closeSettingsBtn.innerText = t('closeSettings');
 
             let langHeaderText = document.getElementById('lang-header-text');
             if(langHeaderText) langHeaderText.innerText = t('langHeader');
@@ -640,7 +647,6 @@
             document.getElementById('app-screen').style.display = 'block';
             document.getElementById('salon-welcome').innerText = currentSalon.role === 'superadmin' ? t('generalAdminText') : currentSalon.name;
             
-            // تحديث حالة الاتصال لتتغير إلى متزامن سحابياً فوراً للمسؤول والصالات
             let syncTextEl = document.getElementById('sync-text');
             if(syncTextEl) syncTextEl.innerText = t('synced');
             
