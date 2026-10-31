@@ -81,7 +81,7 @@
         .timer-val { font-family: monospace; font-size: 16px; font-weight: bold; color: #f8fafc; }
         .cost-val { color: #f43f5e; font-weight: bold; font-size: 18px; }
 
-        .settings-view { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 18px; border: 1px solid var(--border-color); display: none; }
+        .settings-view { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 18px; border: 1px solid var(--border-color); }
         .settings-view h2 { color: var(--accent-blue); margin-top: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; font-size: 20px; }
         
         .admin-panel, .history-section { max-width: 1100px; margin: 20px auto; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
@@ -128,14 +128,13 @@
                 revenue: "إيرادات الصالة",
                 historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم",
                 noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن",
-                settingsTitle: "⚙️ إعدادات النظام وإدارة الأجهزة والتسعير",
-                closeSettings: "✖ إغلاق ورجوع",
+                settingsTitle: "⚙️ لوحة تحكم المسؤول العام (إدارة الصالات والأجهزة)",
                 superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)",
                 newSalonNamePh: "اسم الصالة الجديدة (مثلاً: فرع_المزة)",
                 newSalonPassPh: "كلمة مرور الصالة",
                 createSalonBtn: "➕ إنشاء صالة جديدة",
                 salonsListTitle: "قائمة الصالات والمراكز المسجلة:",
-                addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط (للمسؤول فقط)",
+                addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط",
                 devIdPh: "الرقم المعرف الفريد (1, 2, 3... 100)",
                 devNamePh: "اسم الجهاز (مثلاً: PS5 - 1)",
                 psOption: "بلايستيشن (PlayStation)",
@@ -147,7 +146,7 @@
                 pcRateLabel: "ساعة PC",
                 addDeviceBtn: "➕ حفظ وإضافة الجهاز",
                 devicesListTitle: "قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:",
-                logoutBtn: "🚪 تسجيل الخروج",
+                logoutBtn: "🚪 تسجيل الخروج من لوحة المسؤول",
                 langHeader: "🌐 لغة التطبيق / App Language",
                 durationLabel: "مدة الجلسة (دقائق - 0 لمفتوح):",
                 startSession: "▶ بدء الجلسة",
@@ -166,14 +165,6 @@
                 timeEnded: "⏰ انتهى الوقت!",
                 timeLeft: "⏳ متبقي: ",
                 defaultRatesPrompt: "تحديد سعر الساعة الافتراضي:",
-                reportSectionTitle: "📥 تقارير وتنزيل السجل والفواتير",
-                downloadDaily: "📥 تنزيل السجل اليومي",
-                downloadWeekly: "📥 تنزيل السجل الأسبوعي",
-                downloadMonthly: "📥 تنزيل السجل الشهري",
-                customRangeTitle: "تحديد مدة مخصصة (من وإلى):",
-                fromDate: "من تاريخ:",
-                toDate: "إلى تاريخ:",
-                downloadCustom: "📥 تنزيل السجل للفترة المحددة",
                 generalAdminText: "الادارة العامة",
                 activeStatus: "نشط",
                 suspendedStatus: "موقوف مؤقتاً",
@@ -205,14 +196,13 @@
                 revenue: "Salon Revenue",
                 historyTitle: "📋 Today's Invoices & Sessions History",
                 noHistory: "No sessions recorded today yet",
-                settingsTitle: "⚙️ System Settings & Device Management",
-                closeSettings: "✖ Close & Return",
+                settingsTitle: "⚙️ General Admin Control Panel (Salons & Devices)",
                 superAdminTitle: "👑 Central Control Panel (Salons Management)",
                 newSalonNamePh: "New Salon Name (e.g., branch_1)",
                 newSalonPassPh: "Salon Password",
                 createSalonBtn: "➕ Create New Salon",
                 salonsListTitle: "Registered Salons List:",
-                addDeviceTitle: "🖥️➕ Add New Device & Set Pricing (Admin Only)",
+                addDeviceTitle: "🖥️➕ Add New Device & Set Pricing",
                 devIdPh: "Unique Device ID (1, 2, 3... 100)",
                 devNamePh: "Device Name (e.g., PS5 - 1)",
                 psOption: "PlayStation",
@@ -224,7 +214,7 @@
                 pcRateLabel: "PC Rate",
                 addDeviceBtn: "➕ Save & Add Device",
                 devicesListTitle: "Devices List & Individual Repricing:",
-                logoutBtn: "🚪 Logout",
+                logoutBtn: "🚪 Logout from Admin Panel",
                 langHeader: "🌐 App Language / لغة التطبيق",
                 durationLabel: "Duration (mins - 0 for open):",
                 startSession: "▶ Start Session",
@@ -243,14 +233,6 @@
                 timeEnded: "⏰ Time Ended!",
                 timeLeft: "⏳ Left: ",
                 defaultRatesPrompt: "Set default hourly rate:",
-                reportSectionTitle: "📥 Reports & History Downloads",
-                downloadDaily: "📥 Download Daily History",
-                downloadWeekly: "📥 Download Weekly History",
-                downloadMonthly: "📥 Download Monthly History",
-                customRangeTitle: "Custom Date Range (From - To):",
-                fromDate: "From Date:",
-                toDate: "To Date:",
-                downloadCustom: "📥 Download Custom Range",
                 generalAdminText: "General Admin",
                 activeStatus: "Active",
                 suspendedStatus: "Suspended",
@@ -282,14 +264,13 @@
                 revenue: "Salon Geliri",
                 historyTitle: "📋 Bugünkü Faturalar ve Oturum Geçmişi",
                 noHistory: "Bugün henüz kayıtlı oturum yok",
-                settingsTitle: "⚙️ Sistem Ayarları ve Cihaz Yönetimi",
-                closeSettings: "✖ Kapat ve Dön",
+                settingsTitle: "⚙️ Genel Yönetim Paneli (Salon ve Cihazlar)",
                 superAdminTitle: "👑 Merkezi Kontrol Paneli (Salon Yönetimi)",
                 newSalonNamePh: "Yeni Salon Adı",
                 newSalonPassPh: "Salon Şifresi",
                 createSalonBtn: "➕ Yeni Salon Oluştur",
                 salonsListTitle: "Kayıtlı Salonlar Listesi:",
-                addDeviceTitle: "🖥️➕ Yeni Cihaz Ekle ve Fiyat Belirle (Yalnızca Yönetici)",
+                addDeviceTitle: "🖥️➕ Yeni Cihaz Ekle ve Fiyat Belirle",
                 devIdPh: "Benzersiz Cihaz ID (1, 2, 3... 100)",
                 devNamePh: "Cihaz Adı (örn: PS5 - 1)",
                 psOption: "PlayStation",
@@ -301,7 +282,7 @@
                 pcRateLabel: "PC Saatlik",
                 addDeviceBtn: "➕ Kaydet ve Cihaz Ekle",
                 devicesListTitle: "Cihaz Listesi ve Fiyatlandırma:",
-                logoutBtn: "🚪 Çıkış Yap",
+                logoutBtn: "🚪 Yönetici Panelinden Çıkış Yap",
                 langHeader: "🌐 Uygulama Dili / App Language",
                 durationLabel: "Süre (dk - açık için 0):",
                 startSession: "▶ Oturumu Başlat",
@@ -320,14 +301,6 @@
                 timeEnded: "⏰ Süre Bitti!",
                 timeLeft: "⏳ Kalan: ",
                 defaultRatesPrompt: "Varsayılan saatlik ücreti belirleyin:",
-                reportSectionTitle: "📥 Raporlar ve Geçmiş İndirmeleri",
-                downloadDaily: "📥 Günlük Geçmişi İndir",
-                downloadWeekly: "📥 Haftalık Geçmişi İndir",
-                downloadMonthly: "📥 Aylık Geçmişi İndir",
-                customRangeTitle: "Özel Tarih Aralığı (Kimden - Kime):",
-                fromDate: "Başlangıç Tarihi:",
-                toDate: "Bitiş Tarihi:",
-                downloadCustom: "📥 Özel Aralığı İndir",
                 generalAdminText: "Genel Yönetim",
                 activeStatus: "Aktif",
                 suspendedStatus: "Askıda",
@@ -359,14 +332,13 @@
                 revenue: "Revenu du Salon",
                 historyTitle: "📋 Historique des Factures et Sessions",
                 noHistory: "Aucune session enregistrée aujourd'hui",
-                settingsTitle: "⚙️ Paramètres Système et Gestion des Appareils",
-                closeSettings: "✖ Fermer et Retour",
+                settingsTitle: "⚙️ Panneau d'Administration Général (Salons & Appareils)",
                 superAdminTitle: "👑 Panneau de Contrôle Central (Gestion Salons)",
                 newSalonNamePh: "Nom du Nouveau Salon",
                 newSalonPassPh: "Mot de passe du Salon",
                 createSalonBtn: "➕ Créer un Nouveau Salon",
                 salonsListTitle: "Liste des Salons Enregistrés:",
-                addDeviceTitle: "🖥️➕ Ajouter un Appareil & Définir les Tarifs (Admin Seulement)",
+                addDeviceTitle: "🖥️➕ Ajouter un Appareil & Définir les Tarifs",
                 devIdPh: "ID Unique de l'appareil (1, 2, 3... 100)",
                 devNamePh: "Nom de l'appareil (ex: PS5 - 1)",
                 psOption: "PlayStation",
@@ -378,7 +350,7 @@
                 pcRateLabel: "Tarif PC",
                 addDeviceBtn: "➕ Enregistrer et Ajouter",
                 devicesListTitle: "Liste des Appareils & Tarification:",
-                logoutBtn: "🚪 Déconnexion",
+                logoutBtn: "🚪 Déconnexion du Panneau Admin",
                 langHeader: "🌐 Langue de l'App / لغة التطبيق",
                 durationLabel: "Durée (min - 0 pour ouvert):",
                 startSession: "▶ Démarrer la session",
@@ -397,14 +369,6 @@
                 timeEnded: "⏰ Temps écoulé !",
                 timeLeft: "⏳ Restant: ",
                 defaultRatesPrompt: "Définir le tarif horaire:",
-                reportSectionTitle: "📥 Rapports et Téléchargement de l'historique",
-                downloadDaily: "📥 Télécharger l'historique quotidien",
-                downloadWeekly: "📥 Télécharger l'historique hebdomadaire",
-                downloadMonthly: "📥 Télécharger l'historique mensuel",
-                customRangeTitle: "Plage de dates personnalisée (Du - Au):",
-                fromDate: "Date de début:",
-                toDate: "Date de fin:",
-                downloadCustom: "📥 Télécharger la période personnalisée",
                 generalAdminText: "Admin Général",
                 activeStatus: "Actif",
                 suspendedStatus: "Suspendu",
@@ -519,10 +483,7 @@
             if(historyTitleEl) historyTitleEl.innerText = t('historyTitle');
 
             let settingsMainTitle = document.getElementById('settings-main-title-text');
-            if(settingsMainTitle) settingsMainTitle.innerText = t('settingsTitle');
-
-            let closeSettingsBtn = document.getElementById('close-settings-btn');
-            if(closeSettingsBtn) closeSettingsBtn.innerText = t('closeSettings');
+            if(settingsMainTitle) settingsMainTitle.innerText = currentSalon && currentSalon.role === 'superadmin' ? t('settingsTitle') : t('settingsTitle');
 
             let langHeaderText = document.getElementById('lang-header-text');
             if(langHeaderText) langHeaderText.innerText = t('langHeader');
@@ -579,23 +540,6 @@
 
             let logoutBtnEl = document.getElementById('logout-btn-text');
             if(logoutBtnEl) logoutBtnEl.innerText = t('logoutBtn');
-
-            let reportSecTitle = document.getElementById('report-sec-title');
-            if(reportSecTitle) reportSecTitle.innerText = t('reportSectionTitle');
-            let btnDaily = document.getElementById('btn-download-daily');
-            if(btnDaily) btnDaily.innerText = t('downloadDaily');
-            let btnWeekly = document.getElementById('btn-download-weekly');
-            if(btnWeekly) btnWeekly.innerText = t('downloadWeekly');
-            let btnMonthly = document.getElementById('btn-download-monthly');
-            if(btnMonthly) btnMonthly.innerText = t('downloadMonthly');
-            let customRangeLbl = document.getElementById('custom-range-title-text');
-            if(customRangeLbl) customRangeLbl.innerText = t('customRangeTitle');
-            let fromDateLbl = document.getElementById('from-date-lbl');
-            if(fromDateLbl) fromDateLbl.innerText = t('fromDate');
-            let toDateLbl = document.getElementById('to-date-lbl');
-            if(toDateLbl) toDateLbl.innerText = t('toDate');
-            let btnCustom = document.getElementById('btn-download-custom');
-            if(btnCustom) btnCustom.innerText = t('downloadCustom');
 
             let selectSalonLbl = document.getElementById('select-salon-lbl');
             if(selectSalonLbl) selectSalonLbl.innerText = t('selectSalonForDevice');
@@ -699,14 +643,19 @@
             let superAdminSection = document.getElementById('superadmin-section');
             let adminDeviceSection = document.getElementById('admin-device-management-section');
             let mainDashboardView = document.getElementById('main-dashboard-view');
-            let settingsBtnEl = document.getElementById('settings-btn-container');
+            let settingsBtnContainer = document.getElementById('settings-btn-container');
+            let adminFilterContainer = document.getElementById('admin-filter-container');
+            let settingsPanel = document.getElementById('settings-view-panel');
+            let closeSettingsBtn = document.getElementById('close-settings-btn');
 
             if (currentSalon.role === 'superadmin') {
                 superAdminSection.style.display = 'block';
                 adminDeviceSection.style.display = 'block';
                 mainDashboardView.style.display = 'none';
-                if(settingsBtnEl) settingsBtnEl.style.display = 'none'; // حذف واختفاء زر الإعدادات من واجهة المسؤول تماماً
-                document.getElementById('settings-view-panel').style.display = 'block';
+                if(settingsBtnContainer) settingsBtnContainer.style.display = 'none'; // إزالة خيار الإعدادات تماماً للمسؤول
+                if(adminFilterContainer) adminFilterContainer.style.display = 'block'; // إظهار قائمة فلترة الصالات في واجهة الأجهزة للمسؤول
+                if(settingsPanel) settingsPanel.style.display = 'block'; // إظهار واجهة الإدارة مباشرة للمسؤول
+                if(closeSettingsBtn) closeSettingsBtn.style.display = 'none'; // إزالة زر الإغلاق والرجوع للمسؤول
                 
                 loadSalonsList();
                 loadAdminSalonsDropdowns();
@@ -715,8 +664,11 @@
                 superAdminSection.style.display = 'none';
                 adminDeviceSection.style.display = 'none';
                 mainDashboardView.style.display = 'block';
-                if(settingsBtnEl) settingsBtnEl.style.display = 'flex';
-                document.getElementById('settings-view-panel').style.display = 'none';
+                if(settingsBtnContainer) settingsBtnContainer.style.display = 'flex';
+                if(adminFilterContainer) adminFilterContainer.style.display = 'none';
+                if(settingsPanel) settingsPanel.style.display = 'none';
+                if(closeSettingsBtn) closeSettingsBtn.style.display = 'inline-block';
+                
                 loadSalonDevicesConfig();
                 initCloudDevices();
             }
@@ -1100,65 +1052,6 @@
             let docId = `${d.salon}_${devId}`;
             await setDoc(doc(db, "salon_devices", docId), { ...d, rates: updatedRates }, { merge: true });
             alert("Rates updated successfully!");
-        }
-
-        window.downloadHistoryReport = function(type) {
-            if (historyLogs.length === 0) {
-                alert(currentLang === 'ar' ? "لا توجد سجلات متاحة للتنزيل حالياً." : "No records available for download.");
-                return;
-            }
-
-            let filteredLogs = [...historyLogs];
-            let now = new Date();
-
-            if (type === 'daily') {
-                let todayStr = now.toLocaleDateString();
-                filteredLogs = historyLogs.filter(item => item.dateStr === todayStr);
-            } else if (type === 'weekly') {
-                let weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                filteredLogs = historyLogs.filter(item => new Date(item.rawDate || now) >= weekAgo);
-            } else if (type === 'monthly') {
-                let monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                filteredLogs = historyLogs.filter(item => new Date(item.rawDate || now) >= monthAgo);
-            } else if (type === 'custom') {
-                let fromVal = document.getElementById('report-from-date').value;
-                let toVal = document.getElementById('report-to-date').value;
-                if (!fromVal || !toVal) {
-                    alert(currentLang === 'ar' ? "الرجاء تحديد تاريخ البدء وتاريخ النهاية" : "Please select start and end dates");
-                    return;
-                }
-                let fromDate = new Date(fromVal);
-                let toDate = new Date(toVal);
-                toDate.setHours(23, 59, 59);
-
-                filteredLogs = historyLogs.filter(item => {
-                    let itemDate = new Date(item.rawDate || now);
-                    return itemDate >= fromDate && itemDate <= toDate;
-                });
-            }
-
-            if (filteredLogs.length === 0) {
-                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة لهذه الفترة." : "No records found for this period.");
-                return;
-            }
-
-            let content = `Salon: ${currentSalon.name}\nReport Type: ${type.toUpperCase()}\nGenerated: ${now.toLocaleString()}\n----------------------------------------\n\n`;
-            let totalSum = 0;
-            filteredLogs.forEach(item => {
-                content += `Time: [${item.time}] | Session: ${item.text} | Total Price: ${item.price}\n`;
-                totalSum += item.price;
-            });
-            content += `\n----------------------------------------\nGrand Total Revenue: ${totalSum}`;
-
-            let blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = `Salon_Report_${type}_${currentSalon.name}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
         }
 
         function speakDeviceNameLoud(deviceName) {
@@ -1675,7 +1568,7 @@
                 <div id="salons-list-container" class="item-list">جاري التحميل...</div>
             </div>
 
-            <!-- خيارات اللغة وتنزيل التقارير -->
+            <!-- خيارات اللغة -->
             <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-blue);">
                 <h3 style="color: var(--accent-blue); margin-top:0; font-size:14px;" id="lang-header-text">🌐 لغة التطبيق / App Language</h3>
                 <select class="lang-select" onchange="changeLanguage(this.value)">
@@ -1684,24 +1577,6 @@
                     <option value="tr">Türkçe</option>
                     <option value="fr">Français</option>
                 </select>
-            </div>
-
-            <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-orange);">
-                <h3 style="color: var(--accent-orange); margin-top:0; font-size:15px;" id="report-sec-title">📥 تقارير وتنزيل السجل والفواتير</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 10px;">
-                    <button class="main-btn" id="btn-download-daily" style="background: var(--accent-green); margin-top:0;" onclick="downloadHistoryReport('daily')">📥 تنزيل السجل اليومي</button>
-                    <button class="main-btn" id="btn-download-weekly" style="background: var(--accent-blue); margin-top:0;" onclick="downloadHistoryReport('weekly')">📥 تنزيل السجل الأسبوعي</button>
-                    <button class="main-btn" id="btn-download-monthly" style="background: var(--accent-purple); margin-top:0;" onclick="downloadHistoryReport('monthly')">📥 تنزيل السجل الشهري</button>
-                </div>
-
-                <div style="margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 12px;">
-                    <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;" id="custom-range-title-text">تحديد مدة مخصصة (من وإلى):</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                        <div><span id="from-date-lbl" style="font-size: 11px;">من تاريخ:</span> <input type="date" id="report-from-date" style="margin-top:2px;"></div>
-                        <div><span id="to-date-lbl" style="font-size: 11px;">إلى تاريخ:</span> <input type="date" id="report-to-date" style="margin-top:2px;"></div>
-                    </div>
-                    <button class="main-btn" id="btn-download-custom" style="background: var(--accent-orange); margin-top:0;" onclick="downloadHistoryReport('custom')">📥 تنزيل السجل للفترة المحددة</button>
-                </div>
             </div>
 
             <!-- دعم واتساب -->
