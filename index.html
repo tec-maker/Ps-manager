@@ -59,11 +59,13 @@
         .card { background: var(--card-bg); border-radius: 18px; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-top: 6px solid #ccc; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
         .card.available { border-top-color: var(--accent-green); }
         .card.busy { border-top-color: var(--accent-red); }
+        .card.paused { border-top-color: var(--accent-orange); }
         
         .title { font-size: 16px; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .status-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; color: #fff; font-weight: bold; }
         .available .status-badge { background: var(--accent-green); }
         .busy .status-badge { background: var(--accent-red); }
+        .paused .status-badge { background: var(--accent-orange); }
         
         .type-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-top: 8px; }
         .type-btn { background: #1f2937; color: var(--text-muted); border: 1px solid var(--border-color); padding: 6px; font-size: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; }
@@ -75,6 +77,7 @@
 
         button.start { background: var(--accent-green); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; padding: 10px; border-radius: 6px; font-size: 13px; }
         button.stop { background: var(--accent-red); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; padding: 10px; border-radius: 6px; font-size: 13px; }
+        button.pause-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; padding: 10px; border-radius: 6px; font-size: 13px; }
         button.pos-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 6px; padding: 8px; border-radius: 6px; font-size: 12px; }
         
         .info { margin-top: 8px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
@@ -160,7 +163,9 @@
                 langHeader: "🌐 لغة التطبيق / App Language",
                 durationLabel: "مدة الجلسة (دقائق - 0 لمفتوح):",
                 startSession: "▶ بدء الجلسة",
-                stopSession: "⏹ إيقاف الجلسة والحساب",
+                stopSession: "⏹ إيقاف الحساب",
+                pauseSession: "⏸ إيقاف مؤقت",
+                resumeSession: "▶ استئناف الجلسة",
                 addOrder: "🛒 إضافة طلب للفاتورة",
                 timeLabel: "الوقت:",
                 timeCost: "حساب الوقت:",
@@ -172,6 +177,7 @@
                 editRatesTitle: "تعديل أسعار الساعة لكل نمط:",
                 statusAvail: "متاح 🟢",
                 statusBusy: "مشغول 🔴",
+                statusPaused: "متوقف مؤقتاً ⏸️",
                 timeEnded: "⏰ انتهى الوقت!",
                 timeLeft: "⏳ متبقي: ",
                 defaultRatesPrompt: "تحديد سعر الساعة الافتراضي:",
@@ -181,7 +187,7 @@
                 suspendBtn: "إيقاف مؤقت",
                 activateBtn: "تفعيل",
                 confirmSuspend: "أدخل سبب الإيقاف المؤقت لهذه الصالة:",
-                confirmActivate: "هل أنت أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟",
+                confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟",
                 confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.",
                 salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة. السبب: ",
                 editSalonCredentials: "تعديل بيانات الدخول",
@@ -238,7 +244,9 @@
                 langHeader: "🌐 App Language / لغة التطبيق",
                 durationLabel: "Duration (mins - 0 for open):",
                 startSession: "▶ Start Session",
-                stopSession: "⏹ Stop & Bill",
+                stopSession: "⏹ Bill & Stop",
+                pauseSession: "⏸ Pause",
+                resumeSession: "▶ Resume",
                 addOrder: "🛒 Add Order",
                 timeLabel: "Time:",
                 timeCost: "Time Cost:",
@@ -250,6 +258,7 @@
                 editRatesTitle: "Edit hourly rates:",
                 statusAvail: "Available 🟢",
                 statusBusy: "Busy 🔴",
+                statusPaused: "Paused ⏸️",
                 timeEnded: "⏰ Time Ended!",
                 timeLeft: "⏳ Left: ",
                 defaultRatesPrompt: "Set default hourly rate:",
@@ -317,6 +326,8 @@
                 durationLabel: "Süre (dk - açık için 0):",
                 startSession: "▶ Oturumu Başlat",
                 stopSession: "⏹ Bitir ve Faturalandır",
+                pauseSession: "⏸ Duraklat",
+                resumeSession: "▶ Devam Et",
                 addOrder: "🛒 Sipariş Ekle",
                 timeLabel: "Süre:",
                 timeCost: "Zaman Ücreti:",
@@ -328,6 +339,7 @@
                 editRatesTitle: "Saatlik ücretleri düzenle:",
                 statusAvail: "Müsait 🟢",
                 statusBusy: "Meşgul 🔴",
+                statusPaused: "Askıda ⏸️",
                 timeEnded: "⏰ Süre Bitti!",
                 timeLeft: "⏳ Kalan: ",
                 defaultRatesPrompt: "Varsayılan saatlik ücreti belirleyin:",
@@ -394,7 +406,9 @@
                 langHeader: "🌐 Langue de l'App / لغة التطبيق",
                 durationLabel: "Durée (min - 0 pour ouvert):",
                 startSession: "▶ Démarrer la session",
-                stopSession: "⏹ Arrêter & Facturer",
+                stopSession: "⏹ Facturer & Arrêter",
+                pauseSession: "⏸ Pause",
+                resumeSession: "▶ Reprendre",
                 addOrder: "🛒 Ajouter une commande",
                 timeLabel: "Temps:",
                 timeCost: "Coût du temps:",
@@ -406,6 +420,7 @@
                 editRatesTitle: "Modifier les tarifs horaires:",
                 statusAvail: "Disponible 🟢",
                 statusBusy: "Occupé 🔴",
+                statusPaused: "En Pause ⏸️",
                 timeEnded: "⏰ Temps écoulé !",
                 timeLeft: "⏳ Restant: ",
                 defaultRatesPrompt: "Définir le tarif horaire:",
@@ -741,9 +756,9 @@
                 mainDashboardView.style.display = 'block';
                 if(settingsBtnContainer) settingsBtnContainer.style.display = 'flex';
                 if(adminFilterContainer) adminFilterContainer.style.display = 'none';
-                if(settingsPanel) settingsPanel.style.display = 'block'; // متاح لصاحب الصالة لإعدادات التصدير والت زبان
+                if(settingsPanel) settingsPanel.style.display = 'block';
                 if(closeSettingsBtn) closeSettingsBtn.style.display = 'inline-block';
-                if(exportLogsContainer) exportLogsContainer.style.display = 'block'; // متاح أيضاً لأصحاب الصالات
+                if(exportLogsContainer) exportLogsContainer.style.display = 'block';
                 
                 loadSalonDevicesConfig();
                 initCloudDevices();
@@ -780,11 +795,10 @@
             let reportType = document.getElementById('report-type-select').value;
             let logsToExport = [];
 
-            if (currentSalon.role === 'superadmin') {
-                // المسؤول يجمع السجلات من كل الصالات
-                let querySnapshot = await getDocs(collection(db, "salon_logs"));
-                querySnapshot.forEach(docSnap => {
-                    let d = docSnap.data();
+            let querySnapshot = await getDocs(collection(db, "salon_logs"));
+            querySnapshot.forEach(docSnap => {
+                let d = docSnap.data();
+                if (currentSalon.role === 'superadmin' || d.salon === currentSalon.name) {
                     logsToExport.push({
                         salon: d.salon || "Unknown",
                         text: d.text || "",
@@ -792,36 +806,15 @@
                         time: d.time || "",
                         rawDate: d.rawDate || new Date().toISOString()
                     });
-                });
-                // إذا لم يوجد في جدول مستقل، نأخذ الجلسات المحلية المخزنة إن وجدت
-                if (logsToExport.length === 0 && historyLogs.length > 0) {
-                    historyLogs.forEach(item => {
-                        logsToExport.push({ salon: currentSalon.name, ...item });
-                    });
                 }
-            } else {
-                // صاحب الصالة يأخذ سجلاته الخاصة
-                let querySnapshot = await getDocs(collection(db, "salon_logs"));
-                querySnapshot.forEach(docSnap => {
-                    let d = docSnap.data();
-                    if (d.salon === currentSalon.name) {
-                        logsToExport.push({
-                            salon: d.salon,
-                            text: d.text || "",
-                            price: d.price || 0,
-                            time: d.time || "",
-                            rawDate: d.rawDate || new Date().toISOString()
-                        });
-                    }
+            });
+
+            if (logsToExport.length === 0 && historyLogs.length > 0) {
+                historyLogs.forEach(item => {
+                    logsToExport.push({ salon: currentSalon.name, ...item });
                 });
-                if (logsToExport.length === 0 && historyLogs.length > 0) {
-                    historyLogs.forEach(item => {
-                        logsToExport.push({ salon: currentSalon.name, ...item });
-                    });
-                }
             }
 
-            // فلترة السجلات حسب النمط المحدد
             let now = new Date();
             let filtered = logsToExport.filter(item => {
                 if (!item.rawDate) return true;
@@ -852,7 +845,6 @@
                 return;
             }
 
-            // بناء ملف الـ CSV المدعوم بلغة التطبيق
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             if (currentLang === 'ar') {
                 csvContent += "الصالة,التفاصيل,المبلغ,الوقت,التاريخ\n";
@@ -1094,6 +1086,8 @@
                 category: devType,
                 rates: ratesObj,
                 busy: false,
+                paused: false,
+                pausedElapsedSeconds: 0,
                 type: devType === 'pc' ? 'PC' : 'فردي',
                 startTime: null,
                 durationMinutes: 0,
@@ -1326,11 +1320,41 @@
             await setDoc(doc(db, "salon_devices", docId), {
                 ...d,
                 busy: true,
+                paused: false,
+                pausedElapsedSeconds: 0,
                 type: selectedType,
                 startTime: nowTime,
                 durationMinutes: durationMins,
                 posItems: []
             });
+        }
+
+        window.pauseDeviceCloud = async function(devId) {
+            let d = devicesData[devId];
+            if (!d || !d.busy) return;
+            let docId = `${d.salon}_${devId}`;
+
+            if (!d.paused) {
+                // إيقاف مؤقت: حساب الثواني المنقضية حتى اللحظة وتخزينها
+                let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
+                let currentElapsed = Math.floor((Date.now() - startTimeVal) / 1000) + (d.pausedElapsedSeconds || 0);
+                stopSpeechAlert(devId);
+
+                await setDoc(doc(db, "salon_devices", docId), {
+                    ...d,
+                    paused: true,
+                    pausedElapsedSeconds: currentElapsed,
+                    startTime: null
+                });
+            } else {
+                // استئناف الجلسة: ضبط وقت البداية الجديد بناءً على الثواني السابقة المنقضية
+                let newStartTime = Date.now() - ((d.pausedElapsedSeconds || 0) * 1000);
+                await setDoc(doc(db, "salon_devices", docId), {
+                    ...d,
+                    paused: false,
+                    startTime: newStartTime
+                });
+            }
         }
 
         window.adjustTimeCloud = async function(devId, mins) {
@@ -1364,7 +1388,7 @@
 
         window.stopDeviceCloud = async function(devId) {
             let d = devicesData[devId];
-            if (!d || !d.startTime) return;
+            if (!d || (!d.startTime && !d.paused)) return;
 
             let choice = prompt(
                 currentLang === 'ar' 
@@ -1398,10 +1422,15 @@
 
                 stopSpeechAlert(devId);
 
-                let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-                let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
+                let diffSeconds = 0;
+                if (d.paused) {
+                    diffSeconds = d.pausedElapsedSeconds || 0;
+                } else if (d.startTime) {
+                    let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
+                    diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000) + (d.pausedElapsedSeconds || 0);
+                }
+
                 let totalHours = diffSeconds / 3600;
-                
                 let rates = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
                 let hourlyRate = rates[d.type] || 100;
                 let timeCost = Math.round(totalHours * hourlyRate);
@@ -1436,7 +1465,6 @@
                 historyLogs.unshift(logEntry);
                 renderHistory();
 
-                // تخزين السجل في سحابة فايربيس لتسهيل استرجاعه للأسبوع والشهر وبين تاريخين
                 try {
                     let logDocId = `${d.salon}_${Date.now()}_${Math.floor(Math.random()*1000)}`;
                     await setDoc(doc(db, "salon_logs", logDocId), logEntry);
@@ -1446,6 +1474,8 @@
                 await setDoc(doc(db, "salon_devices", docId), {
                     ...d,
                     busy: false,
+                    paused: false,
+                    pausedElapsedSeconds: 0,
                     type: d.category === 'pc' ? 'PC' : 'فردي',
                     startTime: null,
                     durationMinutes: 0,
@@ -1466,9 +1496,10 @@
             let html = "";
             filteredList.forEach(d => {
                 let isBusy = d.busy;
+                let isPaused = d.paused;
                 let iconSymbol = d.category === 'pc' ? '🖥️ PC' : '🎮 PS';
-                let cardClass = isBusy ? 'card busy' : 'card available';
-                let statusText = isBusy ? t('statusBusy') : t('statusAvail');
+                let cardClass = isPaused ? 'card paused' : (isBusy ? 'card busy' : 'card available');
+                let statusText = isPaused ? t('statusPaused') : (isBusy ? t('statusBusy') : t('statusAvail'));
                 let r = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
 
                 html += `<div class="${cardClass}" id="card-${d.deviceId}">`;
@@ -1479,7 +1510,7 @@
                     </div>
                 `;
 
-                if (!isBusy) {
+                if (!isBusy && !isPaused) {
                     stopSpeechAlert(d.deviceId);
                     let curType = tempTypes[d.deviceId] || (d.category === 'pc' ? 'PC' : 'فردي');
                     
@@ -1512,10 +1543,16 @@
                         <button class="start" onclick="startDeviceCloud('${d.deviceId}')">${t('startSession')}</button>
                     `;
                 } else {
-                    let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-                    let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
+                    let diffSeconds = 0;
+                    if (isPaused) {
+                        diffSeconds = d.pausedElapsedSeconds || 0;
+                    } else {
+                        let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
+                        diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000) + (d.pausedElapsedSeconds || 0);
+                    }
+
                     let targetSeconds = (d.durationMinutes || 0) * 60;
-                    let isTimeEnded = targetSeconds > 0 && diffSeconds >= targetSeconds;
+                    let isTimeEnded = !isPaused && targetSeconds > 0 && diffSeconds >= targetSeconds;
 
                     if (isTimeEnded) startSpeechAlert(d.deviceId, d.name);
 
@@ -1547,6 +1584,8 @@
                     let grandTotal = timeCost + posTotal;
 
                     let modeLabelText = d.type === 'فردي' ? t('singleLabel') : (d.type === 'ثنائي' ? t('doubleLabel') : (d.type === 'ثلاثي' ? t('tripleLabel') : (d.type === 'رباعي' ? t('quadLabel') : d.type)));
+                    let pauseBtnText = isPaused ? t('resumeSession') : t('pauseSession');
+                    let pauseBtnColor = isPaused ? '#059669' : 'var(--accent-orange)';
 
                     html += `
                         <div class="info" style="margin-top: 5px;"><span>Mode:</span> <b style="color:var(--accent-blue);">${modeLabelText}</b></div>
@@ -1565,7 +1604,10 @@
                             <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -15)">-15m</button>
                             <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -30)">-30m</button>
                         </div>
-                        <button class="stop" onclick="stopDeviceCloud('${d.deviceId}')">${t('stopSession')}</button>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
+                            <button class="pause-btn" style="background:${pauseBtnColor}; margin-top:0;" onclick="pauseDeviceCloud('${d.deviceId}')">${pauseBtnText}</button>
+                            <button class="stop" style="margin-top:0;" onclick="stopDeviceCloud('${d.deviceId}')">${t('stopSession')}</button>
+                        </div>
                     `;
                 }
                 html += `</div>`;
@@ -1575,7 +1617,7 @@
 
         function updateGlobalStats() {
             let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
-            let busyCount = filteredList.filter(d => d.busy).length;
+            let busyCount = filteredList.filter(d => d.busy || d.paused).length;
             let availCount = filteredList.length - busyCount;
             document.getElementById('stat-avail').innerText = availCount;
             document.getElementById('stat-busy').innerText = busyCount;
@@ -1586,9 +1628,11 @@
             if (!currentSalon || currentSalon.role === 'superadmin') return;
             let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
             filteredList.forEach(d => {
-                if (d.busy && d.startTime) {
+                if ((d.busy || d.paused) && (d.startTime || d.paused)) {
+                    if (d.paused) return; // إذا كانت متوقفة مؤقتاً لا نحدث العداد تلقائياً
+
                     let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
-                    let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000);
+                    let diffSeconds = Math.floor((Date.now() - startTimeVal) / 1000) + (d.pausedElapsedSeconds || 0);
                     let targetSeconds = (d.durationMinutes || 0) * 60;
                     let isTimeEnded = targetSeconds > 0 && diffSeconds >= targetSeconds;
 
