@@ -845,36 +845,25 @@
                 return;
             }
 
-            // إنشاء جدول HTML متوافق تماماً مع Excel بصيغة .xls لفتح الأعمدة بوضوح وجداول رسمية
-            let excelHTML = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/1999/xhtml">
-            <head><meta charset="UTF-8"></head>
-            <body>
-            <table border="1">
-                <tr style="background-color: #0284c7; color: #ffffff; font-weight: bold;">
-                    <th>${currentLang === 'ar' ? 'الصالة' : 'Salon'}</th>
-                    <th>${currentLang === 'ar' ? 'التفاصيل' : 'Details'}</th>
-                    <th>${currentLang === 'ar' ? 'المبلغ' : 'Price'}</th>
-                    <th>${currentLang === 'ar' ? 'الوقت' : 'Time'}</th>
-                    <th>${currentLang === 'ar' ? 'التاريخ' : 'Date'}</th>
-                </tr>`;
+            // استخدام صيغة ملف CSV السليم والمتوافق 100% مع Google Sheets و Excel لتجنب أخطاء التلف أو التداخل
+            let csvContent = "\uFEFF"; // دعم الحروف العربية
+            csvContent += "Salon,Details,Price,Time,Date\n";
 
             filtered.forEach(item => {
                 let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
-                excelHTML += `<tr>
-                    <td>${item.salon || ''}</td>
-                    <td>${item.text || ''}</td>
-                    <td>${item.price || 0}</td>
-                    <td>${item.time || ''}</td>
-                    <td>${dateStr}</td>
-                </tr>`;
+                let cleanSalon = `"${(item.salon || '').replace(/"/g, '""')}"`;
+                let cleanText = `"${(item.text || '').replace(/"/g, '""')}"`;
+                let cleanPrice = item.price || 0;
+                let cleanTime = `"${(item.time || '').replace(/"/g, '""')}"`;
+                let cleanDate = `"${dateStr}"`;
+
+                csvContent += `${cleanSalon},${cleanText},${cleanPrice},${cleanTime},${cleanDate}\n`;
             });
 
-            excelHTML += `</table></body></html>`;
-
-            let blob = new Blob([excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `lounge_report_${reportType}_${new Date().toISOString().slice(0,10)}.xls`;
+            link.download = `lounge_report_${reportType}_${new Date().toISOString().slice(0,10)}.csv`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
