@@ -136,6 +136,7 @@
                 doubleLabel: "ثنائي",
                 tripleLabel: "ثلاثي",
                 quadLabel: "رباعي",
+                pcRateLabel: "ساعة PC",
                 addDeviceBtn: "➕ حفظ وإضافة الجهاز",
                 devicesListTitle: "قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:",
                 logoutBtn: "🚪 تسجيل الخروج من الصالة",
@@ -164,7 +165,8 @@
                 customRangeTitle: "تحديد مدة مخصصة (من وإلى):",
                 fromDate: "من تاريخ:",
                 toDate: "إلى تاريخ:",
-                downloadCustom: "📥 تنزيل السجل للفترة المحددة"
+                downloadCustom: "📥 تنزيل السجل للفترة المحددة",
+                generalAdminText: "الادارة العامة"
             },
             en: {
                 loginTitle: "Salon / Center Login",
@@ -196,6 +198,7 @@
                 doubleLabel: "Double",
                 tripleLabel: "Triple",
                 quadLabel: "Quad",
+                pcRateLabel: "PC Rate",
                 addDeviceBtn: "➕ Save & Add Device",
                 devicesListTitle: "Devices List & Individual Repricing:",
                 logoutBtn: "🚪 Logout from Salon",
@@ -224,7 +227,8 @@
                 customRangeTitle: "Custom Date Range (From - To):",
                 fromDate: "From Date:",
                 toDate: "To Date:",
-                downloadCustom: "📥 Download Custom Range"
+                downloadCustom: "📥 Download Custom Range",
+                generalAdminText: "General Admin"
             },
             tr: {
                 loginTitle: "Salon / Merkez Girişi",
@@ -256,6 +260,7 @@
                 doubleLabel: "Çift",
                 tripleLabel: "Üçlü",
                 quadLabel: "Dörtlü",
+                pcRateLabel: "PC Saatlik",
                 addDeviceBtn: "➕ Kaydet ve Cihaz Ekle",
                 devicesListTitle: "Cihaz Listesi ve Fiyatlandırma:",
                 logoutBtn: "🚪 Salondan Çıkış Yap",
@@ -284,7 +289,8 @@
                 customRangeTitle: "Özel Tarih Aralığı (Kimden - Kime):",
                 fromDate: "Başlangıç Tarihi:",
                 toDate: "Bitiş Tarihi:",
-                downloadCustom: "📥 Özel Aralığı İndir"
+                downloadCustom: "📥 Özel Aralığı İndir",
+                generalAdminText: "Genel Yönetim"
             },
             fr: {
                 loginTitle: "Connexion Salon / Centre",
@@ -316,6 +322,7 @@
                 doubleLabel: "Duo",
                 tripleLabel: "Trio",
                 quadLabel: "Quatuor",
+                pcRateLabel: "Tarif PC",
                 addDeviceBtn: "➕ Enregistrer et Ajouter",
                 devicesListTitle: "Liste des Appareils & Tarification:",
                 logoutBtn: "🚪 Déconnexion du Salon",
@@ -344,7 +351,8 @@
                 customRangeTitle: "Plage de dates personnalisée (Du - Au):",
                 fromDate: "Date de début:",
                 toDate: "Date de fin:",
-                downloadCustom: "📥 Télécharger la période personnalisée"
+                downloadCustom: "📥 Télécharger la période personnalisée",
+                generalAdminText: "Admin Général"
             }
         };
 
@@ -381,7 +389,10 @@
             document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
             updateStaticTexts();
             if (currentSalon) {
-                if (currentSalon.role === 'superadmin') loadSalonsList();
+                if (currentSalon.role === 'superadmin') {
+                    document.getElementById('salon-welcome').innerText = t('generalAdminText');
+                    loadSalonsList();
+                }
                 loadSalonDevicesConfig();
                 renderDevicesGrid();
                 renderHistory();
@@ -458,6 +469,17 @@
             let defaultRatesText = document.getElementById('default-rates-prompt-text');
             if(defaultRatesText) defaultRatesText.innerText = t('defaultRatesPrompt');
 
+            let rateLblSingle = document.getElementById('rate-lbl-single');
+            if(rateLblSingle) rateLblSingle.innerText = t('singleLabel');
+            let rateLblDouble = document.getElementById('rate-lbl-double');
+            if(rateLblDouble) rateLblDouble.innerText = t('doubleLabel');
+            let rateLblTriple = document.getElementById('rate-lbl-triple');
+            if(rateLblTriple) rateLblTriple.innerText = t('tripleLabel');
+            let rateLblQuad = document.getElementById('rate-lbl-quad');
+            if(rateLblQuad) rateLblQuad.innerText = t('quadLabel');
+            let rateLblPc = document.getElementById('rate-lbl-pc');
+            if(rateLblPc) rateLblPc.innerText = t('pcRateLabel');
+
             let addDeviceBtnEl = document.getElementById('add-device-btn');
             if(addDeviceBtnEl) addDeviceBtnEl.innerText = t('addDeviceBtn');
 
@@ -497,7 +519,6 @@
             let now = Date.now();
             let twentyFourHours = 24 * 60 * 60 * 1000;
 
-            // التحقق مما إذا مر أكثر من 24 ساعة على تسجيل الدخول
             if (savedSalon && loginTime && (now - parseInt(loginTime) < twentyFourHours)) {
                 try {
                     currentSalon = JSON.parse(savedSalon);
@@ -566,7 +587,7 @@
         function initSession() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-screen').style.display = 'block';
-            document.getElementById('salon-welcome').innerText = `${currentSalon.name}`;
+            document.getElementById('salon-welcome').innerText = currentSalon.role === 'superadmin' ? t('generalAdminText') : currentSalon.name;
             
             if (currentSalon.role === 'superadmin') {
                 document.getElementById('superadmin-section').style.display = 'block';
