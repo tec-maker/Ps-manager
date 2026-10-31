@@ -48,52 +48,52 @@
         .whatsapp-support a { color: var(--whatsapp-green); text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; transition: opacity 0.2s; }
         .whatsapp-support a:hover { opacity: 0.8; }
 
-        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; max-width: 1100px; margin-left: auto; margin-right: auto; }
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; max-width: 1300px; margin-left: auto; margin-right: auto; }
         .stat-box { background: var(--card-bg); padding: 15px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); }
         .stat-box span { display: block; font-size: 20px; font-weight: bold; margin-top: 5px; }
         
-        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 1100px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1300px; margin: 0 auto; }
         @media(min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-        @media(min-width: 1200px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+        @media(min-width: 1200px) { .grid { grid-template-columns: repeat(3, 1fr); } }
         
-        .card { background: var(--card-bg); border-radius: 18px; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-top: 6px solid #ccc; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .card { background: var(--card-bg); border-radius: 20px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-top: 8px solid #ccc; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
         .card.available { border-top-color: var(--accent-green); }
         .card.busy { border-top-color: var(--accent-red); }
         .card.paused { border-top-color: var(--accent-orange); }
         
-        .title { font-size: 16px; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .status-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; color: #fff; font-weight: bold; }
+        .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .status-badge { font-size: 13px; padding: 5px 12px; border-radius: 20px; color: #fff; font-weight: bold; }
         .available .status-badge { background: var(--accent-green); }
         .busy .status-badge { background: var(--accent-red); }
         .paused .status-badge { background: var(--accent-orange); }
         
-        .type-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-top: 8px; }
-        .type-btn { background: #1f2937; color: var(--text-muted); border: 1px solid var(--border-color); padding: 6px; font-size: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; }
+        .type-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+        .type-btn { background: #1f2937; color: var(--text-muted); border: 1px solid var(--border-color); padding: 9px; font-size: 13px; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; }
         .type-btn.active { background: var(--accent-blue); color: #fff; border-color: #38bdf8; }
 
-        .time-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 6px; }
-        .time-btn { background: #1f2937; color: #38bdf8; border: 1px solid var(--border-color); padding: 6px 2px; font-size: 11px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .time-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+        .time-btn { background: #1f2937; color: #38bdf8; border: 1px solid var(--border-color); padding: 8px 4px; font-size: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; }
         .time-btn.reduce { background: #431407; color: #fb923c; border-color: #7c2d12; }
 
-        button.start { background: var(--accent-green); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; padding: 10px; border-radius: 6px; font-size: 13px; }
-        button.stop { background: var(--accent-red); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; padding: 10px; border-radius: 6px; font-size: 13px; }
-        button.pause-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; padding: 10px; border-radius: 6px; font-size: 13px; }
-        button.pos-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 6px; padding: 8px; border-radius: 6px; font-size: 12px; }
+        button.start { background: var(--accent-green); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 14px; }
+        button.stop { background: var(--accent-red); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 0; padding: 11px; border-radius: 8px; font-size: 14px; }
+        button.pause-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 0; padding: 11px; border-radius: 8px; font-size: 14px; }
+        button.pos-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; }
         
-        .info { margin-top: 8px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
-        .timer-val { font-family: monospace; font-size: 16px; font-weight: bold; color: #f8fafc; }
-        .cost-val { color: #f43f5e; font-weight: bold; font-size: 18px; }
+        .info { margin-top: 10px; font-size: 14px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; background: rgba(3, 7, 18, 0.4); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .timer-val { font-family: monospace; font-size: 19px; font-weight: bold; color: #f8fafc; }
+        .cost-val { color: #f43f5e; font-weight: bold; font-size: 21px; }
 
         .settings-view { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 18px; border: 1px solid var(--border-color); }
         .settings-view h2 { color: var(--accent-blue); margin-top: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; font-size: 20px; }
         
-        .admin-panel, .history-section { max-width: 1100px; margin: 20px auto; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .admin-panel, .history-section { max-width: 1300px; margin: 20px auto; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
         .item-list { font-size: 13px; margin-top: 10px; max-height: 400px; overflow-y: auto; }
         .item-row { background: #030712; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
 
         .history-section h3 { color: var(--accent-blue); margin-top: 0; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        .history-list { font-size: 12px; color: var(--text-muted); max-height: 150px; overflow-y: auto; }
-        .history-item { padding: 8px 0; border-bottom: 1px dashed var(--border-color); display: flex; justify-content: space-between; }
+        .history-list { font-size: 13px; color: var(--text-muted); max-height: 180px; overflow-y: auto; }
+        .history-item { padding: 10px 0; border-bottom: 1px dashed var(--border-color); display: flex; justify-content: space-between; }
     </style>
 
     <script type="module">
@@ -1336,7 +1336,6 @@
             let now = Date.now();
 
             if (d.busy && !d.paused) {
-                // إيقاف مؤقت: حساب الثواني التي مرت منذ آخر بداية وإضافتها للمتراكم
                 let elapsed = Math.floor((now - (d.lastStartTime || now)) / 1000);
                 let totalAccumulated = (d.accumulatedSeconds || 0) + Math.max(0, elapsed);
                 stopSpeechAlert(devId);
@@ -1349,7 +1348,6 @@
                     lastStartTime: 0
                 }, { merge: true });
             } else if (d.paused) {
-                // استئناف الجلسة: إعادة تعيين وقت البداية الحالي دون ضياع الثواني السابقة
                 await setDoc(doc(db, "salon_devices", docId), {
                     ...d,
                     busy: true,
@@ -1365,7 +1363,6 @@
             stopSpeechAlert(devId);
             let currentDuration = d.durationMinutes || 0;
             
-            // حساب الثواني الحالية بدقة
             let activeElapsed = d.busy && !d.paused ? Math.floor((Date.now() - (d.lastStartTime || Date.now())) / 1000) : 0;
             let totalSecs = (d.accumulatedSeconds || 0) + activeElapsed;
             
@@ -1517,8 +1514,8 @@
                     
                     if (d.category === 'ps') {
                         html += `
-                            <div style="font-size: 11px; color: var(--accent-blue); margin-bottom: 5px;">Rates: [${t('singleLabel')}:${r['فردي']} | ${t('doubleLabel')}:${r['ثنائي']} | ${t('tripleLabel')}:${r['ثلاثي']} | ${t('quadLabel')}:${r['رباعي']}]</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">Select Game Mode:</div>
+                            <div style="font-size: 13px; color: var(--accent-blue); margin-bottom: 8px; font-weight: bold;">Rates: [${t('singleLabel')}:${r['فردي']} | ${t('doubleLabel')}:${r['ثنائي']} | ${t('tripleLabel')}:${r['ثلاثي']} | ${t('quadLabel')}:${r['رباعي']}]</div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Select Game Mode:</div>
                             <div class="type-buttons">
                                 <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')} (${r['فردي']})</button>
                                 <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')} (${r['ثنائي']})</button>
@@ -1527,13 +1524,13 @@
                             </div>
                         `;
                     } else {
-                        html += `<div style="font-size: 12px; color: var(--text-muted);">Device Type: <b>PC (${r['PC']}/hr)</b></div>`;
+                        html += `<div style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">Device Type: <b>PC (${r['PC']}/hr)</b></div>`;
                     }
 
                     html += `
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">${t('durationLabel')}</div>
-                        <input type="number" id="duration-${d.deviceId}" value="0" min="0">
-                        <div class="time-buttons">
+                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">${t('durationLabel')}</div>
+                        <input type="number" id="duration-${d.deviceId}" value="0" min="0" style="padding: 12px; font-size: 15px;">
+                        <div class="time-buttons" style="margin-top: 8px;">
                             <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 5)">+5m</button>
                             <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 15)">+15m</button>
                             <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 30)">+30m</button>
@@ -1574,7 +1571,7 @@
                     if (d.posItems && d.posItems.length > 0) {
                         d.posItems.forEach(item => {
                             posTotal += item.price;
-                            itemsListHtml += `<span style="background:#1f2937; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:4px; color:#38bdf8;">${item.name} (${item.price})</span>`;
+                            itemsListHtml += `<span style="background:#1f2937; padding:3px 8px; border-radius:6px; font-size:12px; margin-left:4px; color:#38bdf8;">${item.name} (${item.price})</span>`;
                         });
                     }
                     let grandTotal = timeCost + posTotal;
@@ -1584,15 +1581,15 @@
                     let pauseBtnColor = isPaused ? '#059669' : 'var(--accent-orange)';
 
                     html += `
-                        <div class="info" style="margin-top: 5px;"><span>Mode:</span> <b style="color:var(--accent-blue);">${modeLabelText}</b></div>
+                        <div class="info" style="margin-top: 8px;"><span>Mode:</span> <b style="color:var(--accent-blue); font-size: 15px;">${modeLabelText}</b></div>
                         <div class="info"><span>${t('timeLabel')}</span> <span class="timer-val" id="timer-${d.deviceId}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
-                        <div class="info"><span>${t('timeCost')}</span> <span id="timecost-${d.deviceId}">${timeCost}</span></div>
-                        <div class="info" style="align-items:center;"><span>${t('ordersLabel')}</span> <div style="display:flex; flex-wrap:wrap; gap:2px;">${itemsListHtml || `<span style="color:#4b5563;font-size:11px;">${t('none')}</span>`}</div></div>
+                        <div class="info"><span>${t('timeCost')}</span> <span id="timecost-${d.deviceId}" style="font-size: 16px; font-weight: bold;">${timeCost}</span></div>
+                        <div class="info" style="align-items:center;"><span>${t('ordersLabel')}</span> <div style="display:flex; flex-wrap:wrap; gap:4px;">${itemsListHtml || `<span style="color:#4b5563;font-size:12px;">${t('none')}</span>`}</div></div>
                         <div class="info"><span>${t('totalLabel')}</span> <span class="cost-val" id="cost-${d.deviceId}">${grandTotal}</span></div>
                         
                         <button class="pos-btn" onclick="addToDeviceTab('${d.deviceId}')">${t('addOrder')}</button>
 
-                        <div class="time-buttons" style="margin-top:8px;">
+                        <div class="time-buttons" style="margin-top:10px;">
                             <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 5)">+5m</button>
                             <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 15)">+15m</button>
                             <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 30)">+30m</button>
@@ -1600,9 +1597,9 @@
                             <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -15)">-15m</button>
                             <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -30)">-30m</button>
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
-                            <button class="pause-btn" style="background:${pauseBtnColor}; margin-top:0;" onclick="pauseDeviceCloud('${d.deviceId}')">${pauseBtnText}</button>
-                            <button class="stop" style="margin-top:0;" onclick="stopDeviceCloud('${d.deviceId}')">${t('stopSession')}</button>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+                            <button class="pause-btn" style="background:${pauseBtnColor};" onclick="pauseDeviceCloud('${d.deviceId}')">${pauseBtnText}</button>
+                            <button class="stop" onclick="stopDeviceCloud('${d.deviceId}')">${t('stopSession')}</button>
                         </div>
                     `;
                 }
