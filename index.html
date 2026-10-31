@@ -493,17 +493,29 @@
             document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
 
             let savedSalon = localStorage.getItem('ps_current_salon');
-            if (savedSalon) {
+            let loginTime = localStorage.getItem('ps_login_time');
+            let now = Date.now();
+            let twentyFourHours = 24 * 60 * 60 * 1000;
+
+            // التحقق مما إذا مر أكثر من 24 ساعة على تسجيل الدخول
+            if (savedSalon && loginTime && (now - parseInt(loginTime) < twentyFourHours)) {
                 try {
                     currentSalon = JSON.parse(savedSalon);
                     initSession();
                 } catch(e) {
-                    localStorage.removeItem('ps_current_salon');
+                    clearSession();
                     showAuthScreen();
                 }
             } else {
+                clearSession();
                 showAuthScreen();
             }
+        }
+
+        function clearSession() {
+            currentSalon = null;
+            localStorage.removeItem('ps_current_salon');
+            localStorage.removeItem('ps_login_time');
         }
 
         function showAuthScreen() {
@@ -525,6 +537,7 @@
             if (u === "HA" && p === "hamodi296") {
                 currentSalon = { name: "الادارة العامة", role: "superadmin" };
                 localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
+                localStorage.setItem('ps_login_time', Date.now().toString());
                 initSession();
                 return;
             }
@@ -535,6 +548,7 @@
                 if (docSnap.exists() && docSnap.data().password === p) {
                     currentSalon = { name: u, role: "salon" };
                     localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
+                    localStorage.setItem('ps_login_time', Date.now().toString());
                     initSession();
                 } else {
                     err.innerText = currentLang === 'ar' ? "اسم الصالة أو كلمة المرور غير صحيحة!" : "Incorrect salon name or password!";
@@ -545,8 +559,7 @@
         }
 
         window.logout = function() {
-            currentSalon = null;
-            localStorage.removeItem('ps_current_salon');
+            clearSession();
             showAuthScreen();
         }
 
@@ -895,7 +908,6 @@
             await setDoc(doc(db, "salon_devices", docId), { ...d, posItems: currentItems });
         }
 
-        // دالة الضغط على إيقاف الجلسة مع إعطاء خيار للمستخدم (إنهاء الفاتورة أو متابعة الجلسة)
         window.stopDeviceCloud = async function(devId) {
             let d = devicesData[devId];
             if (!d || !d.startTime) return;
@@ -906,12 +918,10 @@
 
             let wantToStop = confirm(confirmMsg);
 
-            // إذا اختر المستخدم متابعة الجلسة (إلغاء)
             if (!wantToStop) {
                 return;
             }
 
-            // إذا اختر المستخدم إنهاء الفاتورة (موافق)
             stopSpeechAlert(devId);
 
             let startTimeVal = typeof d.startTime === 'number' ? d.startTime : new Date(d.startTime).getTime();
