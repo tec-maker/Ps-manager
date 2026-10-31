@@ -483,7 +483,7 @@
             if(historyTitleEl) historyTitleEl.innerText = t('historyTitle');
 
             let settingsMainTitle = document.getElementById('settings-main-title-text');
-            if(settingsMainTitle) settingsMainTitle.innerText = currentSalon && currentSalon.role === 'superadmin' ? t('settingsTitle') : t('settingsTitle');
+            if(settingsMainTitle) settingsMainTitle.innerText = t('settingsTitle');
 
             let langHeaderText = document.getElementById('lang-header-text');
             if(langHeaderText) langHeaderText.innerText = t('langHeader');
@@ -640,6 +640,10 @@
             document.getElementById('app-screen').style.display = 'block';
             document.getElementById('salon-welcome').innerText = currentSalon.role === 'superadmin' ? t('generalAdminText') : currentSalon.name;
             
+            // تحديث حالة الاتصال لتتغير إلى متزامن سحابياً فوراً للمسؤول والصالات
+            let syncTextEl = document.getElementById('sync-text');
+            if(syncTextEl) syncTextEl.innerText = t('synced');
+            
             let superAdminSection = document.getElementById('superadmin-section');
             let adminDeviceSection = document.getElementById('admin-device-management-section');
             let mainDashboardView = document.getElementById('main-dashboard-view');
@@ -652,10 +656,10 @@
                 superAdminSection.style.display = 'block';
                 adminDeviceSection.style.display = 'block';
                 mainDashboardView.style.display = 'none';
-                if(settingsBtnContainer) settingsBtnContainer.style.display = 'none'; // إزالة خيار الإعدادات تماماً للمسؤول
-                if(adminFilterContainer) adminFilterContainer.style.display = 'block'; // إظهار قائمة فلترة الصالات في واجهة الأجهزة للمسؤول
-                if(settingsPanel) settingsPanel.style.display = 'block'; // إظهار واجهة الإدارة مباشرة للمسؤول
-                if(closeSettingsBtn) closeSettingsBtn.style.display = 'none'; // إزالة زر الإغلاق والرجوع للمسؤول
+                if(settingsBtnContainer) settingsBtnContainer.style.display = 'none';
+                if(adminFilterContainer) adminFilterContainer.style.display = 'block';
+                if(settingsPanel) settingsPanel.style.display = 'block';
+                if(closeSettingsBtn) closeSettingsBtn.style.display = 'none';
                 
                 loadSalonsList();
                 loadAdminSalonsDropdowns();
@@ -1007,7 +1011,8 @@
         }
 
         window.removeDeviceAdmin = async function(salonName, devId) {
-            if (confirm("Delete this device from salon " + salonName + "?")) {
+            let confirmMsg = currentLang === 'ar' ? `هل أنت متأكد من حذف الجهاز من صالة ${salonName}؟` : `Delete this device from salon ${salonName}?`;
+            if (confirm(confirmMsg)) {
                 let docId = `${salonName}_${devId}`;
                 await deleteDoc(doc(db, "salon_devices", docId));
                 loadAdminDevicesList();
@@ -1032,7 +1037,8 @@
             }
 
             await setDoc(docRef, { ...d, rates: updatedRates }, { merge: true });
-            alert("Rates updated successfully!");
+            let successMsg = currentLang === 'ar' ? "تم تحديث الأسعار بنجاح!" : "Rates updated successfully!";
+            alert(successMsg);
         }
 
         window.updateDeviceRates = async function(devId, category) {
@@ -1051,7 +1057,8 @@
 
             let docId = `${d.salon}_${devId}`;
             await setDoc(doc(db, "salon_devices", docId), { ...d, rates: updatedRates }, { merge: true });
-            alert("Rates updated successfully!");
+            let successMsg = currentLang === 'ar' ? "تم تحديث الأسعار بنجاح!" : "Rates updated successfully!";
+            alert(successMsg);
         }
 
         function speakDeviceNameLoud(deviceName) {
@@ -1079,7 +1086,6 @@
 
         function initCloudDevices() {
             if (currentSalon.role === 'superadmin') return;
-            document.getElementById('sync-text').innerText = t('synced');
             onSnapshot(collection(db, "salon_devices"), (snapshot) => {
                 salonDevicesList = [];
                 snapshot.forEach((docSnap) => {
