@@ -128,7 +128,15 @@
                 revenue: "إيرادات الصالة",
                 historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم",
                 noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن",
-                downloadLogsBtn: "📥 تحميل سجلات اليوم (Excel/CSV)",
+                exportSectionTitle: "📊 تقارير وتحميل السجلات (Excel / CSV)",
+                reportTypeLbl: "نوع التقرير:",
+                optDaily: "يومي (اليوم الحالي)",
+                optWeekly: "أسبوعي (آخر 7 أيام)",
+                optMonthly: "شهري (الشهر الحالي)",
+                optCustom: "تحديد بين تاريخين",
+                fromDateLbl: "من تاريخ:",
+                toDateLbl: "إلى تاريخ:",
+                downloadReportBtn: "📥 تحميل السجلات المحددة",
                 settingsTitle: "⚙️ لوحة تحكم المسؤول العام (إدارة الصالات والأجهزة)",
                 closeSettings: "✖ إغلاق ورجوع",
                 superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)",
@@ -173,7 +181,7 @@
                 suspendBtn: "إيقاف مؤقت",
                 activateBtn: "تفعيل",
                 confirmSuspend: "أدخل سبب الإيقاف المؤقت لهذه الصالة:",
-                confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟",
+                confirmActivate: "هل أنت أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟",
                 confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.",
                 salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة. السبب: ",
                 editSalonCredentials: "تعديل بيانات الدخول",
@@ -198,7 +206,15 @@
                 revenue: "Salon Revenue",
                 historyTitle: "📋 Today's Invoices & Sessions History",
                 noHistory: "No sessions recorded today yet",
-                downloadLogsBtn: "📥 Download Today's Logs (Excel/CSV)",
+                exportSectionTitle: "📊 Reports & Logs Download (Excel / CSV)",
+                reportTypeLbl: "Report Type:",
+                optDaily: "Daily (Today)",
+                optWeekly: "Weekly (Last 7 Days)",
+                optMonthly: "Monthly (Current Month)",
+                optCustom: "Custom Date Range",
+                fromDateLbl: "From Date:",
+                toDateLbl: "To Date:",
+                downloadReportBtn: "📥 Download Selected Logs",
                 settingsTitle: "⚙️ General Admin Control Panel (Salons & Devices)",
                 closeSettings: "✖ Close & Return",
                 superAdminTitle: "👑 Central Control Panel (Salons Management)",
@@ -268,7 +284,15 @@
                 revenue: "Salon Geliri",
                 historyTitle: "📋 Bugünkü Faturalar ve Oturum Geçmişi",
                 noHistory: "Bugün henüz kayıtlı oturum yok",
-                downloadLogsBtn: "📥 Bugünkü Kayıtları İndir (Excel/CSV)",
+                exportSectionTitle: "📊 Raporlar ve Kayıt İndirme (Excel / CSV)",
+                reportTypeLbl: "Rapor Türü:",
+                optDaily: "Günlük (Bugün)",
+                optWeekly: "Haftalık (Son 7 Gün)",
+                optMonthly: "Aylık (Bu Ay)",
+                optCustom: "Özel Tarih Aralığı",
+                fromDateLbl: "Başlangıç Tarihi:",
+                toDateLbl: "Bitiş Tarihi:",
+                downloadReportBtn: "📥 Seçilen Kayıtları İndir",
                 settingsTitle: "⚙️ Genel Yönetim Paneli (Salon ve Cihazlar)",
                 closeSettings: "✖ Kapat ve Dön",
                 superAdminTitle: "👑 Merkezi Kontrol Paneli (Salon Yönetimi)",
@@ -338,7 +362,15 @@
                 revenue: "Revenu du Salon",
                 historyTitle: "📋 Historique des Factures et Sessions",
                 noHistory: "Aucune session enregistrée aujourd'hui",
-                downloadLogsBtn: "📥 Télécharger les journaux (Excel/CSV)",
+                exportSectionTitle: "📊 Rapports et Téléchargement (Excel / CSV)",
+                reportTypeLbl: "Type de rapport :",
+                optDaily: "Quotidien (Aujourd'hui)",
+                optWeekly: "Hebdomadaire (7 derniers jours)",
+                optMonthly: "Mensuel (Mois en cours)",
+                optCustom: "Plage de dates personnalisée",
+                fromDateLbl: "De la date :",
+                toDateLbl: "À la date :",
+                downloadReportBtn: "📥 Télécharger les journaux sélectionnés",
                 settingsTitle: "⚙️ Panneau d'Administration Général (Salons & Appareils)",
                 closeSettings: "✖ Fermer et Retour",
                 superAdminTitle: "👑 Panneau de Contrôle Central (Gestion Salons)",
@@ -490,8 +522,32 @@
             let historyTitleEl = document.getElementById('history-title-text');
             if(historyTitleEl) historyTitleEl.innerText = t('historyTitle');
 
-            let downloadLogsBtnEl = document.getElementById('download-logs-btn-text');
-            if(downloadLogsBtnEl) downloadLogsBtnEl.innerText = t('downloadLogsBtn');
+            let exportTitleEl = document.getElementById('export-section-title');
+            if(exportTitleEl) exportTitleEl.innerText = t('exportSectionTitle');
+
+            let reportTypeLblEl = document.getElementById('report-type-lbl');
+            if(reportTypeLblEl) reportTypeLblEl.innerText = t('reportTypeLbl');
+
+            let optDailyEl = document.getElementById('opt-daily');
+            if(optDailyEl) optDailyEl.innerText = t('optDaily');
+
+            let optWeeklyEl = document.getElementById('opt-weekly');
+            if(optWeeklyEl) optWeeklyEl.innerText = t('optWeekly');
+
+            let optMonthlyEl = document.getElementById('opt-monthly');
+            if(optMonthlyEl) optMonthlyEl.innerText = t('optMonthly');
+
+            let optCustomEl = document.getElementById('opt-custom');
+            if(optCustomEl) optCustomEl.innerText = t('optCustom');
+
+            let fromDateLblEl = document.getElementById('from-date-lbl');
+            if(fromDateLblEl) fromDateLblEl.innerText = t('fromDateLbl');
+
+            let toDateLblEl = document.getElementById('to-date-lbl');
+            if(toDateLblEl) toDateLblEl.innerText = t('toDateLbl');
+
+            let downloadReportBtnEl = document.getElementById('download-report-btn-text');
+            if(downloadReportBtnEl) downloadReportBtnEl.innerText = t('downloadReportBtn');
 
             let settingsMainTitle = document.getElementById('settings-main-title-text');
             if(settingsMainTitle) settingsMainTitle.innerText = t('settingsTitle');
@@ -664,7 +720,7 @@
             let adminFilterContainer = document.getElementById('admin-filter-container');
             let settingsPanel = document.getElementById('settings-view-panel');
             let closeSettingsBtn = document.getElementById('close-settings-btn');
-            let downloadLogsContainer = document.getElementById('download-logs-container');
+            let exportLogsContainer = document.getElementById('export-logs-container');
 
             if (currentSalon.role === 'superadmin') {
                 superAdminSection.style.display = 'block';
@@ -674,7 +730,7 @@
                 if(adminFilterContainer) adminFilterContainer.style.display = 'block';
                 if(settingsPanel) settingsPanel.style.display = 'block';
                 if(closeSettingsBtn) closeSettingsBtn.style.display = 'none';
-                if(downloadLogsContainer) downloadLogsContainer.style.display = 'block';
+                if(exportLogsContainer) exportLogsContainer.style.display = 'block';
                 
                 loadSalonsList();
                 loadAdminSalonsDropdowns();
@@ -685,9 +741,9 @@
                 mainDashboardView.style.display = 'block';
                 if(settingsBtnContainer) settingsBtnContainer.style.display = 'flex';
                 if(adminFilterContainer) adminFilterContainer.style.display = 'none';
-                if(settingsPanel) settingsPanel.style.display = 'none';
+                if(settingsPanel) settingsPanel.style.display = 'block'; // متاح لصاحب الصالة لإعدادات التصدير والت زبان
                 if(closeSettingsBtn) closeSettingsBtn.style.display = 'inline-block';
-                if(downloadLogsContainer) downloadLogsContainer.style.display = 'none'; // مخفي عن الصالات، خاص بالمسؤول فقط
+                if(exportLogsContainer) exportLogsContainer.style.display = 'block'; // متاح أيضاً لأصحاب الصالات
                 
                 loadSalonDevicesConfig();
                 initCloudDevices();
@@ -710,22 +766,124 @@
             document.getElementById('main-dashboard-view').style.display = 'block';
         }
 
-        window.downloadLogsExcel = function() {
-            if (historyLogs.length === 0) {
-                alert(currentLang === 'ar' ? "لا توجد سجلات لتحميلها اليوم." : "No logs to download today.");
+        window.onReportTypeChange = function() {
+            let type = document.getElementById('report-type-select').value;
+            let customRangeDiv = document.getElementById('custom-date-range-container');
+            if (type === 'custom') {
+                customRangeDiv.style.display = 'grid';
+            } else {
+                customRangeDiv.style.display = 'none';
+            }
+        }
+
+        window.exportLogsReport = async function() {
+            let reportType = document.getElementById('report-type-select').value;
+            let logsToExport = [];
+
+            if (currentSalon.role === 'superadmin') {
+                // المسؤول يجمع السجلات من كل الصالات
+                let querySnapshot = await getDocs(collection(db, "salon_logs"));
+                querySnapshot.forEach(docSnap => {
+                    let d = docSnap.data();
+                    logsToExport.push({
+                        salon: d.salon || "Unknown",
+                        text: d.text || "",
+                        price: d.price || 0,
+                        time: d.time || "",
+                        rawDate: d.rawDate || new Date().toISOString()
+                    });
+                });
+                // إذا لم يوجد في جدول مستقل، نأخذ الجلسات المحلية المخزنة إن وجدت
+                if (logsToExport.length === 0 && historyLogs.length > 0) {
+                    historyLogs.forEach(item => {
+                        logsToExport.push({ salon: currentSalon.name, ...item });
+                    });
+                }
+            } else {
+                // صاحب الصالة يأخذ سجلاته الخاصة
+                let querySnapshot = await getDocs(collection(db, "salon_logs"));
+                querySnapshot.forEach(docSnap => {
+                    let d = docSnap.data();
+                    if (d.salon === currentSalon.name) {
+                        logsToExport.push({
+                            salon: d.salon,
+                            text: d.text || "",
+                            price: d.price || 0,
+                            time: d.time || "",
+                            rawDate: d.rawDate || new Date().toISOString()
+                        });
+                    }
+                });
+                if (logsToExport.length === 0 && historyLogs.length > 0) {
+                    historyLogs.forEach(item => {
+                        logsToExport.push({ salon: currentSalon.name, ...item });
+                    });
+                }
+            }
+
+            // فلترة السجلات حسب النمط المحدد
+            let now = new Date();
+            let filtered = logsToExport.filter(item => {
+                if (!item.rawDate) return true;
+                let itemDate = new Date(item.rawDate);
+
+                if (reportType === 'daily') {
+                    return itemDate.toDateString() === now.toDateString();
+                } else if (reportType === 'weekly') {
+                    let diffTime = Math.abs(now - itemDate);
+                    let diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    return diffDays <= 7;
+                } else if (reportType === 'monthly') {
+                    return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+                } else if (reportType === 'custom') {
+                    let fromStr = document.getElementById('report-from-date').value;
+                    let toStr = document.getElementById('report-to-date').value;
+                    if (!fromStr || !toStr) return true;
+                    let fromDate = new Date(fromStr);
+                    let toDate = new Date(toStr);
+                    toDate.setHours(23, 59, 59, 999);
+                    return itemDate >= fromDate && itemDate <= toDate;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found for the selected period.");
                 return;
             }
+
+            // بناء ملف الـ CSV المدعوم بلغة التطبيق
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += (currentLang === 'ar' ? "التفاصيل,المبلغ,الوقت,التاريخ\n" : "Details,Price,Time,Date\n");
-            
-            historyLogs.forEach(item => {
-                csvContent += `"${item.text}",${item.price},"${item.time}","${item.dateStr || ''}"\n`;
-            });
+            if (currentLang === 'ar') {
+                csvContent += "الصالة,التفاصيل,المبلغ,الوقت,التاريخ\n";
+                filtered.forEach(item => {
+                    let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                    csvContent += `"${item.salon}","${item.text}",${item.price},"${item.time}","${dateStr}"\n`;
+                });
+            } else if (currentLang === 'tr') {
+                csvContent += "Salon,Detaylar,Tutar,Saat,Tarih\n";
+                filtered.forEach(item => {
+                    let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                    csvContent += `"${item.salon}","${item.text}",${item.price},"${item.time}","${dateStr}"\n`;
+                });
+            } else if (currentLang === 'fr') {
+                csvContent += "Salon,Détails,Montant,Heure,Date\n";
+                filtered.forEach(item => {
+                    let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                    csvContent += `"${item.salon}","${item.text}",${item.price},"${item.time}","${dateStr}"\n`;
+                });
+            } else {
+                csvContent += "Salon,Details,Price,Time,Date\n";
+                filtered.forEach(item => {
+                    let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                    csvContent += `"${item.salon}","${item.text}",${item.price},"${item.time}","${dateStr}"\n`;
+                });
+            }
 
             let encodedUri = encodeURI(csvContent);
             let link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `salon_logs_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `lounge_report_${reportType}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1266,14 +1424,23 @@
                 let timeString = nowObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 let dateStr = nowObj.toLocaleDateString();
                 
-                historyLogs.unshift({
+                let logEntry = {
+                    salon: d.salon,
                     text: `${d.name} (${d.type}) - ${totalMins}m`,
                     price: grandTotal,
                     time: timeString,
                     dateStr: dateStr,
                     rawDate: nowObj.toISOString()
-                });
+                };
+
+                historyLogs.unshift(logEntry);
                 renderHistory();
+
+                // تخزين السجل في سحابة فايربيس لتسهيل استرجاعه للأسبوع والشهر وبين تاريخين
+                try {
+                    let logDocId = `${d.salon}_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+                    await setDoc(doc(db, "salon_logs", logDocId), logEntry);
+                } catch(e) { console.error(e); }
 
                 let docId = `${d.salon}_${devId}`;
                 await setDoc(doc(db, "salon_devices", docId), {
@@ -1540,7 +1707,7 @@
                 <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Loading devices...</div>
             </div>
 
-            <!-- سجل الفواتير والجلسات (مرتبط بلغة التطبيق) -->
+            <!-- سجل الفواتير والجلسات اليومي -->
             <div class="history-section">
                 <h3 id="history-title-text">📋 سجل فواتير وجلسات الصالة اليوم</h3>
                 <div class="history-list" id="history-container">
@@ -1549,16 +1716,39 @@
             </div>
         </div>
 
-        <!-- واجهة إعدادات / لوحة تحكم المسؤول العام -->
+        <!-- واجهة إعدادات / لوحة تحكم المسؤول العام والأجهزة وتحميل التقارير -->
         <div id="settings-view-panel" class="settings-view">
             <h2>
                 <span id="settings-main-title-text">⚙️ إعدادات النظام وإدارة الأجهزة والتسعير</span>
                 <button onclick="closeSettingsView()" id="close-settings-btn" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
 
-            <!-- زر تحميل السجلات (يظهر حصراً في لوحة المسؤول العام) -->
-            <div id="download-logs-container" class="admin-panel" style="display: none; border-color: var(--accent-orange); text-align: center; margin-top: 15px;">
-                <button class="main-btn" id="download-logs-btn-text" style="background: var(--accent-orange);" onclick="downloadLogsExcel()">📥 تحميل سجلات اليوم (Excel/CSV)</button>
+            <!-- قسم تقارير وتحميل السجلات (متاح لصاحب الصالة وللمسؤول حسب صلاحياته) -->
+            <div id="export-logs-container" class="admin-panel" style="display: none; border-color: var(--accent-orange); margin-top: 15px;">
+                <h3 style="color: var(--accent-orange); margin-top:0; font-size: 16px;" id="export-section-title">📊 تقارير وتحميل السجلات (Excel / CSV)</h3>
+                
+                <div style="margin-bottom: 10px;">
+                    <span id="report-type-lbl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">نوع التقرير:</span>
+                    <select id="report-type-select" onchange="onReportTypeChange()" style="margin-top:0;">
+                        <option value="daily" id="opt-daily">يومي (اليوم الحالي)</option>
+                        <option value="weekly" id="opt-weekly">أسبوعي (آخر 7 أيام)</option>
+                        <option value="monthly" id="opt-monthly">شهري (الشهر الحالي)</option>
+                        <option value="custom" id="opt-custom">تحديد بين تاريخين</option>
+                    </select>
+                </div>
+
+                <div id="custom-date-range-container" style="display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                    <div>
+                        <label id="from-date-lbl" style="font-size: 11px; color: var(--text-muted); display: block;">من تاريخ:</label>
+                        <input type="date" id="report-from-date" style="margin-top:2px;">
+                    </div>
+                    <div>
+                        <label id="to-date-lbl" style="font-size: 11px; color: var(--text-muted); display: block;">إلى تاريخ:</label>
+                        <input type="date" id="report-to-date" style="margin-top:2px;">
+                    </div>
+                </div>
+
+                <button class="main-btn" id="download-report-btn-text" style="background: var(--accent-orange);" onclick="exportLogsReport()">📥 تحميل السجلات المحددة</button>
             </div>
 
             <!-- لوحة إضافة الأجهزة (للمسؤول فقط) -->
