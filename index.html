@@ -131,7 +131,7 @@
                 revenue: "إيرادات الصالة",
                 historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم",
                 noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن",
-                exportSectionTitle: "📊 تقارير وتحميل السجلات (ملف Excel)",
+                exportSectionTitle: "📊 تقارير وتحميل السجلات (Excel, Word, PDF)",
                 reportTypeLbl: "نوع التقرير:",
                 optDaily: "يومي (اليوم الحالي)",
                 optWeekly: "أسبوعي (آخر 7 أيام)",
@@ -139,7 +139,9 @@
                 optCustom: "تحديد بين تاريخين",
                 fromDateLbl: "من تاريخ:",
                 toDateLbl: "إلى تاريخ:",
-                downloadReportBtn: "📥 تحميل السجلات كملف Excel",
+                downloadExcelBtn: "📥 تحميل Excel",
+                downloadWordBtn: "📄 تحميل Word",
+                downloadPdfBtn: "📑 تحميل PDF",
                 settingsTitle: "⚙️ لوحة تحكم المسؤول العام (إدارة الصالات والأجهزة)",
                 closeSettings: "✖ إغلاق ورجوع",
                 superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)",
@@ -212,7 +214,7 @@
                 revenue: "Salon Revenue",
                 historyTitle: "📋 Today's Invoices & Sessions History",
                 noHistory: "No sessions recorded today yet",
-                exportSectionTitle: "📊 Reports & Logs Download (Excel File)",
+                exportSectionTitle: "📊 Reports & Logs Download (Excel, Word, PDF)",
                 reportTypeLbl: "Report Type:",
                 optDaily: "Daily (Today)",
                 optWeekly: "Weekly (Last 7 Days)",
@@ -220,7 +222,9 @@
                 optCustom: "Custom Date Range",
                 fromDateLbl: "From Date:",
                 toDateLbl: "To Date:",
-                downloadReportBtn: "📥 Download Logs as Excel",
+                downloadExcelBtn: "📥 Download Excel",
+                downloadWordBtn: "📄 Download Word",
+                downloadPdfBtn: "📑 Download PDF",
                 settingsTitle: "⚙️ General Admin Control Panel (Salons & Devices)",
                 closeSettings: "✖ Close & Return",
                 superAdminTitle: "👑 Central Control Panel (Salons Management)",
@@ -293,7 +297,7 @@
                 revenue: "Salon Geliri",
                 historyTitle: "📋 Bugünkü Faturalar ve Oturum Geçmişi",
                 noHistory: "Bugün henüz kayıtlı oturum yok",
-                exportSectionTitle: "📊 Raporlar ve Kayıt İndirme (Excel Dosyası)",
+                exportSectionTitle: "📊 Raporlar ve Kayıt İndirme (Excel, Word, PDF)",
                 reportTypeLbl: "Rapor Türü:",
                 optDaily: "Günlük (Bugün)",
                 optWeekly: "Haftalık (Son 7 Gün)",
@@ -301,7 +305,9 @@
                 optCustom: "Özel Tarih Aralığı",
                 fromDateLbl: "Başlangıç Tarihi:",
                 toDateLbl: "Bitiş Tarihi:",
-                downloadReportBtn: "📥 Kayıtları Excel Olarak İndir",
+                downloadExcelBtn: "📥 Excel İndir",
+                downloadWordBtn: "📄 Word İndir",
+                downloadPdfBtn: "📑 PDF İndir",
                 settingsTitle: "⚙️ Genel Yönetim Paneli (Salon ve Cihazlar)",
                 closeSettings: "✖ Kapat ve Dön",
                 superAdminTitle: "👑 Merkezi Kontrol Paneli (Salon Yönetimi)",
@@ -374,7 +380,7 @@
                 revenue: "Revenu du Salon",
                 historyTitle: "📋 Historique des Factures et Sessions",
                 noHistory: "Aucune session enregistrée aujourd'hui",
-                exportSectionTitle: "📊 Rapports et Téléchargement (Fichier Excel)",
+                exportSectionTitle: "📊 Rapports et Téléchargement (Excel, Word, PDF)",
                 reportTypeLbl: "Type de rapport :",
                 optDaily: "Quotidien (Aujourd'hui)",
                 optWeekly: "Hebdomadaire (7 derniers jours)",
@@ -382,7 +388,9 @@
                 optCustom: "Plage de dates personnalisée",
                 fromDateLbl: "De la date :",
                 toDateLbl: "À la date :",
-                downloadReportBtn: "📥 Télécharger en Excel",
+                downloadExcelBtn: "📥 Télécharger Excel",
+                downloadWordBtn: "📄 Télécharger Word",
+                downloadPdfBtn: "📑 Télécharger PDF",
                 settingsTitle: "⚙️ Panneau d'Administration Général (Salons & Appareils)",
                 closeSettings: "✖ Fermer et Retour",
                 superAdminTitle: "👑 Panneau de Contrôle Central (Gestion Salons)",
@@ -561,8 +569,14 @@
             let toDateLblEl = document.getElementById('to-date-lbl');
             if(toDateLblEl) toDateLblEl.innerText = t('toDateLbl');
 
-            let downloadReportBtnEl = document.getElementById('download-report-btn-text');
-            if(downloadReportBtnEl) downloadReportBtnEl.innerText = t('downloadReportBtn');
+            let downloadExcelBtnEl = document.getElementById('download-excel-btn-text');
+            if(downloadExcelBtnEl) downloadExcelBtnEl.innerText = t('downloadExcelBtn');
+
+            let downloadWordBtnEl = document.getElementById('download-word-btn-text');
+            if(downloadWordBtnEl) downloadWordBtnEl.innerText = t('downloadWordBtn');
+
+            let downloadPdfBtnEl = document.getElementById('download-pdf-btn-text');
+            if(downloadPdfBtnEl) downloadPdfBtnEl.innerText = t('downloadPdfBtn');
 
             let settingsMainTitle = document.getElementById('settings-main-title-text');
             if(settingsMainTitle) settingsMainTitle.innerText = t('settingsTitle');
@@ -791,7 +805,7 @@
             }
         }
 
-        window.exportLogsReport = async function() {
+        async function getFilteredLogsForExport() {
             let reportType = document.getElementById('report-type-select').value;
             let logsToExport = [];
 
@@ -816,7 +830,7 @@
             }
 
             let now = new Date();
-            let filtered = logsToExport.filter(item => {
+            return logsToExport.filter(item => {
                 if (!item.rawDate) return true;
                 let itemDate = new Date(item.rawDate);
 
@@ -839,34 +853,123 @@
                 }
                 return true;
             });
+        }
 
+        window.exportExcel = async function() {
+            let filtered = await getFilteredLogsForExport();
             if (filtered.length === 0) {
-                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found for the selected period.");
+                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found.");
                 return;
             }
 
-            // استخدام صيغة ملف CSV السليم والمتوافق 100% مع Google Sheets و Excel لتجنب أخطاء التلف أو التداخل
-            let csvContent = "\uFEFF"; // دعم الحروف العربية
+            let csvContent = "\uFEFF";
             csvContent += "Salon,Details,Price,Time,Date\n";
-
             filtered.forEach(item => {
                 let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
-                let cleanSalon = `"${(item.salon || '').replace(/"/g, '""')}"`;
-                let cleanText = `"${(item.text || '').replace(/"/g, '""')}"`;
-                let cleanPrice = item.price || 0;
-                let cleanTime = `"${(item.time || '').replace(/"/g, '""')}"`;
-                let cleanDate = `"${dateStr}"`;
-
-                csvContent += `${cleanSalon},${cleanText},${cleanPrice},${cleanTime},${cleanDate}\n`;
+                csvContent += `"${(item.salon||'').replace(/"/g,'""')}","${(item.text||'').replace(/"/g,'""')}",${item.price||0},"${(item.time||'').replace(/"/g,'""')}","${dateStr}"\n`;
             });
 
             let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `lounge_report_${reportType}_${new Date().toISOString().slice(0,10)}.csv`;
+            link.download = `report_${new Date().toISOString().slice(0,10)}.csv`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        window.exportWord = async function() {
+            let filtered = await getFilteredLogsForExport();
+            if (filtered.length === 0) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found.");
+                return;
+            }
+
+            let htmlContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'><title>Report</title></head>
+            <body style="direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif;">
+            <h2 style="text-align: center; color: #0284c7;">سجل فواتير صالة الألعاب</h2>
+            <table border="1" style="width: 100%; border-collapse: collapse; text-align: center;">
+                <tr style="background-color: #0284c7; color: white;">
+                    <th>الصالة</th><th>التفاصيل</th><th>المبلغ</th><th>الوقت</th><th>التاريخ</th>
+                </tr>`;
+
+            filtered.forEach(item => {
+                let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                htmlContent += `<tr>
+                    <td>${item.salon || ''}</td>
+                    <td>${item.text || ''}</td>
+                    <td>${item.price || 0}</td>
+                    <td>${item.time || ''}</td>
+                    <td>${dateStr}</td>
+                </tr>`;
+            });
+
+            htmlContent += `</table></body></html>`;
+
+            let blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `report_${new Date().toISOString().slice(0,10)}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        window.exportPdf = async function() {
+            let filtered = await getFilteredLogsForExport();
+            if (filtered.length === 0) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found.");
+                return;
+            }
+
+            let printWin = window.open('', '_blank');
+            let htmlContent = `<!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="utf-8">
+                <title>تقرير السجلات</title>
+                <style>
+                    body { font-family: Tahoma, sans-serif; padding: 20px; color: #111; }
+                    h2 { text-align: center; color: #0284c7; margin-bottom: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+                    th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: center; }
+                    th { background-color: #0284c7; color: white; }
+                </style>
+            </head>
+            <body>
+                <h2>سجل فواتير وجلسات صالة الألعاب</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الصالة</th>
+                            <th>التفاصيل</th>
+                            <th>المبلغ</th>
+                            <th>الوقت</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            filtered.forEach(item => {
+                let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                htmlContent += `<tr>
+                    <td>${item.salon || ''}</td>
+                    <td>${item.text || ''}</td>
+                    <td>${item.price || 0}</td>
+                    <td>${item.time || ''}</td>
+                    <td>${dateStr}</td>
+                </tr>`;
+            });
+
+            htmlContent += `</tbody></table>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body></html>`;
+
+            printWin.document.write(htmlContent);
+            printWin.document.close();
         }
 
         window.addSalonCenter = async function() {
@@ -1746,9 +1849,9 @@
                 <button onclick="closeSettingsView()" id="close-settings-btn" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
 
-            <!-- قسم تقارير وتحميل السجلات (متاح لصاحب الصالة وللمسؤول حسب صلاحياته) -->
+            <!-- قسم تقارير وتحميل السجلات بثلاث صيغ (Excel, Word, PDF) -->
             <div id="export-logs-container" class="admin-panel" style="display: none; border-color: var(--accent-orange); margin-top: 15px;">
-                <h3 style="color: var(--accent-orange); margin-top:0; font-size: 16px;" id="export-section-title">📊 تقارير وتحميل السجلات (ملف Excel)</h3>
+                <h3 style="color: var(--accent-orange); margin-top:0; font-size: 16px;" id="export-section-title">📊 تقارير وتحميل السجلات (Excel, Word, PDF)</h3>
                 
                 <div style="margin-bottom: 10px;">
                     <span id="report-type-lbl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">نوع التقرير:</span>
@@ -1771,7 +1874,11 @@
                     </div>
                 </div>
 
-                <button class="main-btn" id="download-report-btn-text" style="background: var(--accent-orange);" onclick="exportLogsReport()">📥 تحميل السجلات كملف Excel</button>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;">
+                    <button class="main-btn" id="download-excel-btn-text" style="background: var(--accent-green); margin-top:0;" onclick="exportExcel()">📥 تحميل Excel</button>
+                    <button class="main-btn" id="download-word-btn-text" style="background: var(--accent-blue); margin-top:0;" onclick="exportWord()">📄 تحميل Word</button>
+                    <button class="main-btn" id="download-pdf-btn-text" style="background: var(--accent-red); margin-top:0;" onclick="exportPdf()">📑 تحميل PDF</button>
+                </div>
             </div>
 
             <!-- لوحة إضافة الأجهزة (للمسؤول فقط) -->
