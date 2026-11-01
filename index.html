@@ -45,12 +45,14 @@
         button.main-btn:hover { background: #0369a1; }
 
         .whatsapp-support { margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--border-color); font-size: 13px; text-align: center; }
-        .whatsapp-support a { color: var(--whatsapp-green); text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; transition: opacity 0.2s; }
+        .whatsapp-support a { color: var(--whatsapp-green); text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; transition: opacity 0.2s; unicode-bidi: embed; direction: ltr; }
         .whatsapp-support a:hover { opacity: 0.8; }
 
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; max-width: 1300px; margin-left: auto; margin-right: auto; }
         .stat-box { background: var(--card-bg); padding: 15px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); }
         .stat-box span { display: block; font-size: 20px; font-weight: bold; margin-top: 5px; }
+        
+        .section-title-header { font-size: 18px; font-weight: bold; color: var(--accent-blue); margin: 25px 0 12px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; display: flex; align-items: center; gap: 8px; }
         
         .grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1300px; margin: 0 auto; }
         @media(min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
@@ -62,6 +64,8 @@
         .card.paused { border-top-color: var(--accent-orange); }
         
         .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .device-icon-large { font-size: 26px; vertical-align: middle; margin-left: 6px; }
+        
         .status-badge { font-size: 13px; padding: 5px 12px; border-radius: 20px; color: #fff; font-weight: bold; }
         .available .status-badge { background: var(--accent-green); }
         .busy .status-badge { background: var(--accent-red); }
@@ -198,7 +202,9 @@
                 newSalonPassUpdatePh: "كلمة المرور الجديدة",
                 supportText: "💬 الدعم الفني عبر واتساب:",
                 selectSalonForDevice: "اختر الصالة المراد إضافة الجهاز إليها:",
-                selectSalonForDevicesList: "اختر الصالة لعرض وإدارة أجهزتها:"
+                selectSalonForDevicesList: "اختر الصالة لعرض وإدارة أجهزتها:",
+                playstationSectionTitle: "🎮 أجهزة البليستيشن (PlayStation)",
+                pcSectionTitle: "🖥️ أجهزة الحاسوب (PC)"
             },
             en: {
                 loginTitle: "Salon / Center Login",
@@ -281,7 +287,9 @@
                 newSalonPassUpdatePh: "New Password",
                 supportText: "💬 Technical Support via WhatsApp:",
                 selectSalonForDevice: "Select target salon for this device:",
-                selectSalonForDevicesList: "Select salon to view and manage its devices:"
+                selectSalonForDevicesList: "Select salon to view and manage its devices:",
+                playstationSectionTitle: "🎮 PlayStation Devices",
+                pcSectionTitle: "🖥️ PC Devices"
             },
             tr: {
                 loginTitle: "Salon / Merkez Girişi",
@@ -364,7 +372,9 @@
                 newSalonPassUpdatePh: "Yeni Şifre",
                 supportText: "💬 WhatsApp Destek Hattı:",
                 selectSalonForDevice: "Bu cihazın ekleneceği salonu seçin:",
-                selectSalonForDevicesList: "Cihazlarını görüntülemek ve yönetmek için salon seçin:"
+                selectSalonForDevicesList: "Cihazlarını görüntülemek ve yönetmek için salon seçin:",
+                playstationSectionTitle: "🎮 PlayStation Cihazları",
+                pcSectionTitle: "🖥️ Bilgisayar (PC) Cihazları"
             },
             fr: {
                 loginTitle: "Connexion Salon / Centre",
@@ -447,7 +457,9 @@
                 newSalonPassUpdatePh: "Nouveau Mot de passe",
                 supportText: "💬 Support technique WhatsApp :",
                 selectSalonForDevice: "Sélectionnez le salon cible pour cet appareil :",
-                selectSalonForDevicesList: "Sélectionnez le salon pour afficher et gérer ses appareils :"
+                selectSalonForDevicesList: "Sélectionnez le salon pour afficher et gérer ses appareils :",
+                playstationSectionTitle: "🎮 Appareils PlayStation",
+                pcSectionTitle: "🖥️ Appareils PC"
             }
         };
 
@@ -1344,9 +1356,12 @@
         function speakDeviceNameLoud(deviceName) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                let utterance = new SpeechSynthesisUtterance(`Time ended for ${deviceName}`);
-                utterance.lang = currentLang === 'ar' ? 'ar-SA' : (currentLang === 'tr' ? 'tr-TR' : (currentLang === 'fr' ? 'fr-FR' : 'en-US'));
-                utterance.rate = 0.95;
+                let message = currentLang === 'ar' ? `انتهى الوقت لجهاز ${deviceName}` : `Time ended for ${deviceName}`;
+                let utterance = new SpeechSynthesisUtterance(message);
+                
+                let langMap = { ar: 'ar-SA', en: 'en-US', tr: 'tr-TR', fr: 'fr-FR' };
+                utterance.lang = langMap[currentLang] || 'en-US';
+                utterance.rate = 0.85; // نطق أبطأ وأوضح
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -1354,7 +1369,7 @@
         function startSpeechAlert(id, deviceName) {
             if (speechIntervals[id]) return;
             speakDeviceNameLoud(deviceName);
-            speechIntervals[id] = setInterval(() => { speakDeviceNameLoud(deviceName); }, 4000);
+            speechIntervals[id] = setInterval(() => { speakDeviceNameLoud(deviceName); }, 5000);
         }
 
         function stopSpeechAlert(id) {
@@ -1582,11 +1597,34 @@
                 return;
             }
 
+            // فصل أجهزة البليستيشن عن الحواسيب
+            let psDevices = filteredList.filter(d => d.category !== 'pc');
+            let pcDevices = filteredList.filter(d => d.category === 'pc');
+
             let html = "";
-            filteredList.forEach(d => {
+
+            // قسم أجهزة البليستيشن بالأعلى
+            if (psDevices.length > 0) {
+                html += `<div style="grid-column: 1 / -1;"><div class="section-title-header">🎮 ${t('playstationSectionTitle')}</div></div>`;
+                html += generateDeviceCardsHtml(psDevices);
+            }
+
+            // قسم الحواسيب في الأسفل
+            if (pcDevices.length > 0) {
+                html += `<div style="grid-column: 1 / -1; margin-top: 15px;"><div class="section-title-header">🖥️ ${t('pcSectionTitle')}</div></div>`;
+                html += generateDeviceCardsHtml(pcDevices);
+            }
+
+            container.innerHTML = html;
+        }
+
+        function generateDeviceCardsHtml(list) {
+            let html = "";
+            list.forEach(d => {
                 let isBusy = d.busy;
                 let isPaused = d.paused;
-                let iconSymbol = d.category === 'pc' ? '🖥️ PC' : '🎮 PS';
+                // شعارات كبيرة وواضحة جداً للعين في الزاوية العليا
+                let iconSymbol = d.category === 'pc' ? '<span class="device-icon-large">🖥️</span>' : '<span class="device-icon-large">🎮</span>';
                 let cardClass = isPaused ? 'card paused' : (isBusy ? 'card busy' : 'card available');
                 let statusText = isPaused ? t('statusPaused') : (isBusy ? t('statusBusy') : t('statusAvail'));
                 let r = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
@@ -1594,8 +1632,8 @@
                 html += `<div class="${cardClass}" id="card-${d.deviceId}">`;
                 html += `
                     <div class="title">
-                        <span>${iconSymbol} | ${d.name}</span>
-                        <span class="status-badge">${statusText}</span>
+                        <span>${d.name}</span>
+                        <span>${iconSymbol} <span class="status-badge">${statusText}</span></span>
                     </div>
                 `;
 
@@ -1696,7 +1734,7 @@
                 }
                 html += `</div>`;
             });
-            container.innerHTML = html;
+            return html;
         }
 
         function updateGlobalStats() {
@@ -1829,6 +1867,7 @@
                 <div class="stat-box" style="color: #fbbf24;"><span id="stat-rev-lbl">إيرادات الصالة</span> <span id="stat-revenue">0</span></div>
             </div>
 
+            <!-- شبكة الأجهزة المقسمة (بليستيشن بالاعلى وحواسيب بالأسفل) -->
             <div class="grid" id="devices-container">
                 <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Loading devices...</div>
             </div>
@@ -1849,7 +1888,7 @@
                 <button onclick="closeSettingsView()" id="close-settings-btn" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
             </h2>
 
-            <!-- قسم تقارير وتحميل السجلات بثلاث صيغ (Excel, Word, PDF) -->
+            <!-- قسم تقارير وتحميل السجلات (Excel, Word, PDF) -->
             <div id="export-logs-container" class="admin-panel" style="display: none; border-color: var(--accent-orange); margin-top: 15px;">
                 <h3 style="color: var(--accent-orange); margin-top:0; font-size: 16px;" id="export-section-title">📊 تقارير وتحميل السجلات (Excel, Word, PDF)</h3>
                 
@@ -1951,7 +1990,7 @@
             <!-- دعم واتساب -->
             <div class="admin-panel" style="margin-top: 15px; border-color: var(--whatsapp-green); text-align: center;">
                 <span id="support-text-settings" style="color: var(--text-muted); display: block; font-size: 13px;">💬 الدعم الفني عبر واتساب:</span>
-                <a href="https://wa.me/963940593391" target="_blank" style="color: var(--whatsapp-green); text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; font-size: 15px;">
+                <a href="https://wa.me/963940593391" target="_blank" style="color: var(--whatsapp-green); text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; font-size: 15px; unicode-bidi: embed; direction: ltr;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                     +963 940 593 391
                 </a>
