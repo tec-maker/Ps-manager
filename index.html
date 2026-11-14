@@ -503,8 +503,6 @@
                     loadAdminSalonsDropdowns();
                     loadAdminDevicesList();
                 } else {
-                    let salonWelcomeEl = document.getElementById('salon-welcome');
-                    if(salonWelcomeEl) salonWelcomeEl.innerText = currentSalon.name;
                     loadSalonDevicesConfig();
                     renderDevicesGrid();
                     renderHistory();
