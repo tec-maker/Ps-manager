@@ -1361,7 +1361,7 @@
                 
                 let langMap = { ar: 'ar-SA', en: 'en-US', tr: 'tr-TR', fr: 'fr-FR' };
                 utterance.lang = langMap[currentLang] || 'en-US';
-                utterance.rate = 0.85;
+                utterance.rate = 0.85; // نطق أبطأ وأوضح
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -1399,7 +1399,6 @@
             let d = devicesData[devId];
             let docId = `${d.salon}_${devId}`;
             if (d && (d.busy || d.paused)) {
-                // تحديث مباشر للنمط أثناء الجلسة النشطة أو المتوقفة
                 await setDoc(doc(db, "salon_devices", docId), { ...d, type: type }, { merge: true });
             } else {
                 tempTypes[devId] = type;
@@ -1598,16 +1597,19 @@
                 return;
             }
 
+            // فصل أجهزة البليستيشن عن الحواسيب
             let psDevices = filteredList.filter(d => d.category !== 'pc');
             let pcDevices = filteredList.filter(d => d.category === 'pc');
 
             let html = "";
 
+            // قسم أجهزة البليستيشن بالأعلى
             if (psDevices.length > 0) {
                 html += `<div style="grid-column: 1 / -1;"><div class="section-title-header">🎮 ${t('playstationSectionTitle')}</div></div>`;
                 html += generateDeviceCardsHtml(psDevices);
             }
 
+            // قسم الحواسيب في الأسفل
             if (pcDevices.length > 0) {
                 html += `<div style="grid-column: 1 / -1; margin-top: 15px;"><div class="section-title-header">🖥️ ${t('pcSectionTitle')}</div></div>`;
                 html += generateDeviceCardsHtml(pcDevices);
@@ -1621,6 +1623,7 @@
             list.forEach(d => {
                 let isBusy = d.busy;
                 let isPaused = d.paused;
+                // شعارات كبيرة وواضحة جداً للعين في الزاوية العليا
                 let iconSymbol = d.category === 'pc' ? '<span class="device-icon-large">🖥️</span>' : '<span class="device-icon-large">🎮</span>';
                 let cardClass = isPaused ? 'card paused' : (isBusy ? 'card busy' : 'card available');
                 let statusText = isPaused ? t('statusPaused') : (isBusy ? t('statusBusy') : t('statusAvail'));
@@ -1646,7 +1649,7 @@
                                 <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')} (${r['فردي']})</button>
                                 <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')} (${r['ثنائي']})</button>
                                 <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">${t('tripleLabel')} (${r['ثلاثي']})</button>
-                                <button type="button" class="type-btn ${curType === 'quad' || curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')} (${r['رباعي']})</button>
+                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')} (${r['رباعي']})</button>
                             </div>
                         `;
                     } else {
@@ -1702,26 +1705,12 @@
                     }
                     let grandTotal = timeCost + posTotal;
 
-                    let currentActiveType = d.type || 'فردي';
+                    let modeLabelText = d.type === 'فردي' ? t('singleLabel') : (d.type === 'ثنائي' ? t('doubleLabel') : (d.type === 'ثلاثي' ? t('tripleLabel') : (d.type === 'رباعي' ? t('quadLabel') : d.type)));
                     let pauseBtnText = isPaused ? t('resumeSession') : t('pauseSession');
                     let pauseBtnColor = isPaused ? '#059669' : 'var(--accent-orange)';
 
                     html += `
-                        <div class="info" style="margin-top: 8px; flex-direction: column; align-items: flex-start; gap: 6px;">
-                            <div style="display:flex; justify-content:space-width; width:100%; align-items:center; justify-content:space-between;">
-                                <span>Mode:</span> <b style="color:var(--accent-blue); font-size: 15px;">${currentActiveType === 'فردي' ? t('singleLabel') : (currentActiveType === 'ثنائي' ? t('doubleLabel') : (currentActiveType === 'ثلاثي' ? t('tripleLabel') : (currentActiveType === 'رباعي' ? t('quadLabel') : currentActiveType))}</b>
-                            </div>
-                            ${d.category === 'ps' ? `
-                                <div style="font-size: 11px; color: var(--text-muted);">Change Mode During Session:</div>
-                                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%;">
-                                    <button type="button" class="type-btn ${currentActiveType === 'فردي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')}</button>
-                                    <button type="button" class="type-btn ${currentActiveType === 'ثنائي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')}</button>
-                                    <button type="button" class="type-btn ${currentActiveType === 'ثلاثي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'ثلاثي')">${t('tripleLabel')}</button>
-                                    <button type="button" class="type-btn ${currentActiveType === 'رباعي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')}</button>
-                                </div>
-                            ` : ''}
-                        </div>
-
+                        <div class="info" style="margin-top: 8px;"><span>Mode:</span> <b style="color:var(--accent-blue); font-size: 15px;">${modeLabelText}</b></div>
                         <div class="info"><span>${t('timeLabel')}</span> <span class="timer-val" id="timer-${d.deviceId}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
                         <div class="info"><span>${t('timeCost')}</span> <span id="timecost-${d.deviceId}" style="font-size: 16px; font-weight: bold;">${timeCost}</span></div>
                         <div class="info" style="align-items:center;"><span>${t('ordersLabel')}</span> <div style="display:flex; flex-wrap:wrap; gap:4px;">${itemsListHtml || `<span style="color:#4b5563;font-size:12px;">${t('none')}</span>`}</div></div>
@@ -1878,7 +1867,7 @@
                 <div class="stat-box" style="color: #fbbf24;"><span id="stat-rev-lbl">إيرادات الصالة</span> <span id="stat-revenue">0</span></div>
             </div>
 
-            <!-- شبكة الأجهزة المقسمة -->
+            <!-- شبكة الأجهزة المقسمة (بليستيشن بالاعلى وحواسيب بالأسفل) -->
             <div class="grid" id="devices-container">
                 <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Loading devices...</div>
             </div>
