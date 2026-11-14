@@ -497,11 +497,14 @@
             updateStaticTexts();
             if (currentSalon) {
                 if (currentSalon.role === 'superadmin') {
-                    document.getElementById('salon-welcome').innerText = t('generalAdminText');
+                    let salonWelcomeEl = document.getElementById('salon-welcome');
+                    if(salonWelcomeEl) salonWelcomeEl.innerText = t('generalAdminText');
                     loadSalonsList();
                     loadAdminSalonsDropdowns();
                     loadAdminDevicesList();
                 } else {
+                    let salonWelcomeEl = document.getElementById('salon-welcome');
+                    if(salonWelcomeEl) salonWelcomeEl.innerText = currentSalon.name;
                     loadSalonDevicesConfig();
                     renderDevicesGrid();
                     renderHistory();
@@ -513,6 +516,7 @@
             let typeVal = document.getElementById('dev-type').value;
             let psRatesContainer = document.getElementById('ps-rates-container');
             let pcRatesContainer = document.getElementById('pc-rates-container');
+            if(!psRatesContainer || !pcRatesContainer) return;
 
             if (typeVal === 'ps') {
                 psRatesContainer.style.display = 'grid';
@@ -692,15 +696,21 @@
         }
 
         function showAuthScreen() {
-            document.getElementById('auth-screen').style.display = 'block';
-            document.getElementById('app-screen').style.display = 'none';
+            let authScr = document.getElementById('auth-screen');
+            let appScr = document.getElementById('app-screen');
+            if(authScr) authScr.style.display = 'block';
+            if(appScr) appScr.style.display = 'none';
             updateStaticTexts();
         }
 
         window.login = async function() {
-            let u = document.getElementById('username').value.trim();
-            let p = document.getElementById('password').value.trim();
+            let uEl = document.getElementById('username');
+            let pEl = document.getElementById('password');
             let err = document.getElementById('login-error');
+            if(!uEl || !pEl || !err) return;
+
+            let u = uEl.value.trim();
+            let p = pEl.value.trim();
 
             if (!u || !p) {
                 err.innerText = currentLang === 'ar' ? "الرجاء إدخال اسم الصالة وكلمة المرور" : "Please enter salon name and password";
@@ -747,9 +757,13 @@
         }
 
         function initSession() {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
-            document.getElementById('salon-welcome').innerText = currentSalon.role === 'superadmin' ? t('generalAdminText') : currentSalon.name;
+            let authScr = document.getElementById('auth-screen');
+            let appScr = document.getElementById('app-screen');
+            if(authScr) authScr.style.display = 'none';
+            if(appScr) appScr.style.display = 'block';
+
+            let salonWelcome = document.getElementById('salon-welcome');
+            if(salonWelcome) salonWelcome.innerText = currentSalon.role === 'superadmin' ? t('generalAdminText') : currentSalon.name;
             
             let syncTextEl = document.getElementById('sync-text');
             if(syncTextEl) syncTextEl.innerText = t('synced');
@@ -764,9 +778,9 @@
             let exportLogsContainer = document.getElementById('export-logs-container');
 
             if (currentSalon.role === 'superadmin') {
-                superAdminSection.style.display = 'block';
-                adminDeviceSection.style.display = 'block';
-                mainDashboardView.style.display = 'none';
+                if(superAdminSection) superAdminSection.style.display = 'block';
+                if(adminDeviceSection) adminDeviceSection.style.display = 'block';
+                if(mainDashboardView) mainDashboardView.style.display = 'none';
                 if(settingsBtnContainer) settingsBtnContainer.style.display = 'none';
                 if(adminFilterContainer) adminFilterContainer.style.display = 'block';
                 if(settingsPanel) settingsPanel.style.display = 'block';
@@ -777,12 +791,12 @@
                 loadAdminSalonsDropdowns();
                 loadAdminDevicesList();
             } else {
-                superAdminSection.style.display = 'none';
-                adminDeviceSection.style.display = 'none';
-                mainDashboardView.style.display = 'block';
+                if(superAdminSection) superAdminSection.style.display = 'none';
+                if(adminDeviceSection) adminDeviceSection.style.display = 'none';
+                if(mainDashboardView) mainDashboardView.style.display = 'block';
                 if(settingsBtnContainer) settingsBtnContainer.style.display = 'flex';
                 if(adminFilterContainer) adminFilterContainer.style.display = 'none';
-                if(settingsPanel) settingsPanel.style.display = 'block';
+                if(settingsPanel) settingsPanel.style.display = 'none';
                 if(closeSettingsBtn) closeSettingsBtn.style.display = 'inline-block';
                 if(exportLogsContainer) exportLogsContainer.style.display = 'block';
                 
@@ -796,21 +810,27 @@
 
         window.openSettingsView = function() {
             if (currentSalon.role === 'superadmin') return;
-            document.getElementById('main-dashboard-view').style.display = 'none';
-            document.getElementById('settings-view-panel').style.display = 'block';
+            let mainDash = document.getElementById('main-dashboard-view');
+            let settingsPanel = document.getElementById('settings-view-panel');
+            if(mainDash) mainDash.style.display = 'none';
+            if(settingsPanel) settingsPanel.style.display = 'block';
             updateStaticTexts();
         }
 
         window.closeSettingsView = function() {
             if (currentSalon.role === 'superadmin') return;
-            document.getElementById('settings-view-panel').style.display = 'none';
-            document.getElementById('main-dashboard-view').style.display = 'block';
+            let mainDash = document.getElementById('main-dashboard-view');
+            let settingsPanel = document.getElementById('settings-view-panel');
+            if(settingsPanel) settingsPanel.style.display = 'none';
+            if(mainDash) mainDash.style.display = 'block';
         }
 
         window.onReportTypeChange = function() {
-            let type = document.getElementById('report-type-select').value;
+            let reportTypeSelect = document.getElementById('report-type-select');
             let customRangeDiv = document.getElementById('custom-date-range-container');
-            if (type === 'custom') {
+            if(!reportTypeSelect || !customRangeDiv) return;
+
+            if (reportTypeSelect.value === 'custom') {
                 customRangeDiv.style.display = 'grid';
             } else {
                 customRangeDiv.style.display = 'none';
@@ -818,7 +838,8 @@
         }
 
         async function getFilteredLogsForExport() {
-            let reportType = document.getElementById('report-type-select').value;
+            let reportTypeSelect = document.getElementById('report-type-select');
+            let reportType = reportTypeSelect ? reportTypeSelect.value : 'daily';
             let logsToExport = [];
 
             let querySnapshot = await getDocs(collection(db, "salon_logs"));
@@ -985,8 +1006,12 @@
         }
 
         window.addSalonCenter = async function() {
-            let name = document.getElementById('new-salon-name').value.trim();
-            let pass = document.getElementById('new-salon-pass').value.trim();
+            let nameEl = document.getElementById('new-salon-name');
+            let passEl = document.getElementById('new-salon-pass');
+            if(!nameEl || !passEl) return;
+
+            let name = nameEl.value.trim();
+            let pass = passEl.value.trim();
             if (!name || !pass) {
                 alert("Please fill all fields");
                 return;
@@ -1000,8 +1025,8 @@
 
             await setDoc(docRef, { name: name, password: pass, suspended: false, suspendReason: "" });
             alert(`Salon ${name} created successfully!`);
-            document.getElementById('new-salon-name').value = '';
-            document.getElementById('new-salon-pass').value = '';
+            nameEl.value = '';
+            passEl.value = '';
             loadSalonsList();
             loadAdminSalonsDropdowns();
         }
@@ -1096,8 +1121,12 @@
         }
 
         window.updateSalonCredentials = async function(oldName) {
-            let newUser = document.getElementById(`edit-user-${oldName}`).value.trim();
-            let newPass = document.getElementById(`edit-pass-${oldName}`).value.trim();
+            let userEl = document.getElementById(`edit-user-${oldName}`);
+            let passEl = document.getElementById(`edit-pass-${oldName}`);
+            if(!userEl || !passEl) return;
+
+            let newUser = userEl.value.trim();
+            let newPass = passEl.value.trim();
 
             if (!newUser || !newPass) {
                 alert("Please fill both username and password fields.");
@@ -1149,7 +1178,8 @@
         window.addDeviceToSalon = async function() {
             let targetSalonName = "";
             if (currentSalon.role === 'superadmin') {
-                targetSalonName = document.getElementById('admin-target-salon').value;
+                let targetSel = document.getElementById('admin-target-salon');
+                targetSalonName = targetSel ? targetSel.value : "";
                 if (!targetSalonName) {
                     alert("Please select a salon!");
                     return;
@@ -1158,9 +1188,14 @@
                 targetSalonName = currentSalon.name;
             }
 
-            let devId = document.getElementById('dev-id').value.trim();
-            let devName = document.getElementById('dev-name').value.trim();
-            let devType = document.getElementById('dev-type').value;
+            let devIdEl = document.getElementById('dev-id');
+            let devNameEl = document.getElementById('dev-name');
+            let devTypeEl = document.getElementById('dev-type');
+            if(!devIdEl || !devNameEl || !devTypeEl) return;
+
+            let devId = devIdEl.value.trim();
+            let devName = devNameEl.value.trim();
+            let devType = devTypeEl.value;
 
             if (!devId || !devName) {
                 alert("Please enter ID and Device Name");
@@ -1197,8 +1232,8 @@
                 posItems: []
             });
 
-            document.getElementById('dev-id').value = '';
-            document.getElementById('dev-name').value = '';
+            devIdEl.value = '';
+            devNameEl.value = '';
             
             if (currentSalon.role === 'superadmin') {
                 loadAdminDevicesList();
@@ -1361,7 +1396,7 @@
                 
                 let langMap = { ar: 'ar-SA', en: 'en-US', tr: 'tr-TR', fr: 'fr-FR' };
                 utterance.lang = langMap[currentLang] || 'en-US';
-                utterance.rate = 0.85; // نطق أبطأ وأوضح
+                utterance.rate = 0.85;
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -1397,8 +1432,9 @@
 
         window.setGameType = async function(devId, type) {
             let d = devicesData[devId];
+            if (!d) return;
             let docId = `${d.salon}_${devId}`;
-            if (d && (d.busy || d.paused)) {
+            if (d.busy || d.paused) {
                 await setDoc(doc(db, "salon_devices", docId), { ...d, type: type }, { merge: true });
             } else {
                 tempTypes[devId] = type;
@@ -1417,6 +1453,7 @@
         window.startDeviceCloud = async function(devId) {
             stopSpeechAlert(devId);
             let d = devicesData[devId];
+            if (!d) return;
             let durationInput = document.getElementById(`duration-${devId}`);
             let selectedType = tempTypes[devId] || (d.category === 'pc' ? 'PC' : 'فردي');
             let durationMins = parseInt(durationInput ? durationInput.value : 0) || 0;
@@ -1488,6 +1525,7 @@
             if (!itemPrice || isNaN(itemPrice)) return;
 
             let d = devicesData[devId];
+            if(!d) return;
             let currentItems = d.posItems || [];
             currentItems.push({ name: itemName, price: parseInt(itemPrice) });
 
@@ -1590,6 +1628,7 @@
 
         function renderDevicesGrid() {
             let container = document.getElementById('devices-container');
+            if(!container) return;
             let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
 
             if (filteredList.length === 0) {
@@ -1597,19 +1636,16 @@
                 return;
             }
 
-            // فصل أجهزة البليستيشن عن الحواسيب
             let psDevices = filteredList.filter(d => d.category !== 'pc');
             let pcDevices = filteredList.filter(d => d.category === 'pc');
 
             let html = "";
 
-            // قسم أجهزة البليستيشن بالأعلى
             if (psDevices.length > 0) {
                 html += `<div style="grid-column: 1 / -1;"><div class="section-title-header">🎮 ${t('playstationSectionTitle')}</div></div>`;
                 html += generateDeviceCardsHtml(psDevices);
             }
 
-            // قسم الحواسيب في الأسفل
             if (pcDevices.length > 0) {
                 html += `<div style="grid-column: 1 / -1; margin-top: 15px;"><div class="section-title-header">🖥️ ${t('pcSectionTitle')}</div></div>`;
                 html += generateDeviceCardsHtml(pcDevices);
@@ -1623,7 +1659,6 @@
             list.forEach(d => {
                 let isBusy = d.busy;
                 let isPaused = d.paused;
-                // شعارات كبيرة وواضحة جداً للعين في الزاوية العليا
                 let iconSymbol = d.category === 'pc' ? '<span class="device-icon-large">🖥️</span>' : '<span class="device-icon-large">🎮</span>';
                 let cardClass = isPaused ? 'card paused' : (isBusy ? 'card busy' : 'card available');
                 let statusText = isPaused ? t('statusPaused') : (isBusy ? t('statusBusy') : t('statusAvail'));
@@ -1649,7 +1684,7 @@
                                 <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')} (${r['فردي']})</button>
                                 <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')} (${r['ثنائي']})</button>
                                 <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">${t('tripleLabel')} (${r['ثلاثي']})</button>
-                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')} (${r['رباعي']})</button>
+                                <button type="button" class="type-btn ${curType === 'quad' || curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')} (${r['رباعي']})</button>
                             </div>
                         `;
                     } else {
@@ -1705,12 +1740,26 @@
                     }
                     let grandTotal = timeCost + posTotal;
 
-                    let modeLabelText = d.type === 'فردي' ? t('singleLabel') : (d.type === 'ثنائي' ? t('doubleLabel') : (d.type === 'ثلاثي' ? t('tripleLabel') : (d.type === 'رباعي' ? t('quadLabel') : d.type)));
+                    let currentActiveType = d.type || 'فردي';
                     let pauseBtnText = isPaused ? t('resumeSession') : t('pauseSession');
                     let pauseBtnColor = isPaused ? '#059669' : 'var(--accent-orange)';
 
                     html += `
-                        <div class="info" style="margin-top: 8px;"><span>Mode:</span> <b style="color:var(--accent-blue); font-size: 15px;">${modeLabelText}</b></div>
+                        <div class="info" style="margin-top: 8px; flex-direction: column; align-items: flex-start; gap: 6px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <span>Mode:</span> <b style="color:var(--accent-blue); font-size: 15px;">${currentActiveType === 'فردي' ? t('singleLabel') : (currentActiveType === 'ثنائي' ? t('doubleLabel') : (currentActiveType === 'ثلاثي' ? t('tripleLabel') : (currentActiveType === 'رباعي' ? t('quadLabel') : currentActiveType))}</b>
+                            </div>
+                            ${d.category === 'ps' ? `
+                                <div style="font-size: 11px; color: var(--text-muted);">Change Mode During Session:</div>
+                                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%;">
+                                    <button type="button" class="type-btn ${currentActiveType === 'فردي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')}</button>
+                                    <button type="button" class="type-btn ${currentActiveType === 'ثنائي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')}</button>
+                                    <button type="button" class="type-btn ${currentActiveType === 'ثلاثي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'ثلاثي')">${t('tripleLabel')}</button>
+                                    <button type="button" class="type-btn ${currentActiveType === 'رباعي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')}</button>
+                                </div>
+                            ` : ''}
+                        </div>
+
                         <div class="info"><span>${t('timeLabel')}</span> <span class="timer-val" id="timer-${d.deviceId}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
                         <div class="info"><span>${t('timeCost')}</span> <span id="timecost-${d.deviceId}" style="font-size: 16px; font-weight: bold;">${timeCost}</span></div>
                         <div class="info" style="align-items:center;"><span>${t('ordersLabel')}</span> <div style="display:flex; flex-wrap:wrap; gap:4px;">${itemsListHtml || `<span style="color:#4b5563;font-size:12px;">${t('none')}</span>`}</div></div>
@@ -1741,9 +1790,12 @@
             let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
             let busyCount = filteredList.filter(d => d.busy || d.paused).length;
             let availCount = filteredList.length - busyCount;
-            document.getElementById('stat-avail').innerText = availCount;
-            document.getElementById('stat-busy').innerText = busyCount;
-            document.getElementById('stat-revenue').innerText = totalRevenue;
+            let statAvail = document.getElementById('stat-avail');
+            let statBusy = document.getElementById('stat-busy');
+            let statRev = document.getElementById('stat-revenue');
+            if(statAvail) statAvail.innerText = availCount;
+            if(statBusy) statBusy.innerText = busyCount;
+            if(statRev) statRev.innerText = totalRevenue;
         }
 
         setInterval(() => {
@@ -1867,7 +1919,7 @@
                 <div class="stat-box" style="color: #fbbf24;"><span id="stat-rev-lbl">إيرادات الصالة</span> <span id="stat-revenue">0</span></div>
             </div>
 
-            <!-- شبكة الأجهزة المقسمة (بليستيشن بالاعلى وحواسيب بالأسفل) -->
+            <!-- شبكة الأجهزة المقسمة -->
             <div class="grid" id="devices-container">
                 <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Loading devices...</div>
             </div>
@@ -1882,7 +1934,7 @@
         </div>
 
         <!-- واجهة إعدادات / لوحة تحكم المسؤول العام والأجهزة وتحميل التقارير -->
-        <div id="settings-view-panel" class="settings-view">
+        <div id="settings-view-panel" class="settings-view" style="display: none;">
             <h2>
                 <span id="settings-main-title-text">⚙️ إعدادات النظام وإدارة الأجهزة والتسعير</span>
                 <button onclick="closeSettingsView()" id="close-settings-btn" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
