@@ -922,66 +922,78 @@
             });
         }
 
-        window.exportExcel = async function() {
-            let filtered = await getFilteredLogsForExport();
-            if (filtered.length === 0) {
-                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found.");
-                return;
-            }
-
-            let csvContent = "\uFEFF";
-            csvContent += `Salon,Details,Price (${currentCurrency}),Time,Date\n`;
-            filtered.forEach(item => {
-                let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
-                csvContent += `"${(item.salon||'').replace(/"/g,'""')}","${(item.text||'').replace(/"/g,'""')}","${formatMoney(item.price||0)}","${(item.time||'').replace(/"/g,'""')}","${dateStr}"\n`;
-            });
-
-            let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            let link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `report_${new Date().toISOString().slice(0,10)}.csv`;
+        // Export helpers: create standards-compatible Excel XML (.xls) and RTF (.rtf)
+        function escapeXmlCell(value) {
+            return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+        }
+        function rtfText(value) {
+            return Array.from(String(value == null ? '' : value)).map(ch => {
+                const cp = ch.codePointAt(0);
+                if (ch === '\\') return '\\\\';
+                if (ch === '{') return '\\{';
+                if (ch === '}') return '\\}';
+                if (ch === '\n') return '\\line ';
+                if (cp >= 32 && cp <= 126) return ch;
+                const units = cp > 0xFFFF ? [0xD800 + ((cp - 0x10000) >> 10), 0xDC00 + ((cp - 0x10000) & 0x3FF)] : [cp];
+                return units.map(unit => '\\u' + (unit > 32767 ? unit - 65536 : unit) + '?').join('');
+            }).join('');
+        }
+        function downloadReportBlob(blob, extension) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `report_${new Date().toISOString().slice(0,10)}.${extension}`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 1500);
         }
+
+        window.exportExcel = async function() {
+            const filtered = await getFilteredLogsForExport();
+            if (!filtered.length) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found.");
+                return;
+            }
+            const headers = currentLang === 'ar'
+                ? ['الصالة', 'التفاصيل', `المبلغ (${currentCurrency})`, 'الوقت', 'التاريخ']
+                : ['Salon', 'Details', `Amount (${currentCurrency})`, 'Time', 'Date'];
+            let rows = `<Row>${headers.map(v => `<Cell ss:StyleID="Header"><Data ss:Type="String">${escapeXmlCell(v)}</Data></Cell>`).join('')}</Row>`;
+            filtered.forEach(item => {
+                const dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                const values = [item.salon || '', item.text || '', formatMoney(item.price || 0), item.time || '', dateStr];
+                rows += `<Row>${values.map(v => `<Cell><Data ss:Type="String">${escapeXmlCell(v)}</Data></Cell>`).join('')}</Row>`;
+            });
+            const excelXml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>\n` +
+                `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#0284C7" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center"/></Style><Style ss:ID="Default"><Alignment ss:Vertical="Center"/></Style></Styles><Worksheet ss:Name="Report"><Table>${rows}</Table></Worksheet></Workbook>`;
+            downloadReportBlob(new Blob(['\uFEFF', excelXml], { type: 'application/vnd.ms-excel;charset=utf-8' }), 'xls');
+        };
 
         window.exportWord = async function() {
-            let filtered = await getFilteredLogsForExport();
-            if (filtered.length === 0) {
+            const filtered = await getFilteredLogsForExport();
+            if (!filtered.length) {
                 alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found.");
                 return;
             }
-
-            let htmlContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-            <head><meta charset='utf-8'><title>Report</title></head>
-            <body style="direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif;">
-            <h2 style="text-align: center; color: #0284c7;">سجل فواتير صالة الألعاب</h2>
-            <table border="1" style="width: 100%; border-collapse: collapse; text-align: center;">
-                <tr style="background-color: #0284c7; color: white;">
-                    <th>الصالة</th><th>التفاصيل</th><th>المبلغ</th><th>الوقت</th><th>التاريخ</th>
-                </tr>`;
-
+            const headers = currentLang === 'ar'
+                ? ['الصالة', 'التفاصيل', `المبلغ (${currentCurrency})`, 'الوقت', 'التاريخ']
+                : ['Salon', 'Details', `Amount (${currentCurrency})`, 'Time', 'Date'];
+            let rtf = `{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Arial;}}\\viewkind4\\uc1\\f0\\fs22\\rtlpar\\qc\\b ${rtfText(currentLang === 'ar' ? 'سجل فواتير صالة الألعاب' : 'Gaming Lounge Report')}\\b0\\par\\par`;
+            const widths = [1500, 5200, 7200, 8700, 10200];
+            function rtfRow(values, isHeader) {
+                let row = '\\trowd\\trgaph100\\trleft0\\rtlrow';
+                widths.forEach(w => { row += `\\clbrdrt\\brdrs\\clbrdrl\\brdrs\\clbrdrb\\brdrs\\clbrdrr\\brdrs\\cellx${w}`; });
+                values.forEach(v => { row += `\\pard\\intbl\\rtlpar\\qc${isHeader ? '\\b' : ''} ${rtfText(v)}${isHeader ? '\\b0' : ''}\\cell`; });
+                return row + '\\row ';
+            }
+            rtf += rtfRow(headers, true);
             filtered.forEach(item => {
-                let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
-                htmlContent += `<tr>
-                    <td>${item.salon || ''}</td>
-                    <td>${item.text || ''}</td>
-                    <td>${formatMoney(item.price || 0)}</td>
-                    <td>${item.time || ''}</td>
-                    <td>${dateStr}</td>
-                </tr>`;
+                const dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                rtf += rtfRow([item.salon || '', item.text || '', formatMoney(item.price || 0), item.time || '', dateStr], false);
             });
-
-            htmlContent += `</table></body></html>`;
-
-            let blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
-            let link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `report_${new Date().toISOString().slice(0,10)}.doc`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+            rtf += '}';
+            downloadReportBlob(new Blob([rtf], { type: 'application/rtf;charset=utf-8' }), 'rtf');
+        };
 
         window.exportPdf = async function() {
             let filtered = await getFilteredLogsForExport();
