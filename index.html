@@ -958,14 +958,43 @@
             const headers = currentLang === 'ar'
                 ? ['الصالة', 'التفاصيل', `المبلغ (${currentCurrency})`, 'الوقت', 'التاريخ']
                 : ['Salon', 'Details', `Amount (${currentCurrency})`, 'Time', 'Date'];
-            let rows = `<Row>${headers.map(v => `<Cell ss:StyleID="Header"><Data ss:Type="String">${escapeXmlCell(v)}</Data></Cell>`).join('')}</Row>`;
+
+            // عرض الأعمدة بالنقاط (1pt ≈ 1.33px). كل عمود يأخذ مساحته المناسبة.
+            const colWidths = [120, 280, 120, 90, 110];
+            const cols = colWidths.map(w => `<Column ss:AutoFitWidth="0" ss:Width="${w}"/>`).join('');
+
+            let rows = `<Row ss:Height="24">${headers.map(v =>
+                `<Cell ss:StyleID="Header"><Data ss:Type="String">${escapeXmlCell(v)}</Data></Cell>`
+            ).join('')}</Row>`;
+
             filtered.forEach(item => {
                 const dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
                 const values = [item.salon || '', item.text || '', formatMoney(item.price || 0), item.time || '', dateStr];
-                rows += `<Row>${values.map(v => `<Cell><Data ss:Type="String">${escapeXmlCell(v)}</Data></Cell>`).join('')}</Row>`;
+                rows += `<Row ss:Height="22">${values.map(v =>
+                    `<Cell ss:StyleID="DataCell"><Data ss:Type="String">${escapeXmlCell(v)}</Data></Cell>`
+                ).join('')}</Row>`;
             });
+
             const excelXml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>\n` +
-                `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#0284C7" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center"/></Style><Style ss:ID="Default"><Alignment ss:Vertical="Center"/></Style></Styles><Worksheet ss:Name="Report"><Table>${rows}</Table></Worksheet></Workbook>`;
+                `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">` +
+                    `<Styles>` +
+                        `<Style ss:ID="Header">` +
+                            `<Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="12"/>` +
+                            `<Interior ss:Color="#0284C7" ss:Pattern="Solid"/>` +
+                            `<Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>` +
+                        `</Style>` +
+                        `<Style ss:ID="DataCell">` +
+                            `<Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>` +
+                            `<Borders>` +
+                                `<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/>` +
+                                `<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>` +
+                                `<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>` +
+                            `</Borders>` +
+                        `</Style>` +
+                    `</Styles>` +
+                    `<Worksheet ss:Name="Report"><Table>${cols}${rows}</Table></Worksheet>` +
+                `</Workbook>`;
+
             downloadReportBlob(new Blob(['\uFEFF', excelXml], { type: 'application/vnd.ms-excel;charset=utf-8' }), 'xls');
         };
 
@@ -1464,6 +1493,7 @@
 
         // مجموع إيرادات اليوم محفوظة في سجلات الفواتير السحابية،
         // لذلك لا تضيع عند إغلاق التطبيق أو تسجيل الخروج.
+        // كما يتم استعادة قائمة السجلات اليومية لعرضها بعد تحديث الصفحة.
         async function loadTodayRevenue() {
             if (!currentSalon || currentSalon.role === 'superadmin') return;
             const salonAtLoad = currentSalon.name;
@@ -1473,16 +1503,29 @@
                 // تجاهل نتيجة طلب قديم إذا تم تبديل حساب الصالة أثناء التحميل.
                 if (!currentSalon || currentSalon.name !== salonAtLoad) return;
                 let sum = 0;
+                const todayLogs = [];
                 snapshot.forEach((docSnap) => {
                     const item = docSnap.data();
                     if (item.salon !== salonAtLoad) return;
                     const itemDate = item.rawDate ? new Date(item.rawDate) : null;
                     if (itemDate && !Number.isNaN(itemDate.getTime()) && itemDate.toDateString() === today) {
                         sum += Number(item.price) || 0;
+                        todayLogs.push({
+                            salon: item.salon || salonAtLoad,
+                            text: item.text || "",
+                            price: Number(item.price) || 0,
+                            time: item.time || "",
+                            dateStr: item.dateStr || itemDate.toLocaleDateString(),
+                            rawDate: item.rawDate || itemDate.toISOString()
+                        });
                     }
                 });
                 totalRevenue = sum;
+                // ترتيب السجلات من الأحدث إلى الأقدم.
+                todayLogs.sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
+                historyLogs = todayLogs;
                 updateGlobalStats();
+                renderHistory();
             } catch (error) {
                 console.error("تعذر تحميل إيرادات اليوم من السحابة:", error);
             }
