@@ -11,6 +11,8 @@
     <meta name="theme-color" content="#090d16">
     <link rel="icon" href="https://img.icons8.com/color/96/play-station.png">
     
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"Gaming Lounge Manager","short_name":"PS Manager","start_url":"./index.html","display":"standalone","background_color":"%23090d16","theme_color":"%23090d16","icons":[{"src":"https://img.icons8.com/color/96/play-station.png","sizes":"96x96","type":"image/png"}]}'>
+
     <style>
         :root {
             --bg-color: #090d16;
@@ -20,19 +22,279 @@
             --accent-green: #059669;
             --accent-red: #dc2626;
             --accent-blue: #0284c7;
+            --accent-purple: #7c3aed;
+            --accent-orange: #d97706;
             --whatsapp-green: #25d366;
             --border-color: #1f2937;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; }
+        
+        header { text-align: center; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 20px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        header h1 { margin: 0; font-size: 18px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
+        
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .settings-icon-btn { background: #1f2937; color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px; transition: background 0.2s; }
+        .settings-icon-btn:hover { background: #374151; }
+
+        .sync-status { font-size: 12px; color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.1); padding: 4px 10px; border-radius: 20px; }
+        
         .auth-container { max-width: 420px; margin: 40px auto; background: var(--card-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 15px 35px rgba(0,0,0,0.6); text-align: center; }
         .auth-container h2 { color: var(--accent-blue); margin-top: 0; margin-bottom: 20px; font-size: 22px; }
         input, select, button { width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13px; background: #030712; color: #fff; box-sizing: border-box; outline: none; }
         button.main-btn { background: var(--accent-blue); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 15px; padding: 12px; }
+        button.main-btn:hover { background: #0369a1; }
+
+        .whatsapp-support { margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--border-color); font-size: 13px; text-align: center; }
+        .whatsapp-support a { color: var(--whatsapp-green); text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; transition: opacity 0.2s; unicode-bidi: embed; direction: ltr; }
+        .whatsapp-support a:hover { opacity: 0.8; }
+
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; max-width: 1300px; margin-left: auto; margin-right: auto; }
+        .stat-box { background: var(--card-bg); padding: 15px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color); }
+        .stat-box span { display: block; font-size: 20px; font-weight: bold; margin-top: 5px; }
+        
+        .section-title-header { font-size: 18px; font-weight: bold; color: var(--accent-blue); margin: 25px 0 12px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 1300px; margin: 0 auto; }
+        @media(min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(min-width: 1200px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+        
+        .card { background: var(--card-bg); border-radius: 20px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-top: 8px solid #ccc; border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .card.available { border-top-color: var(--accent-green); }
+        .card.busy { border-top-color: var(--accent-red); }
+        .card.paused { border-top-color: var(--accent-orange); }
+        
+        .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .device-icon-large { font-size: 26px; vertical-align: middle; margin-left: 6px; }
+        
+        .status-badge { font-size: 13px; padding: 5px 12px; border-radius: 20px; color: #fff; font-weight: bold; }
+        .available .status-badge { background: var(--accent-green); }
+        .busy .status-badge { background: var(--accent-red); }
+        .paused .status-badge { background: var(--accent-orange); }
+        
+        .type-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+        .type-btn { background: #1f2937; color: var(--text-muted); border: 1px solid var(--border-color); padding: 9px; font-size: 13px; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; }
+        .type-btn.active { background: var(--accent-blue); color: #fff; border-color: #38bdf8; }
+
+        .time-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+        .time-btn { background: #1f2937; color: #38bdf8; border: 1px solid var(--border-color); padding: 8px 4px; font-size: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+        .time-btn.reduce { background: #431407; color: #fb923c; border-color: #7c2d12; }
+
+        button.start { background: var(--accent-green); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 14px; }
+        button.stop { background: var(--accent-red); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 0; padding: 11px; border-radius: 8px; font-size: 14px; }
+        button.pause-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 0; padding: 11px; border-radius: 8px; font-size: 14px; }
+        button.pos-btn { background: var(--accent-orange); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; }
+        
+        .info { margin-top: 10px; font-size: 14px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; background: rgba(3, 7, 18, 0.4); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .timer-val { font-family: monospace; font-size: 19px; font-weight: bold; color: #f8fafc; }
+        .cost-val { color: #f43f5e; font-weight: bold; font-size: 21px; }
+
+        .settings-view { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 18px; border: 1px solid var(--border-color); }
+        .settings-view h2 { color: var(--accent-blue); margin-top: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; font-size: 20px; }
+        
+        .admin-panel, .history-section { max-width: 1300px; margin: 20px auto; background: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .item-list { font-size: 13px; margin-top: 10px; max-height: 400px; overflow-y: auto; }
+        .item-row { background: #030712; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+
+        .history-section h3 { color: var(--accent-blue); margin-top: 0; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .history-list { font-size: 13px; color: var(--text-muted); max-height: 180px; overflow-y: auto; }
+        .history-item { padding: 10px 0; border-bottom: 1px dashed var(--border-color); display: flex; justify-content: space-between; }
     </style>
+</head>
+<body>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="auth-screen" class="auth-container">
+        <img src="https://img.icons8.com/color/96/play-station.png" alt="Icon" style="width: 64px; margin-bottom: 10px;">
+        <h2>تسجيل دخول الصالة / المركز</h2>
+        <input type="text" id="username" placeholder="اسم الصالة">
+        <input type="password" id="password" placeholder="كلمة المرور">
+        
+        <div style="margin-top: 15px; text-align: left;">
+            <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Language / اللغة:</label>
+            <select class="lang-select" id="lang-selector" style="margin-top:0;">
+                <option value="ar">العربية (Arabic)</option>
+                <option value="en">English</option>
+                <option value="tr">Türkçe</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+
+        <button class="main-btn" id="login-btn">دخول النظام</button>
+        <div id="login-error" style="color: var(--accent-red); margin-top: 10px; font-size: 13px; font-weight: bold;"></div>
+
+        <div class="whatsapp-support">
+            <span id="support-text-label" style="color: var(--text-muted); display: block;">💬 الدعم الفني عبر واتساب:</span>
+            <a href="https://wa.me/963940593391" target="_blank">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                +963 940 593 391
+            </a>
+        </div>
+    </div>
+
+    <!-- واجهة التطبيق الرئيسية -->
+    <div id="app-screen" style="display: none;">
+        
+        <header>
+            <h1 id="brand-title"><img src="https://img.icons8.com/color/32/play-station.png" style="vertical-align: middle;"> صالة الألعاب</h1>
+            <div class="header-actions">
+                <span id="salon-welcome" style="font-size: 12px; color: var(--accent-blue); font-weight: bold;"></span>
+                <div id="settings-btn-container" style="display:flex;">
+                    <button class="settings-icon-btn" id="open-settings-btn" title="الإعدادات"><span id="settings-btn-text">⚙️ الإعدادات</span></button>
+                </div>
+            </div>
+        </header>
+
+        <div style="text-align: center; margin-bottom: 15px;">
+            <span class="sync-status" id="sync-text">⏳ جاري الاتصال...</span>
+        </div>
+
+        <!-- العرض الأساسي (لأصحاب الصالات فقط) -->
+        <div id="main-dashboard-view">
+            <div class="stats-bar">
+                <div class="stat-box" style="color: #34d399;"><span id="stat-avail-lbl">المتاح</span> <span id="stat-avail">0</span></div>
+                <div class="stat-box" style="color: #f87171;"><span id="stat-busy-lbl">المشغول</span> <span id="stat-busy">0</span></div>
+                <div class="stat-box" style="color: #fbbf24;"><span id="stat-rev-lbl">إيرادات الصالة</span> <span id="stat-revenue">0</span></div>
+            </div>
+
+            <!-- شبكة الأجهزة المقسمة -->
+            <div class="grid" id="devices-container">
+                <div style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Loading devices...</div>
+            </div>
+
+            <!-- سجل الفواتير والجلسات اليومي -->
+            <div class="history-section">
+                <h3 id="history-title-text">📋 سجل فواتير وجلسات الصالة اليوم</h3>
+                <div class="history-list" id="history-container">
+                    <div style="color: var(--text-muted); text-align: center; padding: 10px;" id="no-history-text">لا توجد جلسات مسجلة اليوم حتى الآن</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- واجهة إعدادات / لوحة تحكم المسؤول العام والأجهزة وتحميل التقارير -->
+        <div id="settings-view-panel" class="settings-view" style="display: none;">
+            <h2>
+                <span id="settings-main-title-text">⚙️ إعدادات النظام وإدارة الأجهزة والتسعير</span>
+                <button id="close-settings-btn" style="background: var(--accent-blue); width: auto; padding: 6px 14px; font-size: 13px; margin:0;">✖ إغلاق ورجوع</button>
+            </h2>
+
+            <!-- قسم تقارير وتحميل السجلات (Excel, Word, PDF) -->
+            <div id="export-logs-container" class="admin-panel" style="display: none; border-color: var(--accent-orange); margin-top: 15px;">
+                <h3 style="color: var(--accent-orange); margin-top:0; font-size: 16px;" id="export-section-title">📊 تقارير وتحميل السجلات (Excel, Word, PDF)</h3>
+                
+                <div style="margin-bottom: 10px;">
+                    <span id="report-type-lbl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">نوع التقرير:</span>
+                    <select id="report-type-select" style="margin-top:0;">
+                        <option value="daily" id="opt-daily">يومي (اليوم الحالي)</option>
+                        <option value="weekly" id="opt-weekly">أسبوعي (آخر 7 أيام)</option>
+                        <option value="monthly" id="opt-monthly">شهري (الشهر الحالي)</option>
+                        <option value="custom" id="opt-custom">تحديد بين تاريخين</option>
+                    </select>
+                </div>
+
+                <div id="custom-date-range-container" style="display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                    <div>
+                        <label id="from-date-lbl" style="font-size: 11px; color: var(--text-muted); display: block;">من تاريخ:</label>
+                        <input type="date" id="report-from-date" style="margin-top:2px;">
+                    </div>
+                    <div>
+                        <label id="to-date-lbl" style="font-size: 11px; color: var(--text-muted); display: block;">إلى تاريخ:</label>
+                        <input type="date" id="report-to-date" style="margin-top:2px;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;">
+                    <button class="main-btn" id="download-excel-btn-text" style="background: var(--accent-green); margin-top:0;">📥 تحميل Excel</button>
+                    <button class="main-btn" id="download-word-btn-text" style="background: var(--accent-blue); margin-top:0;">📄 تحميل Word</button>
+                    <button class="main-btn" id="download-pdf-btn-text" style="background: var(--accent-red); margin-top:0;">📑 تحميل PDF</button>
+                </div>
+            </div>
+
+            <!-- لوحة إضافة الأجهزة (للمسؤول فقط) -->
+            <div id="admin-device-management-section" class="admin-panel" style="display: none; border-color: var(--accent-green); margin-top: 15px;">
+                <h3 style="color: var(--accent-green); margin-top:0;" id="add-device-title-text">🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط (للمسؤول فقط)</h3>
+                
+                <div style="margin-bottom: 10px;">
+                    <span id="select-salon-lbl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">اختر الصالة المراد إضافة الجهاز إليها:</span>
+                    <select id="admin-target-salon" style="margin-top:0;"></select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; margin-top: 10px;">
+                    <input type="text" id="dev-id" placeholder="الرقم المعرف (1, 2, 3...)">
+                    <input type="text" id="dev-name" placeholder="اسم الجهاز (مثلاً: PS5 - 1)">
+                    <select id="dev-type">
+                        <option value="ps" id="opt-ps">بلايستيشن (PlayStation)</option>
+                        <option value="pc" id="opt-pc">حاسوب (PC)</option>
+                    </select>
+                </div>
+
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="default-rates-prompt-text">تحديد سعر الساعة الافتراضي:</div>
+                
+                <div id="ps-rates-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 5px;">
+                    <div><span id="rate-lbl-single">فردي</span>: <input type="number" id="rate-single" value="100"></div>
+                    <div><span id="rate-lbl-double">ثنائي</span>: <input type="number" id="rate-double" value="100"></div>
+                    <div><span id="rate-lbl-triple">ثلاثي</span>: <input type="number" id="rate-triple" value="150"></div>
+                    <div><span id="rate-lbl-quad">رباعي</span>: <input type="number" id="rate-quad" value="200"></div>
+                </div>
+
+                <div id="pc-rates-container" style="display: none; margin-top: 5px;">
+                    <div><span id="rate-lbl-pc">ساعة PC</span>: <input type="number" id="rate-pc" value="150"></div>
+                </div>
+
+                <button class="main-btn" id="add-device-btn" style="background: var(--accent-green);">➕ حفظ وإضافة الجهاز</button>
+            </div>
+
+            <!-- قائمة الأجهزة وإدارة التسعير -->
+            <div class="admin-panel" style="margin-top: 15px;">
+                <div id="admin-filter-container" style="margin-bottom: 12px; display: none;">
+                    <span id="select-salon-filter-lbl" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">اختر الصالة لعرض وإدارة أجهزتها:</span>
+                    <select id="admin-filter-salon" style="margin-top:0;"></select>
+                </div>
+                <h4 style="margin: 0 0 8px 0; font-size: 14px; color: var(--accent-blue);" id="devices-list-title-text">قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:</h4>
+                <div id="salon-devices-list" class="item-list">جاري التحميل...</div>
+            </div>
+
+            <!-- لوحة المدير العام لإدارة الصالات -->
+            <div id="superadmin-section" class="admin-panel" style="display: none; border-color: var(--accent-purple); margin-top: 15px;">
+                <h3 style="color: var(--accent-purple); margin-top:0;" id="superadmin-title-text">👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                    <input type="text" id="new-salon-name" placeholder="اسم الصالة الجديدة">
+                    <input type="password" id="new-salon-pass" placeholder="كلمة مرور الصالة">
+                </div>
+                <button class="main-btn" id="create-salon-btn" style="background: var(--accent-purple);">➕ إنشاء صالة جديدة</button>
+                <h4 style="margin: 15px 0 5px 0; font-size: 14px; color: var(--accent-blue);" id="salons-list-title-text">قائمة الصالات والمراكز المسجلة:</h4>
+                <div id="salons-list-container" class="item-list">جاري التحميل...</div>
+            </div>
+
+            <!-- خيارات اللغة -->
+            <div class="admin-panel" style="margin-top: 15px; border-color: var(--accent-blue);">
+                <h3 style="color: var(--accent-blue); margin-top:0; font-size:14px;" id="lang-header-text">🌐 لغة التطبيق / App Language</h3>
+                <select class="lang-select" id="settings-lang-selector">
+                    <option value="ar">العربية (Arabic)</option>
+                    <option value="en">English</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+
+            <!-- دعم واتساب -->
+            <div class="admin-panel" style="margin-top: 15px; border-color: var(--whatsapp-green); text-align: center;">
+                <span id="support-text-settings" style="color: var(--text-muted); display: block; font-size: 13px;">💬 الدعم الفني عبر واتساب:</span>
+                <a href="https://wa.me/963940593391" target="_blank" style="color: var(--whatsapp-green); text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; font-size: 15px; unicode-bidi: embed; direction: ltr;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                    +963 940 593 391
+                </a>
+            </div>
+
+            <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px; text-align: center;">
+                <button id="logout-btn" style="background: var(--accent-red); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; width: 100%;"><span id="logout-btn-text">🚪 تسجيل الخروج</span></button>
+            </div>
+        </div>
+
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD09gwJiZ76_Nc58qsgCuspDtbe8QgdLOIU",
@@ -44,43 +306,621 @@
             measurementId: "G-12E35W10WX"
         };
 
-        let db = null;
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            console.log("Firebase initialized successfully.");
-        } catch (err) {
-            console.error("Firebase initialization failed:", err);
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         const ADMIN_USER = "admin_master_secure_99";
         const ADMIN_PASS = "G#9mP!2$vK9xL*";
 
-        window.login = async function() {
-            let uEl = document.getElementById('username');
-            let pEl = document.getElementById('password');
+        const translations = {
+            ar: {
+                loginTitle: "تسجيل دخول الصالة / المركز",
+                usernamePh: "اسم الصالة",
+                passwordPh: "كلمة المرور",
+                loginBtn: "دخول النظام",
+                brandTitle: "صالة الألعاب",
+                settingsBtn: "⚙️ الإعدادات",
+                syncing: "⏳ جاري الاتصال...",
+                synced: "⚡ متزامن سحابياً",
+                available: "المتاح",
+                busy: "المشغول",
+                revenue: "إيرادات الصالة",
+                historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم",
+                noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن",
+                exportSectionTitle: "📊 تقارير وتحميل السجلات (Excel, Word, PDF)",
+                reportTypeLbl: "نوع التقرير:",
+                optDaily: "يومي (اليوم الحالي)",
+                optWeekly: "أسبوعي (آخر 7 أيام)",
+                optMonthly: "شهري (الشهر الحالي)",
+                optCustom: "تحديد بين تاريخين",
+                fromDateLbl: "من تاريخ:",
+                toDateLbl: "إلى تاريخ:",
+                downloadExcelBtn: "📥 تحميل Excel",
+                downloadWordBtn: "📄 تحميل Word",
+                downloadPdfBtn: "📑 تحميل PDF",
+                settingsTitle: "⚙️ لوحة تحكم المسؤول العام (إدارة الصالات والأجهزة)",
+                closeSettings: "✖ إغلاق ورجوع",
+                superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)",
+                newSalonNamePh: "اسم الصالة الجديدة (مثلاً: فرع_المزة)",
+                newSalonPassPh: "كلمة مرور الصالة",
+                createSalonBtn: "➕ إنشاء صالة جديدة",
+                salonsListTitle: "قائمة الصالات والمراكز المسجلة:",
+                addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط",
+                devIdPh: "الرقم المعرف الفريد (1, 2, 3... 100)",
+                devNamePh: "اسم الجهاز (مثلاً: PS5 - 1)",
+                psOption: "بلايستيشن (PlayStation)",
+                pcOption: "حاسوب (PC)",
+                singleLabel: "فردي",
+                doubleLabel: "ثنائي",
+                tripleLabel: "ثلاثي",
+                quadLabel: "رباعي",
+                pcRateLabel: "ساعة PC",
+                addDeviceBtn: "➕ حفظ وإضافة الجهاز",
+                devicesListTitle: "قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:",
+                logoutBtn: "🚪 تسجيل الخروج من لوحة المسؤول",
+                langHeader: "🌐 لغة التطبيق / App Language",
+                durationLabel: "مدة الجلسة (دقائق - 0 لمفتوح):",
+                startSession: "▶ بدء الجلسة",
+                stopSession: "⏹ إيقاف الحساب",
+                pauseSession: "⏸ إيقاف مؤقت",
+                resumeSession: "▶ استئناف الجلسة",
+                addOrder: "🛒 إضافة طلب للفاتورة",
+                timeLabel: "الوقت:",
+                timeCost: "حساب الوقت:",
+                ordersLabel: "الطلبات:",
+                totalLabel: "الإجمالي:",
+                none: "لا توجد",
+                deleteBtn: "حذف الجهاز",
+                saveRates: "💾 حفظ التعديلات وتحديث الأسعار",
+                editRatesTitle: "تعديل أسعار الساعة لكل نمط:",
+                statusAvail: "متاح 🟢",
+                statusBusy: "مشغول 🔴",
+                statusPaused: "متوقف مؤقتاً ⏸️",
+                timeEnded: "⏰ انتهى الوقت!",
+                timeLeft: "⏳ متبقي: ",
+                defaultRatesPrompt: "تحديد سعر الساعة الافتراضي:",
+                generalAdminText: "الادارة العامة",
+                activeStatus: "نشط",
+                suspendedStatus: "موقوف مؤقتاً",
+                suspendBtn: "إيقاف مؤقت",
+                activateBtn: "تفعيل",
+                confirmSuspend: "أدخل سبب الإيقاف المؤقت لهذه الصالة:",
+                confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟",
+                confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.",
+                salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة. السبب: ",
+                editSalonCredentials: "تعديل بيانات الدخول",
+                saveCredentials: "💾 حفظ البيانات الجديدة",
+                newSalonUserPh: "اسم المستخدم الجديد",
+                newSalonPassUpdatePh: "كلمة المرور الجديدة",
+                supportText: "💬 الدعم الفني عبر واتساب:",
+                selectSalonForDevice: "اختر الصالة المراد إضافة الجهاز إليها:",
+                selectSalonForDevicesList: "اختر الصالة لعرض وإدارة أجهزتها:",
+                playstationSectionTitle: "🎮 أجهزة البليستيشن (PlayStation)",
+                pcSectionTitle: "🖥️ أجهزة الحاسوب (PC)"
+            },
+            en: {
+                loginTitle: "Salon / Center Login",
+                usernamePh: "Salon Name",
+                passwordPh: "Password",
+                loginBtn: "Login",
+                brandTitle: "Gaming Lounge",
+                settingsBtn: "⚙️ Settings",
+                syncing: "⏳ Connecting...",
+                synced: "⚡ Cloud Synced",
+                available: "Available",
+                busy: "Busy",
+                revenue: "Salon Revenue",
+                historyTitle: "📋 Today's Invoices & Sessions History",
+                noHistory: "No sessions recorded today yet",
+                exportSectionTitle: "📊 Reports & Logs Download (Excel, Word, PDF)",
+                reportTypeLbl: "Report Type:",
+                optDaily: "Daily (Today)",
+                optWeekly: "Weekly (Last 7 Days)",
+                optMonthly: "Monthly (Current Month)",
+                optCustom: "Custom Date Range",
+                fromDateLbl: "From Date:",
+                toDateLbl: "To Date:",
+                downloadExcelBtn: "📥 Download Excel",
+                downloadWordBtn: "📄 Download Word",
+                downloadPdfBtn: "📑 Download PDF",
+                settingsTitle: "⚙️ General Admin Control Panel (Salons & Devices)",
+                closeSettings: "✖ Close & Return",
+                superAdminTitle: "👑 Central Control Panel (Salons Management)",
+                newSalonNamePh: "New Salon Name (e.g., branch_1)",
+                newSalonPassPh: "Salon Password",
+                createSalonBtn: "➕ Create New Salon",
+                salonsListTitle: "Registered Salons List:",
+                addDeviceTitle: "🖥️➕ Add New Device & Set Pricing",
+                devIdPh: "Unique Device ID (1, 2, 3... 100)",
+                devNamePh: "Device Name (e.g., PS5 - 1)",
+                psOption: "PlayStation",
+                pcOption: "PC",
+                singleLabel: "Single",
+                doubleLabel: "Double",
+                tripleLabel: "Triple",
+                quadLabel: "Quad",
+                pcRateLabel: "PC Rate",
+                addDeviceBtn: "➕ Save & Add Device",
+                devicesListTitle: "Devices List & Individual Repricing:",
+                logoutBtn: "🚪 Logout from Admin Panel",
+                langHeader: "🌐 App Language / لغة التطبيق",
+                durationLabel: "Duration (mins - 0 for open):",
+                startSession: "▶ Start Session",
+                stopSession: "⏹ Bill & Stop",
+                pauseSession: "⏸ Pause",
+                resumeSession: "▶ Resume",
+                addOrder: "🛒 Add Order",
+                timeLabel: "Time:",
+                timeCost: "Time Cost:",
+                ordersLabel: "Orders:",
+                totalLabel: "Total:",
+                none: "None",
+                deleteBtn: "Delete Device",
+                saveRates: "💾 Save Rates",
+                editRatesTitle: "Edit hourly rates:",
+                statusAvail: "Available 🟢",
+                statusBusy: "Busy 🔴",
+                statusPaused: "Paused ⏸️",
+                timeEnded: "⏰ Time Ended!",
+                timeLeft: "⏳ Left: ",
+                defaultRatesPrompt: "Set default hourly rate:",
+                generalAdminText: "General Admin",
+                activeStatus: "Active",
+                suspendedStatus: "Suspended",
+                suspendBtn: "Suspend",
+                activateBtn: "Activate",
+                confirmSuspend: "Enter suspension reason for this salon:",
+                confirmActivate: "Are you sure you want to reactivate this salon?",
+                confirmDelete: "⚠️ Warning: Are you sure you want to permanently delete this salon and its data?",
+                salonSuspendedError: "This account is temporarily suspended by administration. Reason: ",
+                editSalonCredentials: "Edit Credentials",
+                saveCredentials: "💾 Save New Info",
+                newSalonUserPh: "New Username",
+                newSalonPassUpdatePh: "New Password",
+                supportText: "💬 Technical Support via WhatsApp:",
+                selectSalonForDevice: "Select target salon for this device:",
+                selectSalonForDevicesList: "Select salon to view and manage its devices:",
+                playstationSectionTitle: "🎮 PlayStation Devices",
+                pcSectionTitle: "🖥️ PC Devices"
+            },
+            tr: {
+                loginTitle: "Salon / Merkez Girişi",
+                usernamePh: "Salon Adı",
+                passwordPh: "Şifre",
+                loginBtn: "Giriş Yap",
+                brandTitle: "Oyun Salonu",
+                settingsBtn: "⚙️ Ayarlar",
+                syncing: "⏳ Bağlanıyor...",
+                synced: "⚡ Bulut Senkronize",
+                available: "Müsait",
+                busy: "Meşgul",
+                revenue: "Salon Geliri",
+                historyTitle: "📋 Bugünkü Faturalar ve Oturum Geçmişi",
+                noHistory: "Bugün henüz kayıtlı oturوم yok",
+                exportSectionTitle: "📊 Raporlar ve Kayıt İndirme (Excel, Word, PDF)",
+                reportTypeLbl: "Rapor Türü:",
+                optDaily: "Günlük (Bugün)",
+                optWeekly: "Haftalık (Son 7 Gün)",
+                optMonthly: "Aylık (Bu Ay)",
+                optCustom: "Özel Tarih Aralığı",
+                fromDateLbl: "Başlangıç Tarihi:",
+                toDateLbl: "Bitiş Tarihi:",
+                downloadExcelBtn: "📥 Excel İndir",
+                downloadWordBtn: "📄 Word İndir",
+                downloadPdfBtn: "📑 PDF İndir",
+                settingsTitle: "⚙️ Genel Yönetim Paneli (Salon ve Cihazlar)",
+                closeSettings: "✖ Kapat ve Dön",
+                superAdminTitle: "👑 Merkezi Kontrol Paneli (Salon Yönetimi)",
+                newSalonNamePh: "Yeni Salon Adı",
+                newSalonPassPh: "Salon Şifresi",
+                createSalonBtn: "➕ Yeni Salon Oluştur",
+                salonsListTitle: "Kayıtlı Salonlar Listesi:",
+                addDeviceTitle: "🖥️➕ Yeni Cihaz Ekle ve Fiyat Belirle",
+                devIdPh: "Benzersiz Cihaz ID (1, 2, 3... 100)",
+                devNamePh: "Cihaz Adı (örn: PS5 - 1)",
+                psOption: "PlayStation",
+                pcOption: "Bilgisayar (PC)",
+                singleLabel: "Tek",
+                doubleLabel: "Çift",
+                tripleLabel: "Üçlü",
+                quadLabel: "Dörtlü",
+                pcRateLabel: "PC Saatlik",
+                addDeviceBtn: "➕ Kaydet ve Cihaz Ekle",
+                devicesListTitle: "Cihaz Listesi ve Fiyatlandırma:",
+                logoutBtn: "🚪 Yönetici Panelinden Çıkış Yap",
+                langHeader: "🌐 Uygulama Dili / App Language",
+                durationLabel: "Süre (dk - açık için 0):",
+                startSession: "▶ Oturumu Başlat",
+                stopSession: "⏹ Bitir ve Faturalandır",
+                pauseSession: "⏸ Duraklat",
+                resumeSession: "▶ Devam Et",
+                addOrder: "🛒 Sipariş Ekle",
+                timeLabel: "Süre:",
+                timeCost: "Zaman Ücreti:",
+                ordersLabel: "Siparişler:",
+                totalLabel: "Toplam:",
+                none: "Yok",
+                deleteBtn: "Cihazı Sil",
+                saveRates: "💾 Fiyatları Kaydet",
+                editRatesTitle: "Saatlik ücretleri düzenle:",
+                statusAvail: "Müsait 🟢",
+                statusBusy: "Meşgul 🔴",
+                statusPaused: "Askıda ⏸️",
+                timeEnded: "⏰ Süre Bitti!",
+                timeLeft: "⏳ Kalan: ",
+                defaultRatesPrompt: "Varsayılan saatlik ücreti belirleyin:",
+                generalAdminText: "Genel Yönetim",
+                activeStatus: "Aktif",
+                suspendedStatus: "Askıda",
+                suspendBtn: "Askıya Al",
+                activateBtn: "Etkinleştir",
+                confirmSuspend: "Bu salonun askıya alınma nedenini girin:",
+                confirmActivate: "Bu salonu yeniden etkinleştirmek istediğinizden emin misiniz?",
+                confirmDelete: "⚠️ Uyarı: Bu salonu ve verilerini kalıcı olarak silmek istediğinizden emin misiniz?",
+                salonSuspendedError: "Bu hesap yönetim tarafından geçici olarak askıya alınmıştır. Neden: ",
+                editSalonCredentials: "Bilgileri Düzenle",
+                saveCredentials: "💾 Yeni Bilgileri Kaydet",
+                newSalonUserPh: "Yeni Kullanıcı Adı",
+                newSalonPassUpdatePh: "Yeni Şifre",
+                supportText: "💬 WhatsApp Destek Hattı:",
+                selectSalonForDevice: "Bu cihazın ekleneceği salonu seçin:",
+                selectSalonForDevicesList: "Cihazlarını görüntülemek ve yönetmek için salon seçin:",
+                playstationSectionTitle: "🎮 PlayStation Cihazları",
+                pcSectionTitle: "🖥️ Bilgisayar (PC) Cihazları"
+            },
+            fr: {
+                loginTitle: "Connexion Salon / Centre",
+                usernamePh: "Nom du Salon",
+                passwordPh: "Mot de passe",
+                loginBtn: "Connexion",
+                brandTitle: "Salon de Jeux",
+                settingsBtn: "⚙️ Paramètres",
+                syncing: "⏳ Connexion...",
+                synced: "⚡ Synchronisé Cloud",
+                available: "Disponible",
+                busy: "Occupé",
+                revenue: "Revenu du Salon",
+                historyTitle: "📋 Historique des Factures et Sessions",
+                noHistory: "Aucune session enregistrée aujourd'hui",
+                exportSectionTitle: "📊 Rapports et Téléchargement (Excel, Word, PDF)",
+                reportTypeLbl: "Type de rapport :",
+                optDaily: "Quotidien (Aujourd'hui)",
+                optWeekly: "Hebdomadaire (7 derniers jours)",
+                optMonthly: "Mensuel (Mois en cours)",
+                optCustom: "Plage de dates personnalisée",
+                fromDateLbl: "De la date :",
+                toDateLbl: "À la date :",
+                downloadExcelBtn: "📥 Télécharger Excel",
+                downloadWordBtn: "📄 Télécharger Word",
+                downloadPdfBtn: "📑 Télécharger PDF",
+                settingsTitle: "⚙️ Panneau d'Administration Général (Salons & Appareils)",
+                closeSettings: "✖ Fermer et Retour",
+                superAdminTitle: "👑 Panneau de Contrôle Central (Gestion Salons)",
+                newSalonNamePh: "Nom du Nouveau Salon",
+                newSalonPassPh: "Mot de passe du Salon",
+                createSalonBtn: "➕ Créer un Nouveau Salon",
+                salonsListTitle: "Liste des Salons Enregistrés:",
+                addDeviceTitle: "🖥️➕ Ajouter un Appareil & Définir les Tarifs",
+                devIdPh: "ID Unique de l'appareil (1, 2, 3... 100)",
+                devNamePh: "Nom de l'appareil (ex: PS5 - 1)",
+                psOption: "PlayStation",
+                pcOption: "PC",
+                singleLabel: "Solo",
+                doubleLabel: "Duo",
+                tripleLabel: "Trio",
+                quadLabel: "Quatuor",
+                pcRateLabel: "Tarif PC",
+                addDeviceBtn: "➕ Enregistrer et Ajouter",
+                devicesListTitle: "Liste des Appareils & Tarification:",
+                logoutBtn: "🚪 Déconnexion du Panneau Admin",
+                langHeader: "🌐 Langue de l'App / لغة التطبيق",
+                durationLabel: "Durée (min - 0 pour ouvert):",
+                startSession: "▶ Démarrer la session",
+                stopSession: "⏹ Facturer & Arrêter",
+                pauseSession: "⏸ Pause",
+                resumeSession: "▶ Reprendre",
+                addOrder: "🛒 Ajouter une commande",
+                timeLabel: "Temps:",
+                timeCost: "Coût du temps:",
+                ordersLabel: "Commandes:",
+                totalLabel: "Total:",
+                none: "Aucun",
+                deleteBtn: "Supprimer l'appareil",
+                saveRates: "💾 Enregistrer les tarifs",
+                editRatesTitle: "Modifier les tarifs horaires:",
+                statusAvail: "Disponible 🟢",
+                statusBusy: "Occupé 🔴",
+                statusPaused: "En Pause ⏸️",
+                timeEnded: "⏰ Temps écoulé !",
+                timeLeft: "⏳ Restant: ",
+                defaultRatesPrompt: "Définir le tarif horaire:",
+                generalAdminText: "Admin Général",
+                activeStatus: "Actif",
+                suspendedStatus: "Suspendu",
+                suspendBtn: "Suspendre",
+                activateBtn: "Activer",
+                confirmSuspend: "Entrez la raison de la suspension de ce salon :",
+                confirmActivate: "Êtes-vous sûr de vouloir réactiver ce salon ?",
+                confirmDelete: "⚠️ Avertissement : Voulez-vous vraiment supprimer définitivement ce salon ?",
+                salonSuspendedError: "Ce compte est temporairement suspendu par l'administration. Raison : ",
+                editSalonCredentials: "Modifier les identifiants",
+                saveCredentials: "💾 Enregistrer",
+                newSalonUserPh: "Nouveau Nom d'utilisateur",
+                newSalonPassUpdatePh: "Nouveau Mot de passe",
+                supportText: "💬 Support technique WhatsApp :",
+                selectSalonForDevice: "Sélectionnez le salon cible pour cet appareil :",
+                selectSalonForDevicesList: "Sélectionnez le salon pour afficher et gérer ses appareils :",
+                playstationSectionTitle: "🎮 Appareils PlayStation",
+                pcSectionTitle: "🖥️ Appareils PC"
+            }
+        };
+
+        function getInitialLanguage() {
+            let savedLang = localStorage.getItem('ps_current_lang');
+            if (savedLang && translations[savedLang]) return savedLang;
+            let browserLang = navigator.language || 'en';
+            let shortLang = browserLang.substring(0, 2).toLowerCase();
+            return translations[shortLang] ? shortLang : 'en';
+        }
+
+        let currentLang = getInitialLanguage();
+        let devicesData = {};
+        let salonDevicesList = [];
+        let totalRevenue = 0;
+        let historyLogs = [];
+        let speechIntervals = {};
+        let tempTypes = {};
+        let currentSalon = null;
+
+        function t(key) {
+            return translations[currentLang][key] || translations['en'][key] || key;
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('ps_current_lang', lang);
+            document.documentElement.lang = lang;
+            document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            updateStaticTexts();
+            if (currentSalon) {
+                if (currentSalon.role === 'superadmin') {
+                    let salonWelcome = document.getElementById('salon-welcome');
+                    if(salonWelcome) salonWelcome.innerText = t('generalAdminText');
+                    loadSalonsList();
+                    loadAdminSalonsDropdowns();
+                    loadAdminDevicesList();
+                } else {
+                    loadSalonDevicesConfig();
+                    renderDevicesGrid();
+                    renderHistory();
+                }
+            }
+        }
+
+        function onDeviceTypeChange() {
+            let typeVal = document.getElementById('dev-type').value;
+            let psRatesContainer = document.getElementById('ps-rates-container');
+            let pcRatesContainer = document.getElementById('pc-rates-container');
+            if (!psRatesContainer || !pcRatesContainer) return;
+
+            if (typeVal === 'ps') {
+                psRatesContainer.style.display = 'grid';
+                pcRatesContainer.style.display = 'none';
+            } else {
+                psRatesContainer.style.display = 'none';
+                psRatesContainer.style.display = 'block';
+            }
+        }
+
+        function updateStaticTexts() {
+            let authH2 = document.querySelector('#auth-screen h2');
+            if(authH2) authH2.innerText = t('loginTitle');
+            let uInput = document.getElementById('username');
+            if(uInput) uInput.placeholder = t('usernamePh');
+            let pInput = document.getElementById('password');
+            if(pInput) pInput.placeholder = t('passwordPh');
+            let loginBtn = document.getElementById('login-btn');
+            if(loginBtn) loginBtn.innerText = t('loginBtn');
+
+            let supportTextEl = document.getElementById('support-text-label');
+            if(supportTextEl) supportTextEl.innerText = t('supportText');
+
+            let supportTextSettings = document.getElementById('support-text-settings');
+            if(supportTextSettings) supportTextSettings.innerText = t('supportText');
+
+            let brandTitleEl = document.getElementById('brand-title');
+            if(brandTitleEl) brandTitleEl.innerHTML = `<img src="https://img.icons8.com/color/32/play-station.png" style="vertical-align: middle;"> ${t('brandTitle')}`;
+
+            let settingsBtnEl = document.getElementById('settings-btn-text');
+            if(settingsBtnEl) settingsBtnEl.innerText = t('settingsBtn');
+
+            let statAvailLbl = document.getElementById('stat-avail-lbl');
+            if(statAvailLbl) statAvailLbl.innerText = t('available');
+
+            let statBusyLbl = document.getElementById('stat-busy-lbl');
+            if(statBusyLbl) statBusyLbl.innerText = t('busy');
+
+            let statRevLbl = document.getElementById('stat-rev-lbl');
+            if(statRevLbl) statRevLbl.innerText = t('revenue');
+
+            let historyTitleEl = document.getElementById('history-title-text');
+            if(historyTitleEl) historyTitleEl.innerText = t('historyTitle');
+
+            let exportTitleEl = document.getElementById('export-section-title');
+            if(exportTitleEl) exportTitleEl.innerText = t('exportSectionTitle');
+
+            let reportTypeLblEl = document.getElementById('report-type-lbl');
+            if(reportTypeLblEl) reportTypeLblEl.innerText = t('reportTypeLbl');
+
+            let optDailyEl = document.getElementById('opt-daily');
+            if(optDailyEl) optDailyEl.innerText = t('optDaily');
+
+            let optWeeklyEl = document.getElementById('opt-weekly');
+            if(optWeeklyEl) optWeeklyEl.innerText = t('optWeekly');
+
+            let optMonthlyEl = document.getElementById('opt-monthly');
+            if(optMonthlyEl) optMonthlyEl.innerText = t('optMonthly');
+
+            let optCustomEl = document.getElementById('opt-custom');
+            if(optCustomEl) optCustomEl.innerText = t('optCustom');
+
+            let fromDateLblEl = document.getElementById('from-date-lbl');
+            if(fromDateLblEl) fromDateLblEl.innerText = t('fromDateLbl');
+
+            let toDateLblEl = document.getElementById('to-date-lbl');
+            if(toDateLblEl) toDateLblEl.innerText = t('toDateLbl');
+
+            let downloadExcelBtnEl = document.getElementById('download-excel-btn-text');
+            if(downloadExcelBtnEl) downloadExcelBtnEl.innerText = t('downloadExcelBtn');
+
+            let downloadWordBtnEl = document.getElementById('download-word-btn-text');
+            if(downloadWordBtnEl) downloadWordBtnEl.innerText = t('downloadWordBtn');
+
+            let downloadPdfBtnEl = document.getElementById('download-pdf-btn-text');
+            if(downloadPdfBtnEl) downloadPdfBtnEl.innerText = t('downloadPdfBtn');
+
+            let settingsMainTitle = document.getElementById('settings-main-title-text');
+            if(settingsMainTitle) settingsMainTitle.innerText = t('settingsTitle');
+
+            let closeSettingsBtn = document.getElementById('close-settings-btn');
+            if(closeSettingsBtn) closeSettingsBtn.innerText = t('closeSettings');
+
+            let langHeaderText = document.getElementById('lang-header-text');
+            if(langHeaderText) langHeaderText.innerText = t('langHeader');
+
+            let superAdminTitleEl = document.getElementById('superadmin-title-text');
+            if(superAdminTitleEl) superAdminTitleEl.innerText = t('superAdminTitle');
+
+            let newSalonNameEl = document.getElementById('new-salon-name');
+            if(newSalonNameEl) newSalonNameEl.placeholder = t('newSalonNamePh');
+
+            let newSalonPassEl = document.getElementById('new-salon-pass');
+            if(newSalonPassEl) newSalonPassEl.placeholder = t('newSalonPassPh');
+
+            let createSalonBtnEl = document.getElementById('create-salon-btn');
+            if(createSalonBtnEl) createSalonBtnEl.innerText = t('createSalonBtn');
+
+            let salonsListTitleEl = document.getElementById('salons-list-title-text');
+            if(salonsListTitleEl) salonsListTitleEl.innerText = t('salonsListTitle');
+
+            let addDeviceTitleEl = document.getElementById('add-device-title-text');
+            if(addDeviceTitleEl) addDeviceTitleEl.innerText = t('addDeviceTitle');
+
+            let devIdEl = document.getElementById('dev-id');
+            if(devIdEl) devIdEl.placeholder = t('devIdPh');
+
+            let devNameEl = document.getElementById('dev-name');
+            if(devNameEl) devNameEl.placeholder = t('devNamePh');
+
+            let optPs = document.getElementById('opt-ps');
+            if(optPs) optPs.innerText = t('psOption');
+
+            let optPc = document.getElementById('opt-pc');
+            if(optPc) optPc.innerText = t('pcOption');
+
+            let defaultRatesText = document.getElementById('default-rates-prompt-text');
+            if(defaultRatesText) defaultRatesText.innerText = t('defaultRatesPrompt');
+
+            let rateLblSingle = document.getElementById('rate-lbl-single');
+            if(rateLblSingle) rateLblSingle.innerText = t('singleLabel');
+            let rateLblDouble = document.getElementById('rate-lbl-double');
+            if(rateLblDouble) rateLblDouble.innerText = t('doubleLabel');
+            let rateLblTriple = document.getElementById('rate-lbl-triple');
+            if(rateLblTriple) rateLblTriple.innerText = t('tripleLabel');
+            let rateLblQuad = document.getElementById('rate-lbl-quad');
+            if(rateLblQuad) rateLblQuad.innerText = t('quadLabel');
+            let rateLblPc = document.getElementById('rate-lbl-pc');
+            if(rateLblPc) rateLblPc.innerText = t('pcRateLabel');
+
+            let addDeviceBtnEl = document.getElementById('add-device-btn');
+            if(addDeviceBtnEl) addDeviceBtnEl.innerText = t('addDeviceBtn');
+
+            let devicesListTitleEl = document.getElementById('devices-list-title-text');
+            if(devicesListTitleEl) devicesListTitleEl.innerText = t('devicesListTitle');
+
+            let logoutBtnText = document.getElementById('logout-btn-text');
+            if(logoutBtnText) logoutBtnText.innerText = t('logoutBtn');
+
+            let selectSalonLbl = document.getElementById('select-salon-lbl');
+            if(selectSalonLbl) selectSalonLbl.innerText = t('selectSalonForDevice');
+
+            let selectSalonFilterLbl = document.getElementById('select-salon-filter-lbl');
+            if(selectSalonFilterLbl) selectSalonFilterLbl.innerText = t('selectSalonForDevicesList');
+
+            let langSelectors = [document.getElementById('lang-selector'), document.getElementById('settings-lang-selector')];
+            langSelectors.forEach(sel => { if(sel) sel.value = currentLang; });
+        }
+
+        // ربط الأحداث بعد تحميل الصفحة لضمان عمل الأزرار بشكل مثالي
+        document.addEventListener('DOMContentLoaded', () => {
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+
+            let savedSalon = localStorage.getItem('ps_current_salon');
+            let loginTime = localStorage.getItem('ps_login_time');
+            let now = Date.now();
+            let twentyFourHours = 24 * 60 * 60 * 1000;
+
+            if (savedSalon && loginTime && (now - parseInt(loginTime) < twentyFourHours)) {
+                try {
+                    currentSalon = JSON.parse(savedSalon);
+                    initSession();
+                } catch(e) {
+                    clearSession();
+                    showAuthScreen();
+                }
+            } else {
+                clearSession();
+                showAuthScreen();
+            }
+
+            // ربط أزرار التحكم
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('open-settings-btn').addEventListener('click', openSettingsView);
+            document.getElementById('close-settings-btn').addEventListener('click', closeSettingsView);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+            document.getElementById('dev-type').addEventListener('change', onDeviceTypeChange);
+            document.getElementById('report-type-select').addEventListener('change', onReportTypeChange);
+            document.getElementById('admin-filter-salon').addEventListener('change', loadAdminDevicesList);
+            document.getElementById('create-salon-btn').addEventListener('click', addSalonCenter);
+            document.getElementById('add-device-btn').addEventListener('click', addDeviceToSalon);
+            document.getElementById('download-excel-btn-text').addEventListener('click', exportExcel);
+            document.getElementById('download-word-btn-text').addEventListener('click', exportWord);
+            document.getElementById('download-pdf-btn-text').addEventListener('click', exportPdf);
+
+            document.querySelectorAll('#lang-selector, #settings-lang-selector').forEach(sel => {
+                sel.addEventListener('change', (e) => changeLanguage(e.target.value));
+            });
+        });
+
+        function clearSession() {
+            currentSalon = null;
+            localStorage.removeItem('ps_current_salon');
+            localStorage.removeItem('ps_login_time');
+        }
+
+        function showAuthScreen() {
+            document.getElementById('auth-screen').style.display = 'block';
+            document.getElementById('app-screen').style.display = 'none';
+            updateStaticTexts();
+        }
+
+        async function login() {
+            let u = document.getElementById('username').value.trim();
+            let p = document.getElementById('password').value.trim();
             let err = document.getElementById('login-error');
             err.innerText = "";
 
-            if (!uEl || !pEl) return;
-            let u = uEl.value.trim();
-            let p = pEl.value.trim();
-
             if (!u || !p) {
-                err.innerText = "الرجاء إدخال اسم الصالة وكلمة المرور";
+                err.innerText = currentLang === 'ar' ? "الرجاء إدخال اسم الصالة وكلمة المرور" : "Please enter salon name and password";
                 return;
             }
 
-            // فحص الإدارة العامة أولاً بشكل مباشر ومستقل
             if (u === ADMIN_USER && p === ADMIN_PASS) {
-                alert("تم تسجيل دخول الإدارة العامة بنجاح!");
-                localStorage.setItem('ps_current_salon', JSON.stringify({ name: "الادارة العامة", role: "superadmin" }));
-                location.reload();
-                return;
-            }
-
-            if (!db) {
-                err.innerText = "خطأ: لم يتم الاتصال بقاعدة البيانات (Firebase Load Error). تحقق من الإنترنت أو مانع الإعلانات.";
+                currentSalon = { name: "الادارة العامة", role: "superadmin" };
+                localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
+                localStorage.setItem('ps_login_time', Date.now().toString());
+                initSession();
                 return;
             }
 
@@ -89,33 +929,1103 @@
                 let docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     let salonData = docSnap.data();
+                    if (salonData.suspended) {
+                        let reasonText = salonData.suspendReason || (currentLang === 'ar' ? 'بدون سبب محدد' : 'No reason provided');
+                        err.innerText = t('salonSuspendedError') + reasonText;
+                        return;
+                    }
                     if (salonData.password === p) {
-                        alert("تم تسجيل دخول الصالة بنجاح!");
-                        localStorage.setItem('ps_current_salon', JSON.stringify({ name: u, role: "salon" }));
-                        location.reload();
+                        currentSalon = { name: u, role: "salon" };
+                        localStorage.setItem('ps_current_salon', JSON.stringify(currentSalon));
+                        localStorage.setItem('ps_login_time', Date.now().toString());
+                        initSession();
                     } else {
-                        err.innerText = "كلمة المرور غير صحيحة!";
+                        err.innerText = currentLang === 'ar' ? "اسم الصالة أو كلمة المرور غير صحيحة!" : "Incorrect salon name or password!";
                     }
                 } else {
-                    err.innerText = "اسم الصالة غير موجود في قاعدة البيانات!";
+                    err.innerText = currentLang === 'ar' ? "اسم الصالة أو كلمة المرور غير صحيحة!" : "Incorrect salon name or password!";
                 }
             } catch (e) {
-                err.innerText = "خطأ تقني أثناء الاتصال: " + e.message;
+                err.innerText = currentLang === 'ar' ? "حدث خطأ أثناء الاتصال بقاعدة البيانات." : "Database connection error.";
                 console.error(e);
             }
         }
+
+        function logout() {
+            clearSession();
+            showAuthScreen();
+        }
+
+        function initSession() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            document.getElementById('salon-welcome').innerText = currentSalon.role === 'superadmin' ? t('generalAdminText') : currentSalon.name;
+            
+            let syncTextEl = document.getElementById('sync-text');
+            if(syncTextEl) syncTextEl.innerText = t('synced');
+            
+            let superAdminSection = document.getElementById('superadmin-section');
+            let adminDeviceSection = document.getElementById('admin-device-management-section');
+            let mainDashboardView = document.getElementById('main-dashboard-view');
+            let settingsBtnContainer = document.getElementById('settings-btn-container');
+            let adminFilterContainer = document.getElementById('admin-filter-container');
+            let settingsPanel = document.getElementById('settings-view-panel');
+            let exportLogsContainer = document.getElementById('export-logs-container');
+
+            if (currentSalon.role === 'superadmin') {
+                superAdminSection.style.display = 'block';
+                adminDeviceSection.style.display = 'block';
+                mainDashboardView.style.display = 'none';
+                if(settingsBtnContainer) settingsBtnContainer.style.display = 'none';
+                if(adminFilterContainer) adminFilterContainer.style.display = 'block';
+                if(settingsPanel) settingsPanel.style.display = 'block';
+                if(exportLogsContainer) exportLogsContainer.style.display = 'block';
+                
+                loadSalonsList();
+                loadAdminSalonsDropdowns();
+                loadAdminDevicesList();
+            } else {
+                superAdminSection.style.display = 'none';
+                adminDeviceSection.style.display = 'none';
+                mainDashboardView.style.display = 'block';
+                if(settingsBtnContainer) settingsBtnContainer.style.display = 'flex';
+                if(adminFilterContainer) adminFilterContainer.style.display = 'none';
+                if(settingsPanel) settingsPanel.style.display = 'none';
+                if(exportLogsContainer) exportLogsContainer.style.display = 'block';
+                
+                loadSalonDevicesConfig();
+                initCloudDevices();
+            }
+
+            updateStaticTexts();
+            onDeviceTypeChange();
+        }
+
+        function openSettingsView() {
+            if (currentSalon.role === 'superadmin') return;
+            document.getElementById('main-dashboard-view').style.display = 'none';
+            document.getElementById('settings-view-panel').style.display = 'block';
+            updateStaticTexts();
+        }
+
+        function closeSettingsView() {
+            if (currentSalon.role === 'superadmin') return;
+            document.getElementById('settings-view-panel').style.display = 'none';
+            document.getElementById('main-dashboard-view').style.display = 'block';
+        }
+
+        function onReportTypeChange() {
+            let type = document.getElementById('report-type-select').value;
+            let customRangeDiv = document.getElementById('custom-date-range-container');
+            if (type === 'custom') {
+                customRangeDiv.style.display = 'grid';
+            } else {
+                customRangeDiv.style.display = 'none';
+            }
+        }
+
+        async function getFilteredLogsForExport() {
+            let reportType = document.getElementById('report-type-select').value;
+            let logsToExport = [];
+
+            let querySnapshot = await getDocs(collection(db, "salon_logs"));
+            querySnapshot.forEach(docSnap => {
+                let d = docSnap.data();
+                if (currentSalon.role === 'superadmin' || d.salon === currentSalon.name) {
+                    logsToExport.push({
+                        salon: d.salon || "Unknown",
+                        text: d.text || "",
+                        price: d.price || 0,
+                        time: d.time || "",
+                        rawDate: d.rawDate || new Date().toISOString()
+                    });
+                }
+            });
+
+            if (logsToExport.length === 0 && historyLogs.length > 0) {
+                historyLogs.forEach(item => {
+                    logsToExport.push({ salon: currentSalon.name, ...item });
+                });
+            }
+
+            let now = new Date();
+            return logsToExport.filter(item => {
+                if (!item.rawDate) return true;
+                let itemDate = new Date(item.rawDate);
+
+                if (reportType === 'daily') {
+                    return itemDate.toDateString() === now.toDateString();
+                } else if (reportType === 'weekly') {
+                    let diffTime = Math.abs(now - itemDate);
+                    let diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    return diffDays <= 7;
+                } else if (reportType === 'monthly') {
+                    return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+                } else if (reportType === 'custom') {
+                    let fromStr = document.getElementById('report-from-date').value;
+                    let toStr = document.getElementById('report-to-date').value;
+                    if (!fromStr || !toStr) return true;
+                    let fromDate = new Date(fromStr);
+                    let toDate = new Date(toStr);
+                    toDate.setHours(23, 59, 59, 999);
+                    return itemDate >= fromDate && itemDate <= toDate;
+                }
+                return true;
+            });
+        }
+
+        async function exportExcel() {
+            let filtered = await getFilteredLogsForExport();
+            if (filtered.length === 0) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found.");
+                return;
+            }
+
+            let csvContent = "\uFEFF";
+            csvContent += "Salon,Details,Price,Time,Date\n";
+            filtered.forEach(item => {
+                let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                csvContent += `"${(item.salon||'').replace(/"/g,'""')}","${(item.text||'').replace(/"/g,'""')}",${item.price||0},"${(item.time||'').replace(/"/g,'""')}","${dateStr}"\n`;
+            });
+
+            let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `report_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function exportWord() {
+            let filtered = await getFilteredLogsForExport();
+            if (filtered.length === 0) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found.");
+                return;
+            }
+
+            let htmlContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'><title>Report</title></head>
+            <body style="direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif;">
+            <h2 style="text-align: center; color: #0284c7;">سجل فواتير صالة الألعاب</h2>
+            <table border="1" style="width: 100%; border-collapse: collapse; text-align: center;">
+                <tr style="background-color: #0284c7; color: white;">
+                    <th>الصالة</th><th>التفاصيل</th><th>المبلغ</th><th>الوقت</th><th>التاريخ</th>
+                </tr>`;
+
+            filtered.forEach(item => {
+                let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                htmlContent += `<tr>
+                    <td>${item.salon || ''}</td>
+                    <td>${item.text || ''}</td>
+                    <td>${item.price || 0}</td>
+                    <td>${item.time || ''}</td>
+                    <td>${dateStr}</td>
+                </tr>`;
+            });
+
+            htmlContent += `</table></body></html>`;
+
+            let blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `report_${new Date().toISOString().slice(0,10)}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function exportPdf() {
+            let filtered = await getFilteredLogsForExport();
+            if (filtered.length === 0) {
+                alert(currentLang === 'ar' ? "لا توجد سجلات مطابقة للفترة المحددة." : "No records found.");
+                return;
+            }
+
+            let printWin = window.open('', '_blank');
+            let htmlContent = `<!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="utf-8">
+                <title>تقرير السجلات</title>
+                <style>
+                    body { font-family: Tahoma, sans-serif; padding: 20px; color: #111; }
+                    h2 { text-align: center; color: #0284c7; margin-bottom: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+                    th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: center; }
+                    th { background-color: #0284c7; color: white; }
+                </style>
+            </head>
+            <body>
+                <h2>سجل فواتير وجلسات صالة الألعاب</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الصالة</th>
+                            <th>التفاصيل</th>
+                            <th>المبلغ</th>
+                            <th>الوقت</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            filtered.forEach(item => {
+                let dateStr = item.rawDate ? new Date(item.rawDate).toLocaleDateString() : '';
+                htmlContent += `<tr>
+                    <td>${item.salon || ''}</td>
+                    <td>${item.text || ''}</td>
+                    <td>${item.price || 0}</td>
+                    <td>${item.time || ''}</td>
+                    <td>${dateStr}</td>
+                </tr>`;
+            });
+
+            htmlContent += `</tbody></table>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body></html>`;
+
+            printWin.document.write(htmlContent);
+            printWin.document.close();
+        }
+
+        async function addSalonCenter() {
+            let name = document.getElementById('new-salon-name').value.trim();
+            let pass = document.getElementById('new-salon-pass').value.trim();
+            if (!name || !pass) {
+                alert("Please fill all fields");
+                return;
+            }
+            let docRef = doc(db, "salons", name);
+            let docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                alert("Salon name already exists!");
+                return;
+            }
+
+            await setDoc(docRef, { name: name, password: pass, suspended: false, suspendReason: "" });
+            alert(`Salon ${name} created successfully!`);
+            document.getElementById('new-salon-name').value = '';
+            document.getElementById('new-salon-pass').value = '';
+            loadSalonsList();
+            loadAdminSalonsDropdowns();
+        }
+
+        async function loadAdminSalonsDropdowns() {
+            let dropdown = document.getElementById('admin-target-salon');
+            let filterDropdown = document.getElementById('admin-filter-salon');
+            if (!dropdown || !filterDropdown) return;
+            
+            let querySnapshot = await getDocs(collection(db, "salons"));
+            let html = "";
+            let filterHtml = "";
+            
+            querySnapshot.forEach((docSnap) => {
+                let data = docSnap.data();
+                html += `<option value="${data.name}">${data.name}</option>`;
+                filterHtml += `<option value="${data.name}">${data.name}</option>`;
+            });
+            dropdown.innerHTML = html;
+            filterHtml = `<option value="ALL">-- عرض الكل --</option>` + filterHtml;
+            filterDropdown.innerHTML = filterHtml;
+            loadAdminDevicesList();
+        }
+
+        async function loadSalonsList() {
+            let listDiv = document.getElementById('salons-list-container');
+            if(!listDiv) return;
+            listDiv.innerHTML = "Loading...";
+            let querySnapshot = await getDocs(collection(db, "salons"));
+            if (querySnapshot.empty) {
+                listDiv.innerHTML = "No salons found.";
+                return;
+            }
+            let html = "";
+            querySnapshot.forEach((docSnap) => {
+                let data = docSnap.data();
+                let isSuspended = data.suspended || false;
+                let suspendReason = data.suspendReason || "";
+                
+                let statusBadge = isSuspended 
+                    ? `<span style="color:#ef4444; font-size:11px; background:rgba(239,68,68,0.1); padding:2px 6px; border-radius:4px; font-weight:bold;">${t('suspendedStatus')} ${suspendReason ? '(' + suspendReason + ')' : ''}</span>` 
+                    : `<span style="color:#34d399; font-size:11px; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px; font-weight:bold;">${t('activeStatus')}</span>`;
+                
+                let toggleBtnText = isSuspended ? t('activateBtn') : t('suspendBtn');
+                let toggleBtnColor = isSuspended ? '#059669' : '#d97706';
+
+                html += `
+                    <div style="background:#030712; padding:10px; margin-top:8px; border-radius:8px; border: 1px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>🏢 <b>${data.name}</b> <div style="margin-top:2px;">${statusBadge}</div></div>
+                            <div style="display:flex; gap:6px;">
+                                <button onclick="toggleSalonStatus('${data.name}', ${isSuspended})" style="background:${toggleBtnColor}; border:none; color:#fff; padding:5px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px; font-weight:bold;">${toggleBtnText}</button>
+                                <button onclick="deleteSalon('${data.name}')" style="background:#dc2626; border:none; color:#fff; padding:5px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px; font-weight:bold;">${t('deleteBtn')}</button>
+                            </div>
+                        </div>
+                        <div style="margin-top:8px; border-top:1px dashed var(--border-color); padding-top:8px; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px; align-items:center;">
+                            <input type="text" id="edit-user-${data.name}" value="${data.name}" placeholder="${t('newSalonUserPh')}" style="margin:0; padding:4px; font-size:11px;">
+                            <input type="password" id="edit-pass-${data.name}" value="${data.password}" placeholder="${t('newSalonPassUpdatePh')}" style="margin:0; padding:4px; font-size:11px;">
+                            <button onclick="updateSalonCredentials('${data.name}')" style="background:var(--accent-blue); border:none; color:#fff; padding:5px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:bold; margin:0;">${t('saveCredentials')}</button>
+                        </div>
+                    </div>`;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        window.toggleSalonStatus = async function(name, currentSuspended) {
+            let docRef = doc(db, "salons", name);
+            let docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) return;
+            let data = docSnap.data();
+
+            if (!currentSuspended) {
+                let reason = prompt(t('confirmSuspend'), "");
+                if (reason === null) return;
+                
+                await setDoc(docRef, { ...data, suspended: true, suspendReason: reason.trim() });
+                loadSalonsList();
+            } else {
+                if (confirm(t('confirmActivate'))) {
+                    await setDoc(docRef, { ...data, suspended: false, suspendReason: "" });
+                    loadSalonsList();
+                }
+            }
+        }
+
+        window.deleteSalon = async function(name) {
+            if (confirm(t('confirmDelete'))) {
+                await deleteDoc(doc(db, "salons", name));
+                loadSalonsList();
+                loadAdminSalonsDropdowns();
+            }
+        }
+
+        window.updateSalonCredentials = async function(oldName) {
+            let newUser = document.getElementById(`edit-user-${oldName}`).value.trim();
+            let newPass = document.getElementById(`edit-pass-${oldName}`).value.trim();
+
+            if (!newUser || !newPass) {
+                alert("Please fill both username and password fields.");
+                return;
+            }
+
+            if (newUser === ADMIN_USER) {
+                alert("Cannot use reserved admin username.");
+                return;
+            }
+
+            if (confirm(`Update credentials for salon ${oldName} to User: ${newUser}?`)) {
+                let oldDocRef = doc(db, "salons", oldName);
+                let oldDocSnap = await getDoc(oldDocRef);
+                if (oldDocSnap.exists()) {
+                    let salonData = oldDocSnap.data();
+                    
+                    if (newUser !== oldName) {
+                        let newDocRef = doc(db, "salons", newUser);
+                        let newDocSnap = await getDoc(newDocRef);
+                        if (newDocSnap.exists()) {
+                            alert("Username already exists!");
+                            return;
+                        }
+                        await setDoc(newDocRef, { ...salonData, name: newUser, password: newPass });
+                        
+                        let devsSnapshot = await getDocs(collection(db, "salon_devices"));
+                        devsSnapshot.forEach(async (dSnap) => {
+                            let dData = dSnap.data();
+                            if (dData.salon === oldName) {
+                                let newDevDocId = `${newUser}_${dData.deviceId}`;
+                                await setDoc(doc(db, "salon_devices", newDevDocId), { ...dData, salon: newUser });
+                                await deleteDoc(dSnap.ref);
+                            }
+                        });
+
+                        await deleteDoc(oldDocRef);
+                    } else {
+                        await setDoc(oldDocRef, { ...salonData, password: newPass });
+                    }
+
+                    alert("Salon credentials updated successfully without losing data!");
+                    loadSalonsList();
+                    loadAdminSalonsDropdowns();
+                }
+            }
+        }
+
+        async function addDeviceToSalon() {
+            let targetSalonName = "";
+            if (currentSalon.role === 'superadmin') {
+                targetSalonName = document.getElementById('admin-target-salon').value;
+                if (!targetSalonName) {
+                    alert("Please select a salon!");
+                    return;
+                }
+            } else {
+                targetSalonName = currentSalon.name;
+            }
+
+            let devId = document.getElementById('dev-id').value.trim();
+            let devName = document.getElementById('dev-name').value.trim();
+            let devType = document.getElementById('dev-type').value;
+
+            if (!devId || !devName) {
+                alert("Please enter ID and Device Name");
+                return;
+            }
+
+            let docId = `${targetSalonName}_${devId}`;
+            let ratesObj = {};
+            if (devType === 'ps') {
+                ratesObj = {
+                    "فردي": parseInt(document.getElementById('rate-single').value) || 100,
+                    "ثنائي": parseInt(document.getElementById('rate-double').value) || 100,
+                    "ثلاثي": parseInt(document.getElementById('rate-triple').value) || 150,
+                    "رباعي": parseInt(document.getElementById('rate-quad').value) || 200
+                };
+            } else {
+                ratesObj = {
+                    "PC": parseInt(document.getElementById('rate-pc').value) || 150
+                };
+            }
+
+            await setDoc(doc(db, "salon_devices", docId), {
+                salon: targetSalonName,
+                deviceId: devId,
+                name: devName,
+                category: devType,
+                rates: ratesObj,
+                busy: false,
+                paused: false,
+                accumulatedSeconds: 0,
+                lastStartTime: 0,
+                type: devType === 'pc' ? 'PC' : 'فردي',
+                durationMinutes: 0,
+                posItems: []
+            });
+
+            document.getElementById('dev-id').value = '';
+            document.getElementById('dev-name').value = '';
+            
+            if (currentSalon.role === 'superadmin') {
+                loadAdminDevicesList();
+            } else {
+                loadSalonDevicesConfig();
+            }
+            alert("Device added successfully!");
+        }
+
+        async function loadSalonDevicesConfig() {
+            let listDiv = document.getElementById('salon-devices-list');
+            if(!listDiv) return;
+            listDiv.innerHTML = "Loading...";
+            let querySnapshot = await getDocs(collection(db, "salon_devices"));
+            salonDevicesList = [];
+            
+            querySnapshot.forEach((docSnap) => {
+                let data = docSnap.data();
+                if (data.salon === currentSalon.name) {
+                    salonDevicesList.push(data);
+                }
+            });
+
+            if (salonDevicesList.length === 0) {
+                listDiv.innerHTML = "No devices found.";
+                return;
+            }
+
+            let html = "";
+            salonDevicesList.forEach(dev => {
+                let icon = dev.category === 'pc' ? '🖥️ PC' : '🎮 PlayStation';
+                let r = dev.rates || {};
+                
+                html += `
+                    <div class="item-row">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span>${icon} - <b>${dev.name}</b> (ID: ${dev.deviceId})</span>
+                        </div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">${t('editRatesTitle')}</div>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:5px; margin-bottom:8px;">
+                            ${dev.category === 'ps' ? `
+                                <div>${t('singleLabel')}: <input type="number" id="r-single-${dev.deviceId}" value="${r['فردي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>${t('doubleLabel')}: <input type="number" id="r-double-${dev.deviceId}" value="${r['ثنائي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>${t('tripleLabel')}: <input type="number" id="r-triple-${dev.deviceId}" value="${r['ثلاثي'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                                <div>${t('quadLabel')}: <input type="number" id="r-quad-${dev.deviceId}" value="${r['رباعي'] || 200}" style="padding:4px; margin:0; text-align:center;"></div>
+                            ` : `
+                                <div style="grid-column: span 2;">PC Rate: <input type="number" id="r-pc-${dev.deviceId}" value="${r['PC'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                            `}
+                        </div>
+                        <button onclick="updateDeviceRates('${dev.deviceId}', '${dev.category}')" style="background:var(--accent-blue); border:none; color:#fff; padding:6px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">${t('saveRates')}</button>
+                    </div>`;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        async function loadAdminDevicesList() {
+            let listDiv = document.getElementById('salon-devices-list');
+            let filterDropdown = document.getElementById('admin-filter-salon');
+            if(!listDiv || !filterDropdown) return;
+            
+            let selectedSalonFilter = filterDropdown.value;
+            listDiv.innerHTML = "Loading...";
+            
+            let querySnapshot = await getDocs(collection(db, "salon_devices"));
+            let html = "";
+            let count = 0;
+
+            querySnapshot.forEach((docSnap) => {
+                let dev = docSnap.data();
+                if (selectedSalonFilter === 'ALL' || dev.salon === selectedSalonFilter) {
+                    count++;
+                    let icon = dev.category === 'pc' ? '🖥️ PC' : '🎮 PlayStation';
+                    let r = dev.rates || {};
+
+                    html += `
+                        <div class="item-row">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <span>🏢 [<b>${dev.salon}</b>] ${icon} - <b>${dev.name}</b> (ID: ${dev.deviceId})</span>
+                                <button onclick="removeDeviceAdmin('${dev.salon}', '${dev.deviceId}')" style="background:#dc2626; border:none; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; width:auto; font-size:12px;">${t('deleteBtn')}</button>
+                            </div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">${t('editRatesTitle')}</div>
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:5px; margin-bottom:8px;">
+                                ${dev.category === 'ps' ? `
+                                    <div>${t('singleLabel')}: <input type="number" id="admin-r-single-${dev.salon}-${dev.deviceId}" value="${r['فردي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                    <div>${t('doubleLabel')}: <input type="number" id="admin-r-double-${dev.salon}-${dev.deviceId}" value="${r['ثنائي'] || 100}" style="padding:4px; margin:0; text-align:center;"></div>
+                                    <div>${t('tripleLabel')}: <input type="number" id="admin-r-triple-${dev.salon}-${dev.deviceId}" value="${r['ثلاثي'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                                    <div>${t('quadLabel')}: <input type="number" id="admin-r-quad-${dev.salon}-${dev.deviceId}" value="${r['رباعي'] || 200}" style="padding:4px; margin:0; text-align:center;"></div>
+                                ` : `
+                                    <div style="grid-column: span 2;">PC Rate: <input type="number" id="admin-r-pc-${dev.salon}-${dev.deviceId}" value="${r['PC'] || 150}" style="padding:4px; margin:0; text-align:center;"></div>
+                                `}
+                            </div>
+                            <button onclick="updateAdminDeviceRates('${dev.salon}', '${dev.deviceId}', '${dev.category}')" style="background:var(--accent-blue); border:none; color:#fff; padding:6px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">${t('saveRates')}</button>
+                        </div>`;
+                }
+            });
+
+            if (count === 0) {
+                listDiv.innerHTML = "No devices found for this salon.";
+                return;
+            }
+            listDiv.innerHTML = html;
+        }
+
+        window.removeDeviceAdmin = async function(salonName, devId) {
+            let confirmMsg = currentLang === 'ar' ? `هل أنت متأكد من حذف الجهاز من صالة ${salonName}؟` : `Delete this device from salon ${salonName}?`;
+            if (confirm(confirmMsg)) {
+                let docId = `${salonName}_${devId}`;
+                await deleteDoc(doc(db, "salon_devices", docId));
+                loadAdminDevicesList();
+            }
+        }
+
+        window.updateAdminDeviceRates = async function(salonName, devId, category) {
+            let docId = `${salonName}_${devId}`;
+            let docRef = doc(db, "salon_devices", docId);
+            let docSnap = await getDoc(docRef);
+            if (!docSnap.exists()) return;
+            let d = docSnap.data();
+
+            let updatedRates = { ...d.rates };
+            if (category === 'ps') {
+                updatedRates["فردي"] = parseInt(document.getElementById(`admin-r-single-${salonName}-${devId}`).value) || 100;
+                updatedRates["ثنائي"] = parseInt(document.getElementById(`admin-r-double-${salonName}-${devId}`).value) || 100;
+                updatedRates["ثلاثي"] = parseInt(document.getElementById(`admin-r-triple-${salonName}-${devId}`).value) || 150;
+                updatedRates["رباعي"] = parseInt(document.getElementById(`admin-r-quad-${salonName}-${devId}`).value) || 200;
+            } else {
+                updatedRates["PC"] = parseInt(document.getElementById(`admin-r-pc-${salonName}-${devId}`).value) || 150;
+            }
+
+            await setDoc(docRef, { ...d, rates: updatedRates }, { merge: true });
+            alert(currentLang === 'ar' ? "تم تحديث الأسعار بنجاح!" : "Rates updated successfully!");
+        }
+
+        window.updateDeviceRates = async function(devId, category) {
+            let d = devicesData[devId] || salonDevicesList.find(item => item.deviceId === devId);
+            if (!d) return;
+
+            let updatedRates = { ...d.rates };
+            if (category === 'ps') {
+                updatedRates["فردي"] = parseInt(document.getElementById(`r-single-${devId}`).value) || 100;
+                updatedRates["ثنائي"] = parseInt(document.getElementById(`r-double-${devId}`).value) || 100;
+                updatedRates["ثلاثي"] = parseInt(document.getElementById(`r-triple-${devId}`).value) || 150;
+                updatedRates["رباعي"] = parseInt(document.getElementById(`r-quad-${devId}`).value) || 200;
+            } else {
+                updatedRates["PC"] = parseInt(document.getElementById(`r-pc-${devId}`).value) || 150;
+            }
+
+            let docId = `${d.salon}_${devId}`;
+            await setDoc(doc(db, "salon_devices", docId), { ...d, rates: updatedRates }, { merge: true });
+            alert(currentLang === 'ar' ? "تم تحديث الأسعار بنجاح!" : "Rates updated successfully!");
+        }
+
+        function speakDeviceNameLoud(deviceName) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let message = currentLang === 'ar' ? `انتهى الوقت لجهاز ${deviceName}` : `Time ended for ${deviceName}`;
+                let utterance = new SpeechSynthesisUtterance(message);
+                let langMap = { ar: 'ar-SA', en: 'en-US', tr: 'tr-TR', fr: 'fr-FR' };
+                utterance.lang = langMap[currentLang] || 'en-US';
+                utterance.rate = 0.85;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function startSpeechAlert(id, deviceName) {
+            if (speechIntervals[id]) return;
+            speakDeviceNameLoud(deviceName);
+            speechIntervals[id] = setInterval(() => { speakDeviceNameLoud(deviceName); }, 5000);
+        }
+
+        function stopSpeechAlert(id) {
+            if (speechIntervals[id]) {
+                clearInterval(speechIntervals[id]);
+                delete speechIntervals[id];
+            }
+        }
+
+        function initCloudDevices() {
+            if (currentSalon.role === 'superadmin') return;
+            onSnapshot(collection(db, "salon_devices"), (snapshot) => {
+                salonDevicesList = [];
+                snapshot.forEach((docSnap) => {
+                    let data = docSnap.data();
+                    if (data.salon === currentSalon.name) {
+                        salonDevicesList.push(data);
+                        devicesData[data.deviceId] = data;
+                    }
+                });
+                renderDevicesGrid();
+                updateGlobalStats();
+            });
+        }
+
+        window.setGameType = async function(devId, type) {
+            let d = devicesData[devId];
+            if (!d) return;
+            let docId = `${d.salon}_${devId}`;
+            if (d.busy || d.paused) {
+                await setDoc(doc(db, "salon_devices", docId), { ...d, type: type }, { merge: true });
+            } else {
+                tempTypes[devId] = type;
+                renderDevicesGrid();
+            }
+        }
+
+        window.setInitialDuration = function(devId, mins) {
+            let input = document.getElementById(`duration-${devId}`);
+            if (input) {
+                let current = parseInt(input.value) || 0;
+                input.value = Math.max(0, current + mins);
+            }
+        }
+
+        window.startDeviceCloud = async function(devId) {
+            stopSpeechAlert(devId);
+            let d = devicesData[devId];
+            if (!d) return;
+            let durationInput = document.getElementById(`duration-${devId}`);
+            let selectedType = tempTypes[devId] || (d.category === 'pc' ? 'PC' : 'فردي');
+            let durationMins = parseInt(durationInput ? durationInput.value : 0) || 0;
+            let nowTime = Date.now();
+            let docId = `${d.salon}_${devId}`;
+
+            await setDoc(doc(db, "salon_devices", docId), {
+                ...d,
+                busy: true,
+                paused: false,
+                accumulatedSeconds: 0,
+                lastStartTime: nowTime,
+                type: selectedType,
+                durationMinutes: durationMins,
+                posItems: []
+            });
+        }
+
+        window.pauseDeviceCloud = async function(devId) {
+            let d = devicesData[devId];
+            if (!d) return;
+            let docId = `${d.salon}_${devId}`;
+            let now = Date.now();
+
+            if (d.busy && !d.paused) {
+                let elapsed = Math.floor((now - (d.lastStartTime || now)) / 1000);
+                let totalAccumulated = (d.accumulatedSeconds || 0) + Math.max(0, elapsed);
+                stopSpeechAlert(devId);
+
+                await setDoc(doc(db, "salon_devices", docId), {
+                    ...d,
+                    busy: false,
+                    paused: true,
+                    accumulatedSeconds: totalAccumulated,
+                    lastStartTime: 0
+                }, { merge: true });
+            } else if (d.paused) {
+                await setDoc(doc(db, "salon_devices", docId), {
+                    ...d,
+                    busy: true,
+                    paused: false,
+                    lastStartTime: now
+                }, { merge: true });
+            }
+        }
+
+        window.adjustTimeCloud = async function(devId, mins) {
+            let d = devicesData[devId];
+            if (!d) return;
+            stopSpeechAlert(devId);
+            let currentDuration = d.durationMinutes || 0;
+            
+            let activeElapsed = d.busy && !d.paused ? Math.floor((Date.now() - (d.lastStartTime || Date.now())) / 1000) : 0;
+            let totalSecs = (d.accumulatedSeconds || 0) + activeElapsed;
+            
+            if (currentDuration === 0) {
+                let diffMins = Math.floor(totalSecs / 60);
+                currentDuration = Math.max(0, diffMins);
+            }
+            let newDuration = Math.max(0, currentDuration + mins);
+            let docId = `${d.salon}_${devId}`;
+            await setDoc(doc(db, "salon_devices", docId), { ...d, durationMinutes: newDuration }, { merge: true });
+        }
+
+        window.addToDeviceTab = async function(devId) {
+            let itemName = prompt("Enter item name (Drink / Meal):", "Drink");
+            if (!itemName) return;
+            let itemPrice = prompt(`Enter price for ${itemName}:`, "50");
+            if (!itemPrice || isNaN(itemPrice)) return;
+
+            let d = devicesData[devId];
+            if (!d) return;
+            let currentItems = d.posItems || [];
+            currentItems.push({ name: itemName, price: parseInt(itemPrice) });
+
+            let docId = `${d.salon}_${devId}`;
+            await setDoc(doc(db, "salon_devices", docId), { ...d, posItems: currentItems }, { merge: true });
+        }
+
+        window.stopDeviceCloud = async function(devId) {
+            let d = devicesData[devId];
+            if (!d || (!d.busy && !d.paused)) return;
+
+            let choice = prompt(
+                currentLang === 'ar' 
+                    ? `إدارة جلسة جهاز (${d.name}):\n1- أدخل عدد الدقائق لإضافتها للجلسة (مثلاً: 15 أو 30).\n2- أو اكتب كلمة (stop) أو (إنهاء) لإنهاء الفاتورة.\n3- اضغط إلغاء لمتابعة الجلسة.`
+                    : `Manage session for (${d.name}):\n1- Enter minutes to add (e.g. 15 or 30).\n2- Type (stop) to end invoice.\n3- Click cancel to continue.`,
+                ""
+            );
+
+            if (choice === null) return;
+
+            let trimmedChoice = choice.trim().toLowerCase();
+
+            if (trimmedChoice !== "" && !isNaN(trimmedChoice)) {
+                let addMins = parseInt(trimmedChoice);
+                if (addMins !== 0) {
+                    await adjustTimeCloud(devId, addMins);
+                    alert(currentLang === 'ar' ? `تمت إضافة ${addMins} دقيقة بنجاح للجلسة!` : `Successfully added ${addMins} mins!`);
+                }
+                return;
+            }
+
+            if (trimmedChoice === "stop" || trimmedChoice === "إنهاء" || trimmedChoice === "") {
+                let confirmEnd = confirm(
+                    currentLang === 'ar' 
+                        ? `هل أنت متأكد من رغبتك في إنهاء الفاتورة وحساب التكلفة لجهاز (${d.name})؟`
+                        : `Are you sure you want to finalize the invoice for (${d.name})?`
+                );
+                if (!confirmEnd) return;
+
+                stopSpeechAlert(devId);
+
+                let activeElapsed = d.busy && !d.paused ? Math.floor((Date.now() - (d.lastStartTime || Date.now())) / 1000) : 0;
+                let totalSeconds = (d.accumulatedSeconds || 0) + activeElapsed;
+
+                let totalHours = totalSeconds / 3600;
+                let rates = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
+                let hourlyRate = rates[d.type] || 100;
+                let timeCost = Math.round(totalHours * hourlyRate);
+                let totalMins = Math.ceil(totalSeconds / 60);
+
+                let posTotal = 0;
+                let posDetails = "";
+                if (d.posItems && d.posItems.length > 0) {
+                    d.posItems.forEach(item => {
+                        posTotal += item.price;
+                        posDetails += `\n- ${item.name}: ${item.price}`;
+                    });
+                }
+
+                let grandTotal = timeCost + posTotal;
+                alert(`🧾 Invoice for ${d.name} (${d.type}):\n- Time Cost (${totalMins} min): ${timeCost}${posDetails}\n------------------\n Grand Total: ${grandTotal}`);
+
+                totalRevenue += grandTotal;
+                let nowObj = new Date();
+                let timeString = nowObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let dateStr = nowObj.toLocaleDateString();
+                
+                let logEntry = {
+                    salon: d.salon,
+                    text: `${d.name} (${d.type}) - ${totalMins}m`,
+                    price: grandTotal,
+                    time: timeString,
+                    dateStr: dateStr,
+                    rawDate: nowObj.toISOString()
+                };
+
+                historyLogs.unshift(logEntry);
+                renderHistory();
+
+                try {
+                    let logDocId = `${d.salon}_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+                    await setDoc(doc(db, "salon_logs", logDocId), logEntry);
+                } catch(e) { console.error(e); }
+
+                let docId = `${d.salon}_${devId}`;
+                await setDoc(doc(db, "salon_devices", docId), {
+                    ...d,
+                    busy: false,
+                    paused: false,
+                    accumulatedSeconds: 0,
+                    lastStartTime: 0,
+                    type: d.category === 'pc' ? 'PC' : 'فردي',
+                    durationMinutes: 0,
+                    posItems: []
+                });
+            }
+        }
+
+        function renderDevicesGrid() {
+            let container = document.getElementById('devices-container');
+            if (!container) return;
+            let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
+
+            if (filteredList.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); grid-column: 1/-1; padding: 30px;">No devices found.</div>`;
+                return;
+            }
+
+            let psDevices = filteredList.filter(d => d.category !== 'pc');
+            let pcDevices = filteredList.filter(d => d.category === 'pc');
+
+            let html = "";
+            if (psDevices.length > 0) {
+                html += `<div style="grid-column: 1 / -1;"><div class="section-title-header">🎮 ${t('playstationSectionTitle')}</div></div>`;
+                html += generateDeviceCardsHtml(psDevices);
+            }
+            if (pcDevices.length > 0) {
+                html += `<div style="grid-column: 1 / -1; margin-top: 15px;"><div class="section-title-header">🖥️ ${t('pcSectionTitle')}</div></div>`;
+                html += generateDeviceCardsHtml(pcDevices);
+            }
+
+            container.innerHTML = html;
+        }
+
+        function generateDeviceCardsHtml(list) {
+            let html = "";
+            list.forEach(d => {
+                let isBusy = d.busy;
+                let isPaused = d.paused;
+                let iconSymbol = d.category === 'pc' ? '<span class="device-icon-large">🖥️</span>' : '<span class="device-icon-large">🎮</span>';
+                let cardClass = isPaused ? 'card paused' : (isBusy ? 'card busy' : 'card available');
+                let statusText = isPaused ? t('statusPaused') : (isBusy ? t('statusBusy') : t('statusAvail'));
+                let r = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
+
+                html += `<div class="${cardClass}" id="card-${d.deviceId}">`;
+                html += `
+                    <div class="title">
+                        <span>${d.name}</span>
+                        <span>${iconSymbol} <span class="status-badge">${statusText}</span></span>
+                    </div>
+                `;
+
+                if (!isBusy && !isPaused) {
+                    stopSpeechAlert(d.deviceId);
+                    let curType = tempTypes[d.deviceId] || (d.category === 'pc' ? 'PC' : 'فردي');
+                    
+                    if (d.category === 'ps') {
+                        html += `
+                            <div style="font-size: 13px; color: var(--accent-blue); margin-bottom: 8px; font-weight: bold;">Rates: [${t('singleLabel')}:${r['فردي']} | ${t('doubleLabel')}:${r['ثنائي']} | ${t('tripleLabel')}:${r['ثلاثي']} | ${t('quadLabel')}:${r['رباعي']}]</div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Select Game Mode:</div>
+                            <div class="type-buttons">
+                                <button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')} (${r['فردي']})</button>
+                                <button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')} (${r['ثنائي']})</button>
+                                <button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">${t('tripleLabel')} (${r['ثلاثي']})</button>
+                                <button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')} (${r['رباعي']})</button>
+                            </div>
+                        `;
+                    } else {
+                        html += `<div style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">Device Type: <b>PC (${r['PC']}/hr)</b></div>`;
+                    }
+
+                    html += `
+                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">${t('durationLabel')}</div>
+                        <input type="number" id="duration-${d.deviceId}" value="0" min="0" style="padding: 12px; font-size: 15px;">
+                        <div class="time-buttons" style="margin-top: 8px;">
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 5)">+5m</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 15)">+15m</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 30)">+30m</button>
+                            <button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 60)">+1h</button>
+                            <button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -5)">-5m</button>
+                            <button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -15)">-15m</button>
+                        </div>
+                        <button class="start" onclick="startDeviceCloud('${d.deviceId}')">${t('startSession')}</button>
+                    `;
+                } else {
+                    let activeElapsed = isBusy ? Math.floor((Date.now() - (d.lastStartTime || Date.now())) / 1000) : 0;
+                    let totalSeconds = (d.accumulatedSeconds || 0) + Math.max(0, activeElapsed);
+
+                    let targetSeconds = (d.durationMinutes || 0) * 60;
+                    let isTimeEnded = !isPaused && targetSeconds > 0 && totalSeconds >= targetSeconds;
+
+                    if (isTimeEnded) startSpeechAlert(d.deviceId, d.name);
+
+                    let timeFormatted = "";
+                    if (targetSeconds > 0) {
+                        let remaining = Math.max(0, targetSeconds - totalSeconds);
+                        let remMins = Math.floor(remaining / 60);
+                        let remSecs = remaining % 60;
+                        timeFormatted = isTimeEnded ? t('timeEnded') : `${t('timeLeft')}${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
+                    } else {
+                        let hours = Math.floor(totalSeconds / 3600);
+                        let mins = Math.floor((totalSeconds % 3600) / 60);
+                        let secs = totalSeconds % 60;
+                        timeFormatted = (hours > 0 ? hours + ':' : '') + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+                    }
+
+                    let totalHours = totalSeconds / 3600;
+                    let hourlyRate = r[d.type] || 100;
+                    let timeCost = Math.round(totalHours * hourlyRate);
+
+                    let posTotal = 0;
+                    let itemsListHtml = "";
+                    if (d.posItems && d.posItems.length > 0) {
+                        d.posItems.forEach(item => {
+                            posTotal += item.price;
+                            itemsListHtml += `<span style="background:#1f2937; padding:3px 8px; border-radius:6px; font-size:12px; margin-left:4px; color:#38bdf8;">${item.name} (${item.price})</span>`;
+                        });
+                    }
+                    let grandTotal = timeCost + posTotal;
+
+                    let currentActiveType = d.type || 'فردي';
+                    let pauseBtnText = isPaused ? t('resumeSession') : t('pauseSession');
+                    let pauseBtnColor = isPaused ? '#059669' : 'var(--accent-orange)';
+
+                    html += `
+                        <div class="info" style="margin-top: 8px; flex-direction: column; align-items: flex-start; gap: 6px;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <span>Mode:</span> <b style="color:var(--accent-blue); font-size: 15px;">${currentActiveType === 'فردي' ? t('singleLabel') : (currentActiveType === 'ثنائي' ? t('doubleLabel') : (currentActiveType === 'ثلاثي' ? t('tripleLabel') : (currentActiveType === 'رباعي' ? t('quadLabel') : currentActiveType))}</b>
+                            </div>
+                            ${d.category === 'ps' ? `
+                                <div style="font-size: 11px; color: var(--text-muted);">Change Mode During Session:</div>
+                                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%;">
+                                    <button type="button" class="type-btn ${currentActiveType === 'فردي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')}</button>
+                                    <button type="button" class="type-btn ${currentActiveType === 'ثنائي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')}</button>
+                                    <button type="button" class="type-btn ${currentActiveType === 'ثلاثي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'ثلاثي')">${t('tripleLabel')}</button>
+                                    <button type="button" class="type-btn ${currentActiveType === 'رباعي' ? 'active' : ''}" style="padding:5px; font-size:11px;" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')}</button>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="info"><span>${t('timeLabel')}</span> <span class="timer-val" id="timer-${d.deviceId}" style="${isTimeEnded ? 'color: #dc2626; font-weight: bold;' : ''}">${timeFormatted}</span></div>
+                        <div class="info"><span>${t('timeCost')}</span> <span id="timecost-${d.deviceId}" style="font-size: 16px; font-weight: bold;">${timeCost}</span></div>
+                        <div class="info" style="align-items:center;"><span>${t('ordersLabel')}</span> <div style="display:flex; flex-wrap:wrap; gap:4px;">${itemsListHtml || `<span style="color:#4b5563;font-size:12px;">${t('none')}</span>`}</div></div>
+                        <div class="info"><span>${t('totalLabel')}</span> <span class="cost-val" id="cost-${d.deviceId}">${grandTotal}</span></div>
+                        
+                        <button class="pos-btn" onclick="addToDeviceTab('${d.deviceId}')">${t('addOrder')}</button>
+
+                        <div class="time-buttons" style="margin-top:10px;">
+                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 5)">+5m</button>
+                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 15)">+15m</button>
+                            <button class="time-btn" onclick="adjustTimeCloud('${d.deviceId}', 30)">+30m</button>
+                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -5)">-5m</button>
+                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -15)">-15m</button>
+                            <button class="time-btn reduce" onclick="adjustTimeCloud('${d.deviceId}', -30)">-30m</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+                            <button class="pause-btn" style="background:${pauseBtnColor};" onclick="pauseDeviceCloud('${d.deviceId}')">${pauseBtnText}</button>
+                            <button class="stop" onclick="stopDeviceCloud('${d.deviceId}')">${t('stopSession')}</button>
+                        </div>
+                    `;
+                }
+                html += `</div>`;
+            });
+            return html;
+        }
+
+        function updateGlobalStats() {
+            let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
+            let busyCount = filteredList.filter(d => d.busy || d.paused).length;
+            let availCount = filteredList.length - busyCount;
+            let statAvail = document.getElementById('stat-avail');
+            let statBusy = document.getElementById('stat-busy');
+            let statRev = document.getElementById('stat-revenue');
+            if(statAvail) statAvail.innerText = availCount;
+            if(statBusy) statBusy.innerText = busyCount;
+            if(statRev) statRev.innerText = totalRevenue;
+        }
+
+        setInterval(() => {
+            if (!currentSalon || currentSalon.role === 'superadmin') return;
+            let filteredList = salonDevicesList.filter(d => d.salon === currentSalon.name);
+            filteredList.forEach(d => {
+                if (d.busy && !d.paused && d.lastStartTime) {
+                    let activeElapsed = Math.floor((Date.now() - d.lastStartTime) / 1000);
+                    let totalSeconds = (d.accumulatedSeconds || 0) + Math.max(0, activeElapsed);
+                    let targetSeconds = (d.durationMinutes || 0) * 60;
+                    let isTimeEnded = targetSeconds > 0 && totalSeconds >= targetSeconds;
+
+                    if (isTimeEnded) startSpeechAlert(d.deviceId, d.name);
+
+                    let timeFormatted = "";
+                    if (targetSeconds > 0) {
+                        let remaining = Math.max(0, targetSeconds - totalSeconds);
+                        let remMins = Math.floor(remaining / 60);
+                        let remSecs = remaining % 60;
+                        timeFormatted = isTimeEnded ? t('timeEnded') : `${t('timeLeft')}${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
+                    } else {
+                        let hours = Math.floor(totalSeconds / 3600);
+                        let mins = Math.floor((totalSeconds % 3600) / 60);
+                        let secs = totalSeconds % 60;
+                        timeFormatted = (hours > 0 ? hours + ':' : '') + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+                    }
+
+                    let totalHours = totalSeconds / 3600;
+                    let r = d.rates || { "فردي": 100, "ثنائي": 100, "ثلاثي": 150, "رباعي": 200, "PC": 150 };
+                    let hourlyRate = r[d.type] || 100;
+                    let timeCost = Math.round(totalHours * hourlyRate);
+
+                    let posTotal = 0;
+                    if (d.posItems && d.posItems.length > 0) {
+                        d.posItems.forEach(item => { posTotal += item.price; });
+                    }
+                    let grandTotal = timeCost + posTotal;
+
+                    let timerEl = document.getElementById(`timer-${d.deviceId}`);
+                    let timeCostEl = document.getElementById(`timecost-${d.deviceId}`);
+                    let costEl = document.getElementById(`cost-${d.deviceId}`);
+                    
+                    if (timerEl) {
+                        timerEl.innerText = timeFormatted;
+                        if (isTimeEnded) timerEl.style.color = '#dc2626';
+                    }
+                    if (timeCostEl) timeCostEl.innerText = timeCost;
+                    if (costEl) costEl.innerText = grandTotal;
+                }
+            });
+        }, 1000);
+
+        function renderHistory() {
+            const histContainer = document.getElementById('history-container');
+            if(!histContainer) return;
+            if (historyLogs.length === 0) {
+                histContainer.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 10px;" id="no-history-text">${t('noHistory')}</div>`;
+                return;
+            }
+            let html = '';
+            historyLogs.forEach(item => {
+                html += `<div class="history-item"><span>${item.text} <small style="color: var(--text-muted);">(${item.time})</small></span><b style="color: #34d399;">+${item.price}</b></div>`;
+            });
+            histContainer.innerHTML = html;
+        }
     </script>
-</head>
-<body>
-
-    <div id="auth-screen" class="auth-container">
-        <img src="https://img.icons8.com/color/96/play-station.png" alt="Icon" style="width: 64px; margin-bottom: 10px;">
-        <h2>تسجيل دخول الصالة / المركز</h2>
-        <input type="text" id="username" placeholder="اسم الصالة أو اسم المستخدم">
-        <input type="password" id="password" placeholder="كلمة المرور">
-        <button class="main-btn" onclick="login()">دخول النظام</button>
-        <div id="login-error" style="color: var(--accent-red); margin-top: 10px; font-size: 13px; font-weight: bold;"></div>
-    </div>
-
 </body>
 </html>
