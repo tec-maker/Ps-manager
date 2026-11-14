@@ -788,6 +788,8 @@
                 
                 loadSalonDevicesConfig();
                 initCloudDevices();
+                // استعادة إيرادات اليوم من سجلات Firestore عند فتح البرنامج مجدداً.
+                loadTodayRevenue();
             }
 
             updateStaticTexts();
@@ -1393,6 +1395,32 @@
                 renderDevicesGrid();
                 updateGlobalStats();
             });
+        }
+
+        // مجموع إيرادات اليوم محفوظة في سجلات الفواتير السحابية،
+        // لذلك لا تضيع عند إغلاق التطبيق أو تسجيل الخروج.
+        async function loadTodayRevenue() {
+            if (!currentSalon || currentSalon.role === 'superadmin') return;
+            const salonAtLoad = currentSalon.name;
+            const today = new Date().toDateString();
+            try {
+                const snapshot = await getDocs(collection(db, "salon_logs"));
+                // تجاهل نتيجة طلب قديم إذا تم تبديل حساب الصالة أثناء التحميل.
+                if (!currentSalon || currentSalon.name !== salonAtLoad) return;
+                let sum = 0;
+                snapshot.forEach((docSnap) => {
+                    const item = docSnap.data();
+                    if (item.salon !== salonAtLoad) return;
+                    const itemDate = item.rawDate ? new Date(item.rawDate) : null;
+                    if (itemDate && !Number.isNaN(itemDate.getTime()) && itemDate.toDateString() === today) {
+                        sum += Number(item.price) || 0;
+                    }
+                });
+                totalRevenue = sum;
+                updateGlobalStats();
+            } catch (error) {
+                console.error("تعذر تحميل إيرادات اليوم من السحابة:", error);
+            }
         }
 
         // يحسب تكلفة كل نمط على حدة حتى لا يتغير سعر الوقت السابق عند تبديل النمط.
