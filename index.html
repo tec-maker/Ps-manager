@@ -258,7 +258,7 @@
         .history-item { padding: 12px 0; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
         .history-item:last-child { border-bottom: none; }
 
-        /* نافذة الفاتورة المنبثقة (Modal) */
+        /* نوافذ منبثقة (Modals) */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center;
@@ -273,10 +273,18 @@
         .receipt-details { background: var(--input-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); margin-bottom: 20px; font-size: 15px; line-height: 1.6; }
         .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
         .receipt-total { font-size: 20px; font-weight: bold; color: var(--accent-red); border-top: 1px dashed var(--glass-border); padding-top: 10px; margin-top: 10px; display: flex; justify-content: space-between; }
+        
         .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .modal-actions button { padding: 12px; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; border: none; }
+        .modal-actions button { padding: 12px; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; border: none; transition: all 0.2s;}
+        .modal-actions button:active { transform: scale(0.95); }
         .btn-print { background: var(--accent-blue); color: white; }
         .btn-close { background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--glass-border); }
+        
+        /* تخصيص نافذة الأسئلة (Custom Dialog) */
+        #custom-dialog .modal-content { max-width: 350px; text-align: center; }
+        #custom-dialog .modal-title { color: var(--accent-blue); font-size: 18px; margin-bottom: 15px; }
+        #custom-dialog p { font-size: 15px; color: var(--text-color); margin-bottom: 20px; line-height: 1.5; }
+        #custom-dialog input { margin-bottom: 20px; text-align: center; font-size: 16px; }
     </style>
 
     <script type="module">
@@ -301,7 +309,7 @@
         let isSettingsOpen = false;
         let autoPrintEnabled = localStorage.getItem('ps_auto_print') === 'true';
 
-        // دوال المظهر والطباعة
+        // ================= دوال المظهر والنافذة المخصصة =================
         function initThemeAndPrint() {
             let savedTheme = localStorage.getItem('ps_theme') || 'dark';
             let toggle = document.getElementById('theme-toggle');
@@ -337,12 +345,65 @@
             localStorage.setItem('ps_auto_print', isEnabled);
         }
 
+        // نظام النوافذ المخصصة (Custom Dialog)
+        let dialogResolve = null;
+        let dialogType = 'confirm';
+
+        window.showDialog = function(title, message, type = 'confirm', defaultValue = '') {
+            return new Promise((resolve) => {
+                dialogType = type;
+                document.getElementById('dialog-title').innerText = title;
+                document.getElementById('dialog-message').innerText = message;
+                
+                let inputEl = document.getElementById('dialog-input');
+                let cancelBtn = document.getElementById('dialog-cancel-btn');
+                
+                if (type === 'prompt') {
+                    inputEl.style.display = 'block';
+                    inputEl.value = defaultValue;
+                    setTimeout(() => inputEl.focus(), 100);
+                    cancelBtn.style.display = 'block';
+                } else if (type === 'confirm') {
+                    inputEl.style.display = 'none';
+                    cancelBtn.style.display = 'block';
+                } else if (type === 'alert') {
+                    inputEl.style.display = 'none';
+                    cancelBtn.style.display = 'none'; // إخفاء زر الإلغاء في التنبيهات
+                }
+                
+                document.getElementById('custom-dialog').style.display = 'flex';
+                dialogResolve = resolve;
+            });
+        }
+
+        window.closeDialog = function(isOk) {
+            document.getElementById('custom-dialog').style.display = 'none';
+            if (dialogResolve) {
+                if (dialogType === 'prompt') {
+                    dialogResolve(isOk ? document.getElementById('dialog-input').value : null);
+                } else {
+                    dialogResolve(isOk);
+                }
+                dialogResolve = null;
+            }
+        }
+
+        // إضافة حدث الضغط على Enter في نافذة الإدخال
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('dialog-input').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    closeDialog(true);
+                }
+            });
+        });
+
+        // ================= الترجمة =================
         const translations = {
             ar: {
-                loginTitle: "تسجيل دخول الصالة / المركز", usernamePh: "اسم الصالة", passwordPh: "كلمة المرور", loginBtn: "دخول النظام", brandTitle: "صالة الألعاب", settingsBtn: "⚙️ الإعدادات", closeSettings: "✖ إغلاق ورجوع", syncing: "⏳ جاري الاتصال...", synced: "⚡ متزامن سحابياً", available: "المتاح", busy: "المشغول", revenue: "إيرادات الصالة", historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم", noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن", exportSectionTitle: "📊 تقارير وتحميل السجلات (Excel, Word, PDF)", reportTypeLbl: "نوع التقرير:", optDaily: "يومي (اليوم الحالي)", optWeekly: "أسبوعي (آخر 7 أيام)", optMonthly: "شهري (الشهر الحالي)", optCustom: "تحديد بين تاريخين", fromDateLbl: "من تاريخ:", toDateLbl: "إلى تاريخ:", downloadExcelBtn: "📥 تحميل Excel", downloadWordBtn: "📄 تحميل Word", downloadPdfBtn: "📑 تحميل PDF", settingsTitle: "⚙️ إعدادات النظام وإدارة الأجهزة والتسعير", superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)", newSalonNamePh: "اسم الصالة الجديدة (مثلاً: فرع_المزة)", newSalonPassPh: "كلمة مرور الصالة", createSalonBtn: "➕ إنشاء صالة جديدة", salonsListTitle: "قائمة الصالات والمراكز المسجلة:", addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط", devIdPh: "الرقم المعرف الفريد (1, 2, 3... 100)", devNamePh: "اسم الجهاز (مثلاً: PS5 - 1)", psOption: "بلايستيشن (PlayStation)", pcOption: "حاسوب (PC)", singleLabel: "فردي", doubleLabel: "ثنائي", tripleLabel: "ثلاثي", quadLabel: "رباعي", pcRateLabel: "ساعة PC", addDeviceBtn: "➕ حفظ وإضافة الجهاز", devicesListTitle: "قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:", logoutBtn: "🚪 تسجيل الخروج من لوحة المسؤول", langHeader: "🌐 لغة التطبيق / App Language", durationLabel: "مدة الجلسة (دقائق - 0 لمفتوح):", startSession: "▶ بدء الجلسة", stopSession: "⏹ إيقاف الحساب", pauseSession: "⏸ إيقاف مؤقت", resumeSession: "▶ استئناف الجلسة", addOrder: "🛒 إضافة طلب للفاتورة", timeLabel: "الوقت:", timeCost: "حساب الوقت:", ordersLabel: "الطلبات:", totalLabel: "الإجمالي:", none: "لا توجد", deleteBtn: "حذف الجهاز", saveRates: "💾 حفظ التعديلات وتحديث الأسعار", editRatesTitle: "تعديل أسعار الساعة لكل نمط:", statusAvail: "متاح 🟢", statusBusy: "مشغول 🔴", statusPaused: "متوقف مؤقتاً ⏸️", timeEnded: "⏰ انتهى الوقت!", timeLeft: "⏳ متبقي: ", defaultRatesPrompt: "تحديد سعر الساعة الافتراضي:", generalAdminText: "الادارة العامة", activeStatus: "نشط", suspendedStatus: "موقوف مؤقتاً", suspendBtn: "إيقاف مؤقت", activateBtn: "تفعيل", confirmSuspend: "أدخل سبب الإيقاف المؤقت لهذه الصالة:", confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟", confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.", salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة. السبب: ", editSalonCredentials: "تعديل بيانات الدخول", saveCredentials: "💾 حفظ البيانات الجديدة", newSalonUserPh: "اسم المستخدم الجديد", newSalonPassUpdatePh: "كلمة المرور الجديدة", supportText: "💬 الدعم الفني عبر واتساب:", selectSalonForDevice: "اختر الصالة المراد إضافة الجهاز إليها:", selectSalonForDevicesList: "اختر الصالة لعرض وإدارة أجهزتها:", playstationSectionTitle: "🎮 أجهزة البليستيشن (PlayStation)", pcSectionTitle: "🖥️ أجهزة الحاسوب (PC)", autoPrintHeader: "🖨️ إعدادات الطباعة", autoPrintLabel: "طباعة الفاتورة تلقائياً عند إنهاء الجلسة", sessionEnded: "تم إنهاء الجلسة بنجاح", printBtn: "🖨️ طباعة الفاتورة", closeBtn: "إغلاق"
+                loginTitle: "تسجيل دخول الصالة / المركز", usernamePh: "اسم الصالة", passwordPh: "كلمة المرور", loginBtn: "دخول النظام", brandTitle: "صالة الألعاب", settingsBtn: "⚙️ الإعدادات", closeSettings: "✖ إغلاق ورجوع", syncing: "⏳ جاري الاتصال...", synced: "⚡ متزامن سحابياً", available: "المتاح", busy: "المشغول", revenue: "إيرادات الصالة", historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم", noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن", exportSectionTitle: "📊 تقارير وتحميل السجلات (Excel, Word, PDF)", reportTypeLbl: "نوع التقرير:", optDaily: "يومي (اليوم الحالي)", optWeekly: "أسبوعي (آخر 7 أيام)", optMonthly: "شهري (الشهر الحالي)", optCustom: "تحديد بين تاريخين", fromDateLbl: "من تاريخ:", toDateLbl: "إلى تاريخ:", downloadExcelBtn: "📥 تحميل Excel", downloadWordBtn: "📄 تحميل Word", downloadPdfBtn: "📑 تحميل PDF", settingsTitle: "⚙️ إعدادات النظام وإدارة الأجهزة والتسعير", superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)", newSalonNamePh: "اسم الصالة الجديدة (مثلاً: فرع_المزة)", newSalonPassPh: "كلمة مرور الصالة", createSalonBtn: "➕ إنشاء صالة جديدة", salonsListTitle: "قائمة الصالات والمراكز المسجلة:", addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط", devIdPh: "الرقم المعرف الفريد (1, 2, 3... 100)", devNamePh: "اسم الجهاز (مثلاً: PS5 - 1)", psOption: "بلايستيشن (PlayStation)", pcOption: "حاسوب (PC)", singleLabel: "فردي", doubleLabel: "ثنائي", tripleLabel: "ثلاثي", quadLabel: "رباعي", pcRateLabel: "ساعة PC", addDeviceBtn: "➕ حفظ وإضافة الجهاز", devicesListTitle: "قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:", logoutBtn: "🚪 تسجيل الخروج من لوحة المسؤول", langHeader: "🌐 لغة التطبيق / App Language", durationLabel: "مدة الجلسة (دقائق - 0 لمفتوح):", startSession: "▶ بدء الجلسة", stopSession: "⏹ إيقاف الحساب", pauseSession: "⏸ إيقاف مؤقت", resumeSession: "▶ استئناف الجلسة", addOrder: "🛒 إضافة طلب للفاتورة", timeLabel: "الوقت:", timeCost: "حساب الوقت:", ordersLabel: "الطلبات:", totalLabel: "الإجمالي:", none: "لا توجد", deleteBtn: "حذف الجهاز", saveRates: "💾 حفظ التعديلات وتحديث الأسعار", editRatesTitle: "تعديل أسعار الساعة لكل نمط:", statusAvail: "متاح 🟢", statusBusy: "مشغول 🔴", statusPaused: "متوقف مؤقتاً ⏸️", timeEnded: "⏰ انتهى الوقت!", timeLeft: "⏳ متبقي: ", defaultRatesPrompt: "تحديد سعر الساعة الافتراضي:", generalAdminText: "الادارة العامة", activeStatus: "نشط", suspendedStatus: "موقوف مؤقتاً", suspendBtn: "إيقاف مؤقت", activateBtn: "تفعيل", confirmSuspend: "أدخل سبب الإيقاف المؤقت لهذه الصالة:", confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟", confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.", salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة. السبب: ", editSalonCredentials: "تعديل بيانات الدخول", saveCredentials: "💾 حفظ البيانات الجديدة", newSalonUserPh: "اسم المستخدم الجديد", newSalonPassUpdatePh: "كلمة المرور الجديدة", supportText: "💬 الدعم الفني عبر واتساب:", selectSalonForDevice: "اختر الصالة المراد إضافة الجهاز إليها:", selectSalonForDevicesList: "اختر الصالة لعرض وإدارة أجهزتها:", playstationSectionTitle: "🎮 أجهزة البليستيشن (PlayStation)", pcSectionTitle: "🖥️ أجهزة الحاسوب (PC)", autoPrintHeader: "🖨️ إعدادات الطباعة", autoPrintLabel: "طباعة الفاتورة تلقائياً عند إنهاء الجلسة", sessionEnded: "تم إنهاء الجلسة بنجاح", printBtn: "🖨️ طباعة الفاتورة", closeBtn: "إغلاق", okBtn: "موافق", cancelBtn: "إلغاء", confirmMsg: "تأكيد", alertMsg: "تنبيه"
             },
             en: {
-                loginTitle: "Salon / Center Login", usernamePh: "Salon Name", passwordPh: "Password", loginBtn: "Login", brandTitle: "Gaming Lounge", settingsBtn: "⚙️ Settings", closeSettings: "✖ Close & Return", syncing: "⏳ Connecting...", synced: "⚡ Cloud Synced", available: "Available", busy: "Busy", revenue: "Salon Revenue", historyTitle: "📋 Today's Invoices & Sessions History", noHistory: "No sessions recorded today yet", exportSectionTitle: "📊 Reports & Logs Download (Excel, Word, PDF)", reportTypeLbl: "Report Type:", optDaily: "Daily (Today)", optWeekly: "Weekly (Last 7 Days)", optMonthly: "Monthly (Current Month)", optCustom: "Custom Date Range", fromDateLbl: "From Date:", toDateLbl: "To Date:", downloadExcelBtn: "📥 Download Excel", downloadWordBtn: "📄 Download Word", downloadPdfBtn: "📑 Download PDF", settingsTitle: "⚙️ System Settings & Device Management", superAdminTitle: "👑 Central Control Panel (Salons Management)", newSalonNamePh: "New Salon Name (e.g., branch_1)", newSalonPassPh: "Salon Password", createSalonBtn: "➕ Create New Salon", salonsListTitle: "Registered Salons List:", addDeviceTitle: "🖥️➕ Add New Device & Set Pricing", devIdPh: "Unique Device ID (1, 2, 3... 100)", devNamePh: "Device Name (e.g., PS5 - 1)", psOption: "PlayStation", pcOption: "PC", singleLabel: "Single", doubleLabel: "Double", tripleLabel: "Triple", quadLabel: "Quad", pcRateLabel: "PC Rate", addDeviceBtn: "➕ Save & Add Device", devicesListTitle: "Devices List & Individual Repricing:", logoutBtn: "🚪 Logout from Admin Panel", langHeader: "🌐 App Language / لغة التطبيق", durationLabel: "Duration (mins - 0 for open):", startSession: "▶ Start Session", stopSession: "⏹ Bill & Stop", pauseSession: "⏸ Pause", resumeSession: "▶ Resume", addOrder: "🛒 Add Order", timeLabel: "Time:", timeCost: "Time Cost:", ordersLabel: "Orders:", totalLabel: "Total:", none: "None", deleteBtn: "Delete Device", saveRates: "💾 Save Rates", editRatesTitle: "Edit hourly rates:", statusAvail: "Available 🟢", statusBusy: "Busy 🔴", statusPaused: "Paused ⏸️", timeEnded: "⏰ Time Ended!", timeLeft: "⏳ Left: ", defaultRatesPrompt: "Set default hourly rate:", generalAdminText: "General Admin", activeStatus: "Active", suspendedStatus: "Suspended", suspendBtn: "Suspend", activateBtn: "Activate", confirmSuspend: "Enter suspension reason for this salon:", confirmActivate: "Are you sure you want to reactivate this salon?", confirmDelete: "⚠️ Warning: Are you sure you want to permanently delete this salon and its data?", salonSuspendedError: "This account is temporarily suspended by administration. Reason: ", editSalonCredentials: "Edit Credentials", saveCredentials: "💾 Save New Info", newSalonUserPh: "New Username", newSalonPassUpdatePh: "New Password", supportText: "💬 Technical Support via WhatsApp:", selectSalonForDevice: "Select target salon for this device:", selectSalonForDevicesList: "Select salon to view and manage its devices:", playstationSectionTitle: "🎮 PlayStation Devices", pcSectionTitle: "🖥️ PC Devices", autoPrintHeader: "🖨️ Print Settings", autoPrintLabel: "Auto-print receipt on session end", sessionEnded: "Session Ended Successfully", printBtn: "🖨️ Print Receipt", closeBtn: "Close"
+                loginTitle: "Salon / Center Login", usernamePh: "Salon Name", passwordPh: "Password", loginBtn: "Login", brandTitle: "Gaming Lounge", settingsBtn: "⚙️ Settings", closeSettings: "✖ Close & Return", syncing: "⏳ Connecting...", synced: "⚡ Cloud Synced", available: "Available", busy: "Busy", revenue: "Salon Revenue", historyTitle: "📋 Today's Invoices & Sessions History", noHistory: "No sessions recorded today yet", exportSectionTitle: "📊 Reports & Logs Download (Excel, Word, PDF)", reportTypeLbl: "Report Type:", optDaily: "Daily (Today)", optWeekly: "Weekly (Last 7 Days)", optMonthly: "Monthly (Current Month)", optCustom: "Custom Date Range", fromDateLbl: "From Date:", toDateLbl: "To Date:", downloadExcelBtn: "📥 Download Excel", downloadWordBtn: "📄 Download Word", downloadPdfBtn: "📑 Download PDF", settingsTitle: "⚙️ System Settings & Device Management", superAdminTitle: "👑 Central Control Panel (Salons Management)", newSalonNamePh: "New Salon Name (e.g., branch_1)", newSalonPassPh: "Salon Password", createSalonBtn: "➕ Create New Salon", salonsListTitle: "Registered Salons List:", addDeviceTitle: "🖥️➕ Add New Device & Set Pricing", devIdPh: "Unique Device ID (1, 2, 3... 100)", devNamePh: "Device Name (e.g., PS5 - 1)", psOption: "PlayStation", pcOption: "PC", singleLabel: "Single", doubleLabel: "Double", tripleLabel: "Triple", quadLabel: "Quad", pcRateLabel: "PC Rate", addDeviceBtn: "➕ Save & Add Device", devicesListTitle: "Devices List & Individual Repricing:", logoutBtn: "🚪 Logout from Admin Panel", langHeader: "🌐 App Language / لغة التطبيق", durationLabel: "Duration (mins - 0 for open):", startSession: "▶ Start Session", stopSession: "⏹ Bill & Stop", pauseSession: "⏸ Pause", resumeSession: "▶ Resume", addOrder: "🛒 Add Order", timeLabel: "Time:", timeCost: "Time Cost:", ordersLabel: "Orders:", totalLabel: "Total:", none: "None", deleteBtn: "Delete Device", saveRates: "💾 Save Rates", editRatesTitle: "Edit hourly rates:", statusAvail: "Available 🟢", statusBusy: "Busy 🔴", statusPaused: "Paused ⏸️", timeEnded: "⏰ Time Ended!", timeLeft: "⏳ Left: ", defaultRatesPrompt: "Set default hourly rate:", generalAdminText: "General Admin", activeStatus: "Active", suspendedStatus: "Suspended", suspendBtn: "Suspend", activateBtn: "Activate", confirmSuspend: "Enter suspension reason for this salon:", confirmActivate: "Are you sure you want to reactivate this salon?", confirmDelete: "⚠️ Warning: Are you sure you want to permanently delete this salon and its data?", salonSuspendedError: "This account is temporarily suspended by administration. Reason: ", editSalonCredentials: "Edit Credentials", saveCredentials: "💾 Save New Info", newSalonUserPh: "New Username", newSalonPassUpdatePh: "New Password", supportText: "💬 Technical Support via WhatsApp:", selectSalonForDevice: "Select target salon for this device:", selectSalonForDevicesList: "Select salon to view and manage its devices:", playstationSectionTitle: "🎮 PlayStation Devices", pcSectionTitle: "🖥️ PC Devices", autoPrintHeader: "🖨️ Print Settings", autoPrintLabel: "Auto-print receipt on session end", sessionEnded: "Session Ended Successfully", printBtn: "🖨️ Print Receipt", closeBtn: "Close", okBtn: "OK", cancelBtn: "Cancel", confirmMsg: "Confirm", alertMsg: "Alert"
             }
         };
 
@@ -441,6 +502,8 @@
             safeSet('modal-title', t('sessionEnded'));
             safeSet('modal-print-btn', t('printBtn'));
             safeSet('modal-close-btn', t('closeBtn'));
+            safeSet('dialog-ok-btn', t('okBtn'));
+            safeSet('dialog-cancel-btn', t('cancelBtn'));
             
             let currencyLabel = document.getElementById('currency-header-text');
             if (currencyLabel) currencyLabel.innerText = ({ar:'💱 عملة الدولة / العملة المستخدمة',en:'💱 Currency',tr:'💱 Para birimi',fr:'💱 Devise'}[currentLang] || '💱 Currency');
@@ -541,6 +604,7 @@
         }
         window.onReportTypeChange = function() { document.getElementById('custom-date-range-container').style.display = document.getElementById('report-type-select').value === 'custom' ? 'grid' : 'none'; }
 
+        // ================= دوال التصدير =================
         async function getFilteredLogsForExport() {
             let reportType = document.getElementById('report-type-select').value;
             let logsToExport = [];
@@ -585,7 +649,7 @@
 
         window.exportExcel = async function() {
             const filtered = await getFilteredLogsForExport();
-            if (!filtered.length) { alert("لا توجد سجلات"); return; }
+            if (!filtered.length) { window.showDialog(t('alertMsg'), "لا توجد سجلات", 'alert'); return; }
             const totalAmount = filtered.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
             const totalLabel = currentLang === 'ar' ? 'المجموع الكلي' : 'Grand Total';
             const headers = currentLang === 'ar' ? ['الصالة', 'التفاصيل', `المبلغ`, 'الوقت', 'التاريخ'] : ['Salon', 'Details', `Amount`, 'Time', 'Date'];
@@ -604,7 +668,7 @@
 
         window.exportWord = async function() {
             const filtered = await getFilteredLogsForExport();
-            if (!filtered.length) { alert("لا توجد سجلات"); return; }
+            if (!filtered.length) { window.showDialog(t('alertMsg'), "لا توجد سجلات", 'alert'); return; }
             const totalAmount = filtered.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
             const totalLabel = currentLang === 'ar' ? 'المجموع الكلي' : 'Grand Total';
             const headers = currentLang === 'ar' ? ['الصالة', 'التفاصيل', `المبلغ`, 'الوقت', 'التاريخ'] : ['Salon', 'Details', `Amount`, 'Time', 'Date'];
@@ -622,7 +686,7 @@
 
         window.exportPdf = async function() {
             let filtered = await getFilteredLogsForExport();
-            if (filtered.length === 0) { alert("لا توجد سجلات"); return; }
+            if (filtered.length === 0) { window.showDialog(t('alertMsg'), "لا توجد سجلات", 'alert'); return; }
             const totalAmount = filtered.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
             const totalLabel = currentLang === 'ar' ? 'المجموع الكلي' : 'Grand Total';
             let printWin = window.open('', '_blank');
@@ -632,11 +696,12 @@
             printWin.document.write(htmlContent); printWin.document.close();
         };
 
+        // ================= إدارة الصالات والأجهزة =================
         window.addSalonCenter = async function() {
             let name = document.getElementById('new-salon-name').value.trim(); let pass = document.getElementById('new-salon-pass').value.trim();
-            if (!name || !pass) { alert("Please fill all fields"); return; }
+            if (!name || !pass) { window.showDialog(t('alertMsg'), "Please fill all fields", 'alert'); return; }
             let docRef = doc(db, "salons", name); let docSnap = await getDoc(docRef);
-            if (docSnap.exists()) { alert("Salon name already exists!"); return; }
+            if (docSnap.exists()) { window.showDialog(t('alertMsg'), "Salon name already exists!", 'alert'); return; }
             await setDoc(docRef, { name: name, password: pass, suspended: false, suspendReason: "" });
             document.getElementById('new-salon-name').value = ''; document.getElementById('new-salon-pass').value = '';
             loadSalonsList(); loadAdminSalonsDropdowns();
@@ -669,19 +734,42 @@
 
         window.toggleSalonStatus = async function(name, currentSuspended) {
             let docRef = doc(db, "salons", name); let docSnap = await getDoc(docRef); if (!docSnap.exists()) return; let data = docSnap.data();
-            if (!currentSuspended) { let reason = prompt(t('confirmSuspend'), ""); if (reason === null) return; await setDoc(docRef, { ...data, suspended: true, suspendReason: reason.trim() }); loadSalonsList(); }
-            else { if (confirm(t('confirmActivate'))) { await setDoc(docRef, { ...data, suspended: false, suspendReason: "" }); loadSalonsList(); } }
+            if (!currentSuspended) { 
+                let reason = await window.showDialog(t('suspendBtn'), t('confirmSuspend'), 'prompt');
+                if (reason === null) return; 
+                await setDoc(docRef, { ...data, suspended: true, suspendReason: reason.trim() }); 
+                loadSalonsList(); 
+            } else { 
+                let confirmAct = await window.showDialog(t('activateBtn'), t('confirmActivate'), 'confirm');
+                if (confirmAct) { 
+                    await setDoc(docRef, { ...data, suspended: false, suspendReason: "" }); 
+                    loadSalonsList(); 
+                } 
+            }
         }
-        window.deleteSalon = async function(name) { if (confirm(t('confirmDelete'))) { await deleteDoc(doc(db, "salons", name)); loadSalonsList(); loadAdminSalonsDropdowns(); } }
+        
+        window.deleteSalon = async function(name) { 
+            let confirmDel = await window.showDialog(t('confirmMsg'), t('confirmDelete'), 'confirm');
+            if (confirmDel) { 
+                await deleteDoc(doc(db, "salons", name)); 
+                loadSalonsList(); 
+                loadAdminSalonsDropdowns(); 
+            } 
+        }
+        
         window.updateSalonCredentials = async function(oldName) {
             let newUser = document.getElementById(`edit-user-${oldName}`).value.trim(); let newPass = document.getElementById(`edit-pass-${oldName}`).value.trim();
-            if (!newUser || !newPass) { alert("Please fill both fields."); return; } if (newUser === ADMIN_USER) { alert("Cannot use reserved name."); return; }
-            if (confirm(`Update credentials for salon ${oldName}?`)) {
+            if (!newUser || !newPass) { window.showDialog(t('alertMsg'), "Please fill both fields.", 'alert'); return; } 
+            if (newUser === ADMIN_USER) { window.showDialog(t('alertMsg'), "Cannot use reserved name.", 'alert'); return; }
+            
+            let confirmUpdate = await window.showDialog(t('confirmMsg'), `Update credentials for salon ${oldName}?`, 'confirm');
+            if (confirmUpdate) {
                 let oldDocRef = doc(db, "salons", oldName); let oldDocSnap = await getDoc(oldDocRef);
                 if (oldDocSnap.exists()) {
                     let salonData = oldDocSnap.data();
                     if (newUser !== oldName) {
-                        let newDocRef = doc(db, "salons", newUser); let newDocSnap = await getDoc(newDocRef); if (newDocSnap.exists()) { alert("Username already exists!"); return; }
+                        let newDocRef = doc(db, "salons", newUser); let newDocSnap = await getDoc(newDocRef); 
+                        if (newDocSnap.exists()) { window.showDialog(t('alertMsg'), "Username already exists!", 'alert'); return; }
                         await setDoc(newDocRef, { ...salonData, name: newUser, password: newPass });
                         let devsSnapshot = await getDocs(collection(db, "salon_devices"));
                         devsSnapshot.forEach(async (dSnap) => {
@@ -689,22 +777,24 @@
                         });
                         await deleteDoc(oldDocRef);
                     } else { await setDoc(oldDocRef, { ...salonData, password: newPass }); }
-                    alert("Salon updated!"); loadSalonsList(); loadAdminSalonsDropdowns();
+                    window.showDialog(t('alertMsg'), "Salon updated!", 'alert'); 
+                    loadSalonsList(); loadAdminSalonsDropdowns();
                 }
             }
         }
 
         window.addDeviceToSalon = async function() {
             let targetSalonName = currentSalon.role === 'superadmin' ? document.getElementById('admin-target-salon').value : currentSalon.name;
-            if (currentSalon.role === 'superadmin' && !targetSalonName) { alert("Select a salon!"); return; }
+            if (currentSalon.role === 'superadmin' && !targetSalonName) { window.showDialog(t('alertMsg'), "Select a salon!", 'alert'); return; }
             let devId = document.getElementById('dev-id').value.trim(); let devName = document.getElementById('dev-name').value.trim(); let devType = document.getElementById('dev-type').value;
-            if (!devId || !devName) { alert("Enter ID and Name"); return; }
+            if (!devId || !devName) { window.showDialog(t('alertMsg'), "Enter ID and Name", 'alert'); return; }
             let docId = `${targetSalonName}_${devId}`; let ratesObj = {};
             if (devType === 'ps') ratesObj = { "فردي": parseInt(document.getElementById('rate-single').value) || 100, "ثنائي": parseInt(document.getElementById('rate-double').value) || 100, "ثلاثي": parseInt(document.getElementById('rate-triple').value) || 150, "رباعي": parseInt(document.getElementById('rate-quad').value) || 200 };
             else ratesObj = { "PC": parseInt(document.getElementById('rate-pc').value) || 150 };
             await setDoc(doc(db, "salon_devices", docId), { salon: targetSalonName, deviceId: devId, name: devName, category: devType, rates: ratesObj, busy: false, paused: false, accumulatedSeconds: 0, lastStartTime: 0, type: devType === 'pc' ? 'PC' : 'فردي', durationMinutes: 0, posItems: [] });
             document.getElementById('dev-id').value = ''; document.getElementById('dev-name').value = '';
-            if (currentSalon.role === 'superadmin') loadAdminDevicesList(); else loadSalonDevicesConfig(); alert("Device added!");
+            if (currentSalon.role === 'superadmin') loadAdminDevicesList(); else loadSalonDevicesConfig(); 
+            window.showDialog(t('alertMsg'), "Device added!", 'alert');
         }
 
         async function loadSalonDevicesConfig() {
@@ -732,18 +822,29 @@
             }); listDiv.innerHTML = count === 0 ? "No devices found." : html;
         }
 
-        window.removeDeviceAdmin = async function(salonName, devId) { if (confirm(`Delete from ${salonName}?`)) { await deleteDoc(doc(db, "salon_devices", `${salonName}_${devId}`)); loadAdminDevicesList(); } }
+        window.removeDeviceAdmin = async function(salonName, devId) { 
+            let confirmDel = await window.showDialog(t('confirmMsg'), `Delete from ${salonName}?`, 'confirm');
+            if (confirmDel) { 
+                await deleteDoc(doc(db, "salon_devices", `${salonName}_${devId}`)); 
+                loadAdminDevicesList(); 
+            } 
+        }
+        
         window.updateAdminDeviceRates = async function(salonName, devId, category) {
             let docRef = doc(db, "salon_devices", `${salonName}_${devId}`); let docSnap = await getDoc(docRef); if (!docSnap.exists()) return; let d = docSnap.data(); let updatedRates = { ...d.rates };
             if (category === 'ps') { updatedRates["فردي"] = parseInt(document.getElementById(`admin-r-single-${salonName}-${devId}`).value) || 100; updatedRates["ثنائي"] = parseInt(document.getElementById(`admin-r-double-${salonName}-${devId}`).value) || 100; updatedRates["ثلاثي"] = parseInt(document.getElementById(`admin-r-triple-${salonName}-${devId}`).value) || 150; updatedRates["رباعي"] = parseInt(document.getElementById(`admin-r-quad-${salonName}-${devId}`).value) || 200; } else { updatedRates["PC"] = parseInt(document.getElementById(`admin-r-pc-${salonName}-${devId}`).value) || 150; }
-            await setDoc(docRef, { ...d, rates: updatedRates }, { merge: true }); alert("Rates updated!");
+            await setDoc(docRef, { ...d, rates: updatedRates }, { merge: true }); 
+            window.showDialog(t('alertMsg'), "Rates updated!", 'alert');
         }
+        
         window.updateDeviceRates = async function(devId, category) {
             let d = devicesData[devId] || salonDevicesList.find(item => item.deviceId === devId); if (!d) return; let updatedRates = { ...d.rates };
             if (category === 'ps') { updatedRates["فردي"] = parseInt(document.getElementById(`r-single-${devId}`).value) || 100; updatedRates["ثنائي"] = parseInt(document.getElementById(`r-double-${devId}`).value) || 100; updatedRates["ثلاثي"] = parseInt(document.getElementById(`r-triple-${devId}`).value) || 150; updatedRates["رباعي"] = parseInt(document.getElementById(`r-quad-${devId}`).value) || 200; } else { updatedRates["PC"] = parseInt(document.getElementById(`r-pc-${devId}`).value) || 150; }
-            await setDoc(doc(db, "salon_devices", `${d.salon}_${devId}`), { ...d, rates: updatedRates }, { merge: true }); alert("Rates updated!");
+            await setDoc(doc(db, "salon_devices", `${d.salon}_${devId}`), { ...d, rates: updatedRates }, { merge: true }); 
+            window.showDialog(t('alertMsg'), "Rates updated!", 'alert');
         }
 
+        // ================= إدارة الجلسات والطباعة =================
         function speakDeviceNameLoud(deviceName) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel(); let message = currentLang === 'ar' ? `انتهى الوقت لجهاز ${deviceName}` : `Time ended for ${deviceName}`;
@@ -825,12 +926,16 @@
         }
 
         window.addToDeviceTab = async function(devId) {
-            let itemName = prompt("Item name:", "Drink"); if (!itemName) return; let itemPrice = prompt(`Price:`, "50"); if (!itemPrice || isNaN(itemPrice)) return;
+            let itemName = await window.showDialog(t('addOrder'), currentLang === 'ar' ? "أدخل اسم الطلب (مشروب / وجبة):" : "Item Name (Drink / Meal):", 'prompt', "Drink");
+            if (!itemName) return; 
+            
+            let itemPrice = await window.showDialog(t('addOrder'), currentLang === 'ar' ? `أدخل سعر (${itemName}):` : `Price for (${itemName}):`, 'prompt', "50");
+            if (!itemPrice || isNaN(itemPrice)) return;
+
             let d = devicesData[devId]; let currentItems = d.posItems || []; currentItems.push({ name: itemName, price: parseInt(itemPrice) });
             await setDoc(doc(db, "salon_devices", `${d.salon}_${devId}`), { ...d, posItems: currentItems }, { merge: true });
         }
 
-        // دالة الطباعة
         function printReceipt(html) {
             let iframe = document.createElement('iframe');
             iframe.style.position = 'absolute'; iframe.style.width = '0px'; iframe.style.height = '0px'; iframe.style.border = 'none';
@@ -840,7 +945,6 @@
             setTimeout(() => { iframe.contentWindow.print(); setTimeout(() => { document.body.removeChild(iframe); }, 1000); }, 500);
         }
 
-        // دالة إظهار نافذة الفاتورة المنبثقة
         function showReceiptModal(devName, totalMins, timeCost, posDetails, grandTotal, htmlToPrint) {
             let modal = document.getElementById('receipt-modal');
             let content = document.getElementById('receipt-modal-content');
@@ -864,7 +968,7 @@
         window.stopDeviceCloud = async function(devId) {
             let d = devicesData[devId]; if (!d || (!d.busy && !d.paused)) return;
 
-            let confirmEnd = confirm(currentLang === 'ar' ? `هل أنت متأكد من إنهاء الفاتورة لجهاز (${d.name})؟` : `End invoice for (${d.name})?`);
+            let confirmEnd = await window.showDialog(t('stopSession'), currentLang === 'ar' ? `هل أنت متأكد من رغبتك في إنهاء الفاتورة وحساب التكلفة لجهاز (${d.name})؟` : `Are you sure you want to finalize the invoice for (${d.name})?`, 'confirm');
             if (!confirmEnd) return;
 
             stopSpeechAlert(devId);
@@ -892,7 +996,6 @@
             let dateStr = nowObj.toLocaleDateString();
             let timeString = nowObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            // إعداد HTML للفاتورة (نمط طابعة كاشير)
             let receiptHtml = `
                 <!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>فاتورة</title>
                 <style>
@@ -920,14 +1023,12 @@
                 </body></html>
             `;
 
-            // التحقق من خيار الطباعة التلقائية
             if (autoPrintEnabled) {
                 printReceipt(receiptHtml);
             } else {
                 showReceiptModal(d.name, totalMins, timeCost, posDetailsText, grandTotal, receiptHtml);
             }
 
-            // تحديث السجلات وقاعدة البيانات
             totalRevenue += grandTotal; 
             let logEntry = { salon: d.salon, text: `${d.name} (${d.type}) - ${totalMins}m`, price: grandTotal, time: timeString, dateStr: dateStr, rawDate: nowObj.toISOString() };
             historyLogs.unshift(logEntry); 
@@ -1015,6 +1116,19 @@
     </script>
 </head>
 <body>
+
+    <!-- نافذة الأسئلة والتنبيهات المخصصة (Custom Dialog) -->
+    <div id="custom-dialog" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="dialog-title" class="modal-title">عنوان</h3>
+            <p id="dialog-message">رسالة</p>
+            <input type="text" id="dialog-input" style="display: none;" placeholder="...">
+            <div class="modal-actions">
+                <button class="btn-close" id="dialog-cancel-btn" onclick="closeDialog(false)">إلغاء</button>
+                <button class="btn-print" id="dialog-ok-btn" onclick="closeDialog(true)" style="background: var(--accent-blue);">موافق</button>
+            </div>
+        </div>
+    </div>
 
     <!-- نافذة الفاتورة المنبثقة -->
     <div id="receipt-modal" class="modal-overlay">
