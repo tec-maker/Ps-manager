@@ -257,6 +257,26 @@
         .history-list { font-size: 13px; color: var(--text-muted); max-height: 200px; overflow-y: auto; }
         .history-item { padding: 12px 0; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
         .history-item:last-child { border-bottom: none; }
+
+        /* نافذة الفاتورة المنبثقة (Modal) */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: var(--glass-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border); border-radius: 24px; padding: 25px; width: 90%; max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); text-align: right;
+        }
+        .modal-title { font-size: 20px; font-weight: bold; color: var(--accent-green); text-align: center; margin-top: 0; margin-bottom: 20px; }
+        .receipt-details { background: var(--input-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); margin-bottom: 20px; font-size: 15px; line-height: 1.6; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .receipt-total { font-size: 20px; font-weight: bold; color: var(--accent-red); border-top: 1px dashed var(--glass-border); padding-top: 10px; margin-top: 10px; display: flex; justify-content: space-between; }
+        .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .modal-actions button { padding: 12px; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; border: none; }
+        .btn-print { background: var(--accent-blue); color: white; }
+        .btn-close { background: var(--hover-bg); color: var(--text-color); border: 1px solid var(--glass-border); }
     </style>
 
     <script type="module">
@@ -279,12 +299,14 @@
         const ADMIN_USER = "admin_master_secure_99";
         const ADMIN_PASS = "G#9mP!2$vK9xL*";
         let isSettingsOpen = false;
+        let autoPrintEnabled = localStorage.getItem('ps_auto_print') === 'true';
 
-        // دوال المظهر
-        function initTheme() {
+        // دوال المظهر والطباعة
+        function initThemeAndPrint() {
             let savedTheme = localStorage.getItem('ps_theme') || 'dark';
             let toggle = document.getElementById('theme-toggle');
             let authToggle = document.getElementById('auth-theme-toggle');
+            
             if (savedTheme === 'light') {
                 document.body.classList.add('light-theme');
                 if(toggle) toggle.checked = true;
@@ -294,6 +316,9 @@
                 if(toggle) toggle.checked = false;
                 if(authToggle) authToggle.checked = false;
             }
+
+            let printToggle = document.getElementById('auto-print-toggle');
+            if(printToggle) printToggle.checked = autoPrintEnabled;
         }
 
         window.toggleTheme = function(isLight) {
@@ -307,12 +332,17 @@
             document.querySelectorAll('.theme-switch input').forEach(input => input.checked = isLight);
         }
 
+        window.toggleAutoPrint = function(isEnabled) {
+            autoPrintEnabled = isEnabled;
+            localStorage.setItem('ps_auto_print', isEnabled);
+        }
+
         const translations = {
             ar: {
-                loginTitle: "تسجيل دخول الصالة / المركز", usernamePh: "اسم الصالة", passwordPh: "كلمة المرور", loginBtn: "دخول النظام", brandTitle: "صالة الألعاب", settingsBtn: "⚙️ الإعدادات", closeSettings: "✖ إغلاق ورجوع", syncing: "⏳ جاري الاتصال...", synced: "⚡ متزامن سحابياً", available: "المتاح", busy: "المشغول", revenue: "إيرادات الصالة", historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم", noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن", exportSectionTitle: "📊 تقارير وتحميل السجلات (Excel, Word, PDF)", reportTypeLbl: "نوع التقرير:", optDaily: "يومي (اليوم الحالي)", optWeekly: "أسبوعي (آخر 7 أيام)", optMonthly: "شهري (الشهر الحالي)", optCustom: "تحديد بين تاريخين", fromDateLbl: "من تاريخ:", toDateLbl: "إلى تاريخ:", downloadExcelBtn: "📥 تحميل Excel", downloadWordBtn: "📄 تحميل Word", downloadPdfBtn: "📑 تحميل PDF", settingsTitle: "⚙️ لوحة تحكم المسؤول العام (إدارة الصالات والأجهزة)", superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)", newSalonNamePh: "اسم الصالة الجديدة (مثلاً: فرع_المزة)", newSalonPassPh: "كلمة مرور الصالة", createSalonBtn: "➕ إنشاء صالة جديدة", salonsListTitle: "قائمة الصالات والمراكز المسجلة:", addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط", devIdPh: "الرقم المعرف الفريد (1, 2, 3... 100)", devNamePh: "اسم الجهاز (مثلاً: PS5 - 1)", psOption: "بلايستيشن (PlayStation)", pcOption: "حاسوب (PC)", singleLabel: "فردي", doubleLabel: "ثنائي", tripleLabel: "ثلاثي", quadLabel: "رباعي", pcRateLabel: "ساعة PC", addDeviceBtn: "➕ حفظ وإضافة الجهاز", devicesListTitle: "قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:", logoutBtn: "🚪 تسجيل الخروج من لوحة المسؤول", langHeader: "🌐 لغة التطبيق / App Language", durationLabel: "مدة الجلسة (دقائق - 0 لمفتوح):", startSession: "▶ بدء الجلسة", stopSession: "⏹ إيقاف الحساب", pauseSession: "⏸ إيقاف مؤقت", resumeSession: "▶ استئناف الجلسة", addOrder: "🛒 إضافة طلب للفاتورة", timeLabel: "الوقت:", timeCost: "حساب الوقت:", ordersLabel: "الطلبات:", totalLabel: "الإجمالي:", none: "لا توجد", deleteBtn: "حذف الجهاز", saveRates: "💾 حفظ التعديلات وتحديث الأسعار", editRatesTitle: "تعديل أسعار الساعة لكل نمط:", statusAvail: "متاح 🟢", statusBusy: "مشغول 🔴", statusPaused: "متوقف مؤقتاً ⏸️", timeEnded: "⏰ انتهى الوقت!", timeLeft: "⏳ متبقي: ", defaultRatesPrompt: "تحديد سعر الساعة الافتراضي:", generalAdminText: "الادارة العامة", activeStatus: "نشط", suspendedStatus: "موقوف مؤقتاً", suspendBtn: "إيقاف مؤقت", activateBtn: "تفعيل", confirmSuspend: "أدخل سبب الإيقاف المؤقت لهذه الصالة:", confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟", confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.", salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة. السبب: ", editSalonCredentials: "تعديل بيانات الدخول", saveCredentials: "💾 حفظ البيانات الجديدة", newSalonUserPh: "اسم المستخدم الجديد", newSalonPassUpdatePh: "كلمة المرور الجديدة", supportText: "💬 الدعم الفني عبر واتساب:", selectSalonForDevice: "اختر الصالة المراد إضافة الجهاز إليها:", selectSalonForDevicesList: "اختر الصالة لعرض وإدارة أجهزتها:", playstationSectionTitle: "🎮 أجهزة البليستيشن (PlayStation)", pcSectionTitle: "🖥️ أجهزة الحاسوب (PC)"
+                loginTitle: "تسجيل دخول الصالة / المركز", usernamePh: "اسم الصالة", passwordPh: "كلمة المرور", loginBtn: "دخول النظام", brandTitle: "صالة الألعاب", settingsBtn: "⚙️ الإعدادات", closeSettings: "✖ إغلاق ورجوع", syncing: "⏳ جاري الاتصال...", synced: "⚡ متزامن سحابياً", available: "المتاح", busy: "المشغول", revenue: "إيرادات الصالة", historyTitle: "📋 سجل فواتير وجلسات الصالة اليوم", noHistory: "لا توجد جلسات مسجلة اليوم حتى الآن", exportSectionTitle: "📊 تقارير وتحميل السجلات (Excel, Word, PDF)", reportTypeLbl: "نوع التقرير:", optDaily: "يومي (اليوم الحالي)", optWeekly: "أسبوعي (آخر 7 أيام)", optMonthly: "شهري (الشهر الحالي)", optCustom: "تحديد بين تاريخين", fromDateLbl: "من تاريخ:", toDateLbl: "إلى تاريخ:", downloadExcelBtn: "📥 تحميل Excel", downloadWordBtn: "📄 تحميل Word", downloadPdfBtn: "📑 تحميل PDF", settingsTitle: "⚙️ إعدادات النظام وإدارة الأجهزة والتسعير", superAdminTitle: "👑 لوحة التحكم المركزية (إدارة الصالات والمراكز)", newSalonNamePh: "اسم الصالة الجديدة (مثلاً: فرع_المزة)", newSalonPassPh: "كلمة مرور الصالة", createSalonBtn: "➕ إنشاء صالة جديدة", salonsListTitle: "قائمة الصالات والمراكز المسجلة:", addDeviceTitle: "🖥️➕ إضافة جهاز جديد وتحديد أسعار الأنماط", devIdPh: "الرقم المعرف الفريد (1, 2, 3... 100)", devNamePh: "اسم الجهاز (مثلاً: PS5 - 1)", psOption: "بلايستيشن (PlayStation)", pcOption: "حاسوب (PC)", singleLabel: "فردي", doubleLabel: "ثنائي", tripleLabel: "ثلاثي", quadLabel: "رباعي", pcRateLabel: "ساعة PC", addDeviceBtn: "➕ حفظ وإضافة الجهاز", devicesListTitle: "قائمة الأجهزة وإعادة التسعير الفردي لكل جهاز:", logoutBtn: "🚪 تسجيل الخروج من لوحة المسؤول", langHeader: "🌐 لغة التطبيق / App Language", durationLabel: "مدة الجلسة (دقائق - 0 لمفتوح):", startSession: "▶ بدء الجلسة", stopSession: "⏹ إيقاف الحساب", pauseSession: "⏸ إيقاف مؤقت", resumeSession: "▶ استئناف الجلسة", addOrder: "🛒 إضافة طلب للفاتورة", timeLabel: "الوقت:", timeCost: "حساب الوقت:", ordersLabel: "الطلبات:", totalLabel: "الإجمالي:", none: "لا توجد", deleteBtn: "حذف الجهاز", saveRates: "💾 حفظ التعديلات وتحديث الأسعار", editRatesTitle: "تعديل أسعار الساعة لكل نمط:", statusAvail: "متاح 🟢", statusBusy: "مشغول 🔴", statusPaused: "متوقف مؤقتاً ⏸️", timeEnded: "⏰ انتهى الوقت!", timeLeft: "⏳ متبقي: ", defaultRatesPrompt: "تحديد سعر الساعة الافتراضي:", generalAdminText: "الادارة العامة", activeStatus: "نشط", suspendedStatus: "موقوف مؤقتاً", suspendBtn: "إيقاف مؤقت", activateBtn: "تفعيل", confirmSuspend: "أدخل سبب الإيقاف المؤقت لهذه الصالة:", confirmActivate: "هل أنت متأكد من رغبتك في إعادة تفعيل هذه الصالة؟", confirmDelete: "⚠️ تحذير: هل أنت متأكد تماماً من حذف هذه الصالة وجميع بياناتها؟ لا يمكن التراجع عن هذا الإجراء.", salonSuspendedError: "هذا الحساب موقوف مؤقتاً من قبل الإدارة العامة. السبب: ", editSalonCredentials: "تعديل بيانات الدخول", saveCredentials: "💾 حفظ البيانات الجديدة", newSalonUserPh: "اسم المستخدم الجديد", newSalonPassUpdatePh: "كلمة المرور الجديدة", supportText: "💬 الدعم الفني عبر واتساب:", selectSalonForDevice: "اختر الصالة المراد إضافة الجهاز إليها:", selectSalonForDevicesList: "اختر الصالة لعرض وإدارة أجهزتها:", playstationSectionTitle: "🎮 أجهزة البليستيشن (PlayStation)", pcSectionTitle: "🖥️ أجهزة الحاسوب (PC)", autoPrintHeader: "🖨️ إعدادات الطباعة", autoPrintLabel: "طباعة الفاتورة تلقائياً عند إنهاء الجلسة", sessionEnded: "تم إنهاء الجلسة بنجاح", printBtn: "🖨️ طباعة الفاتورة", closeBtn: "إغلاق"
             },
             en: {
-                loginTitle: "Salon / Center Login", usernamePh: "Salon Name", passwordPh: "Password", loginBtn: "Login", brandTitle: "Gaming Lounge", settingsBtn: "⚙️ Settings", closeSettings: "✖ Close & Return", syncing: "⏳ Connecting...", synced: "⚡ Cloud Synced", available: "Available", busy: "Busy", revenue: "Salon Revenue", historyTitle: "📋 Today's Invoices & Sessions History", noHistory: "No sessions recorded today yet", exportSectionTitle: "📊 Reports & Logs Download (Excel, Word, PDF)", reportTypeLbl: "Report Type:", optDaily: "Daily (Today)", optWeekly: "Weekly (Last 7 Days)", optMonthly: "Monthly (Current Month)", optCustom: "Custom Date Range", fromDateLbl: "From Date:", toDateLbl: "To Date:", downloadExcelBtn: "📥 Download Excel", downloadWordBtn: "📄 Download Word", downloadPdfBtn: "📑 Download PDF", settingsTitle: "⚙️ General Admin Control Panel (Salons & Devices)", superAdminTitle: "👑 Central Control Panel (Salons Management)", newSalonNamePh: "New Salon Name (e.g., branch_1)", newSalonPassPh: "Salon Password", createSalonBtn: "➕ Create New Salon", salonsListTitle: "Registered Salons List:", addDeviceTitle: "🖥️➕ Add New Device & Set Pricing", devIdPh: "Unique Device ID (1, 2, 3... 100)", devNamePh: "Device Name (e.g., PS5 - 1)", psOption: "PlayStation", pcOption: "PC", singleLabel: "Single", doubleLabel: "Double", tripleLabel: "Triple", quadLabel: "Quad", pcRateLabel: "PC Rate", addDeviceBtn: "➕ Save & Add Device", devicesListTitle: "Devices List & Individual Repricing:", logoutBtn: "🚪 Logout from Admin Panel", langHeader: "🌐 App Language / لغة التطبيق", durationLabel: "Duration (mins - 0 for open):", startSession: "▶ Start Session", stopSession: "⏹ Bill & Stop", pauseSession: "⏸ Pause", resumeSession: "▶ Resume", addOrder: "🛒 Add Order", timeLabel: "Time:", timeCost: "Time Cost:", ordersLabel: "Orders:", totalLabel: "Total:", none: "None", deleteBtn: "Delete Device", saveRates: "💾 Save Rates", editRatesTitle: "Edit hourly rates:", statusAvail: "Available 🟢", statusBusy: "Busy 🔴", statusPaused: "Paused ⏸️", timeEnded: "⏰ Time Ended!", timeLeft: "⏳ Left: ", defaultRatesPrompt: "Set default hourly rate:", generalAdminText: "General Admin", activeStatus: "Active", suspendedStatus: "Suspended", suspendBtn: "Suspend", activateBtn: "Activate", confirmSuspend: "Enter suspension reason for this salon:", confirmActivate: "Are you sure you want to reactivate this salon?", confirmDelete: "⚠️ Warning: Are you sure you want to permanently delete this salon and its data?", salonSuspendedError: "This account is temporarily suspended by administration. Reason: ", editSalonCredentials: "Edit Credentials", saveCredentials: "💾 Save New Info", newSalonUserPh: "New Username", newSalonPassUpdatePh: "New Password", supportText: "💬 Technical Support via WhatsApp:", selectSalonForDevice: "Select target salon for this device:", selectSalonForDevicesList: "Select salon to view and manage its devices:", playstationSectionTitle: "🎮 PlayStation Devices", pcSectionTitle: "🖥️ PC Devices"
+                loginTitle: "Salon / Center Login", usernamePh: "Salon Name", passwordPh: "Password", loginBtn: "Login", brandTitle: "Gaming Lounge", settingsBtn: "⚙️ Settings", closeSettings: "✖ Close & Return", syncing: "⏳ Connecting...", synced: "⚡ Cloud Synced", available: "Available", busy: "Busy", revenue: "Salon Revenue", historyTitle: "📋 Today's Invoices & Sessions History", noHistory: "No sessions recorded today yet", exportSectionTitle: "📊 Reports & Logs Download (Excel, Word, PDF)", reportTypeLbl: "Report Type:", optDaily: "Daily (Today)", optWeekly: "Weekly (Last 7 Days)", optMonthly: "Monthly (Current Month)", optCustom: "Custom Date Range", fromDateLbl: "From Date:", toDateLbl: "To Date:", downloadExcelBtn: "📥 Download Excel", downloadWordBtn: "📄 Download Word", downloadPdfBtn: "📑 Download PDF", settingsTitle: "⚙️ System Settings & Device Management", superAdminTitle: "👑 Central Control Panel (Salons Management)", newSalonNamePh: "New Salon Name (e.g., branch_1)", newSalonPassPh: "Salon Password", createSalonBtn: "➕ Create New Salon", salonsListTitle: "Registered Salons List:", addDeviceTitle: "🖥️➕ Add New Device & Set Pricing", devIdPh: "Unique Device ID (1, 2, 3... 100)", devNamePh: "Device Name (e.g., PS5 - 1)", psOption: "PlayStation", pcOption: "PC", singleLabel: "Single", doubleLabel: "Double", tripleLabel: "Triple", quadLabel: "Quad", pcRateLabel: "PC Rate", addDeviceBtn: "➕ Save & Add Device", devicesListTitle: "Devices List & Individual Repricing:", logoutBtn: "🚪 Logout from Admin Panel", langHeader: "🌐 App Language / لغة التطبيق", durationLabel: "Duration (mins - 0 for open):", startSession: "▶ Start Session", stopSession: "⏹ Bill & Stop", pauseSession: "⏸ Pause", resumeSession: "▶ Resume", addOrder: "🛒 Add Order", timeLabel: "Time:", timeCost: "Time Cost:", ordersLabel: "Orders:", totalLabel: "Total:", none: "None", deleteBtn: "Delete Device", saveRates: "💾 Save Rates", editRatesTitle: "Edit hourly rates:", statusAvail: "Available 🟢", statusBusy: "Busy 🔴", statusPaused: "Paused ⏸️", timeEnded: "⏰ Time Ended!", timeLeft: "⏳ Left: ", defaultRatesPrompt: "Set default hourly rate:", generalAdminText: "General Admin", activeStatus: "Active", suspendedStatus: "Suspended", suspendBtn: "Suspend", activateBtn: "Activate", confirmSuspend: "Enter suspension reason for this salon:", confirmActivate: "Are you sure you want to reactivate this salon?", confirmDelete: "⚠️ Warning: Are you sure you want to permanently delete this salon and its data?", salonSuspendedError: "This account is temporarily suspended by administration. Reason: ", editSalonCredentials: "Edit Credentials", saveCredentials: "💾 Save New Info", newSalonUserPh: "New Username", newSalonPassUpdatePh: "New Password", supportText: "💬 Technical Support via WhatsApp:", selectSalonForDevice: "Select target salon for this device:", selectSalonForDevicesList: "Select salon to view and manage its devices:", playstationSectionTitle: "🎮 PlayStation Devices", pcSectionTitle: "🖥️ PC Devices", autoPrintHeader: "🖨️ Print Settings", autoPrintLabel: "Auto-print receipt on session end", sessionEnded: "Session Ended Successfully", printBtn: "🖨️ Print Receipt", closeBtn: "Close"
             }
         };
 
@@ -384,7 +414,6 @@
             safeSet('support-text-settings', t('supportText'));
             safeHtml('brand-title', `<img src="https://img.icons8.com/color/32/play-station.png" style="vertical-align: middle;"> ${t('brandTitle')}`);
             
-            // تحديث نص زر الإعدادات بناءً على الحالة الحالية (مفتوح أو مغلق)
             let settingsBtnEl = document.getElementById('settings-btn-text');
             if(settingsBtnEl) settingsBtnEl.innerText = isSettingsOpen ? t('closeSettings') : t('settingsBtn');
             let settingsBtn = document.getElementById('settings-toggle-btn');
@@ -407,6 +436,12 @@
             safeSet('select-salon-lbl', t('selectSalonForDevice')); safeSet('select-salon-filter-lbl', t('selectSalonForDevicesList'));
             document.querySelectorAll('.lang-select').forEach(sel => sel.value = currentLang);
             
+            safeSet('auto-print-header-text', t('autoPrintHeader'));
+            safeSet('auto-print-label', t('autoPrintLabel'));
+            safeSet('modal-title', t('sessionEnded'));
+            safeSet('modal-print-btn', t('printBtn'));
+            safeSet('modal-close-btn', t('closeBtn'));
+            
             let currencyLabel = document.getElementById('currency-header-text');
             if (currencyLabel) currencyLabel.innerText = ({ar:'💱 عملة الدولة / العملة المستخدمة',en:'💱 Currency',tr:'💱 Para birimi',fr:'💱 Devise'}[currentLang] || '💱 Currency');
             let currencyNote = document.getElementById('currency-note-text');
@@ -414,7 +449,7 @@
         }
 
         window.onload = function() {
-            initTheme();
+            initThemeAndPrint();
             document.documentElement.lang = currentLang;
             document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
             populateCurrencySelect();
@@ -469,7 +504,6 @@
             let settingsPanel = document.getElementById('settings-view-panel');
             let exportLogsContainer = document.getElementById('export-logs-container');
 
-            // إعادة ضبط حالة الإعدادات
             isSettingsOpen = false;
 
             if (currentSalon.role === 'superadmin') {
@@ -480,31 +514,24 @@
             } else {
                 superAdminSection.style.display = 'none'; adminDeviceSection.style.display = 'none'; mainDashboardView.style.display = 'block';
                 if(settingsBtnContainer) settingsBtnContainer.style.display = 'flex'; if(adminFilterContainer) adminFilterContainer.style.display = 'none';
-                if(settingsPanel) settingsPanel.style.display = 'none'; // تبدأ الإعدادات مغلقة للصالات
+                if(settingsPanel) settingsPanel.style.display = 'none'; 
                 if(exportLogsContainer) exportLogsContainer.style.display = 'block';
                 loadSalonDevicesConfig(); initCloudDevices(); loadTodayRevenue();
             }
             updateStaticTexts(); window.onDeviceTypeChange();
         }
 
-        // الدالة الجديدة لتبديل لوحة الإعدادات
         window.toggleSettingsView = function() {
             if (currentSalon.role === 'superadmin') return;
-            
-            isSettingsOpen = !isSettingsOpen; // عكس الحالة
-            
+            isSettingsOpen = !isSettingsOpen; 
             let mainDashboard = document.getElementById('main-dashboard-view');
             let settingsPanel = document.getElementById('settings-view-panel');
-            
             if (isSettingsOpen) {
-                mainDashboard.style.display = 'none';
-                settingsPanel.style.display = 'block';
+                mainDashboard.style.display = 'none'; settingsPanel.style.display = 'block';
             } else {
-                mainDashboard.style.display = 'block';
-                settingsPanel.style.display = 'none';
+                mainDashboard.style.display = 'block'; settingsPanel.style.display = 'none';
             }
-            
-            updateStaticTexts(); // تحديث نص الزر
+            updateStaticTexts(); 
         }
         
         window.onDeviceTypeChange = function() {
@@ -559,6 +586,8 @@
         window.exportExcel = async function() {
             const filtered = await getFilteredLogsForExport();
             if (!filtered.length) { alert("لا توجد سجلات"); return; }
+            const totalAmount = filtered.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+            const totalLabel = currentLang === 'ar' ? 'المجموع الكلي' : 'Grand Total';
             const headers = currentLang === 'ar' ? ['الصالة', 'التفاصيل', `المبلغ`, 'الوقت', 'التاريخ'] : ['Salon', 'Details', `Amount`, 'Time', 'Date'];
             const colWidths = [120, 280, 120, 90, 110];
             const cols = colWidths.map(w => `<Column ss:AutoFitWidth="0" ss:Width="${w}"/>`).join('');
@@ -568,6 +597,7 @@
                 const values = [item.salon || '', item.text || '', formatMoney(item.price || 0), item.time || '', dateStr];
                 rows += `<Row ss:Height="22">${values.map(v => `<Cell ss:StyleID="DataCell"><Data ss:Type="String">${escapeXmlCell(v)}</Data></Cell>`).join('')}</Row>`;
             });
+            rows += `<Row ss:Height="24"><Cell ss:StyleID="Header" ss:MergeAcross="1"><Data ss:Type="String">${totalLabel}</Data></Cell><Cell ss:StyleID="Header"><Data ss:Type="String">${formatMoney(totalAmount)}</Data></Cell><Cell ss:StyleID="Header"></Cell><Cell ss:StyleID="Header"></Cell></Row>`;
             const excelXml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="12"/><Interior ss:Color="#0284C7" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/></Style><Style ss:ID="DataCell"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/></Borders></Style></Styles><Worksheet ss:Name="Report"><Table>${cols}${rows}</Table></Worksheet></Workbook>`;
             downloadReportBlob(new Blob(['\uFEFF', excelXml], { type: 'application/vnd.ms-excel;charset=utf-8' }), 'xls');
         };
@@ -575,6 +605,8 @@
         window.exportWord = async function() {
             const filtered = await getFilteredLogsForExport();
             if (!filtered.length) { alert("لا توجد سجلات"); return; }
+            const totalAmount = filtered.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+            const totalLabel = currentLang === 'ar' ? 'المجموع الكلي' : 'Grand Total';
             const headers = currentLang === 'ar' ? ['الصالة', 'التفاصيل', `المبلغ`, 'الوقت', 'التاريخ'] : ['Salon', 'Details', `Amount`, 'Time', 'Date'];
             let rtf = `{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Arial;}}\\viewkind4\\uc1\\f0\\fs22\\rtlpar\\qc\\b ${rtfText(currentLang === 'ar' ? 'سجل فواتير صالة الألعاب' : 'Gaming Lounge Report')}\\b0\\par\\par`;
             const widths = [1500, 5200, 7200, 8700, 10200];
@@ -584,16 +616,19 @@
             }
             rtf += rtfRow(headers, true);
             filtered.forEach(item => { rtf += rtfRow([item.salon || '', item.text || '', formatMoney(item.price || 0), item.time || '', new Date(item.rawDate).toLocaleDateString()], false); });
+            rtf += rtfRow([totalLabel, '', formatMoney(totalAmount), '', ''], true);
             rtf += '}'; downloadReportBlob(new Blob([rtf], { type: 'application/rtf;charset=utf-8' }), 'rtf');
         };
 
         window.exportPdf = async function() {
             let filtered = await getFilteredLogsForExport();
             if (filtered.length === 0) { alert("لا توجد سجلات"); return; }
+            const totalAmount = filtered.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+            const totalLabel = currentLang === 'ar' ? 'المجموع الكلي' : 'Grand Total';
             let printWin = window.open('', '_blank');
-            let htmlContent = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير السجلات</title><style>body{font-family:Tahoma,sans-serif;padding:20px;color:#111;}h2{text-align:center;color:#0284c7;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;}th,td{border:1px solid #ccc;padding:8px 12px;text-align:center;}th{background-color:#0284c7;color:white;}</style></head><body><h2>سجل فواتير وجلسات صالة الألعاب</h2><table><thead><tr><th>الصالة</th><th>التفاصيل</th><th>المبلغ</th><th>الوقت</th><th>التاريخ</th></tr></thead><tbody>`;
+            let htmlContent = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير السجلات</title><style>body{font-family:Tahoma,sans-serif;padding:20px;color:#111;}h2{text-align:center;color:#0284c7;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;}th,td{border:1px solid #ccc;padding:8px 12px;text-align:center;}th{background-color:#0284c7;color:white;} .total-row { background-color: #f1f5f9; font-weight: bold; color: #0f172a; }</style></head><body><h2>سجل فواتير وجلسات صالة الألعاب</h2><table><thead><tr><th>الصالة</th><th>التفاصيل</th><th>المبلغ</th><th>الوقت</th><th>التاريخ</th></tr></thead><tbody>`;
             filtered.forEach(item => { htmlContent += `<tr><td>${item.salon || ''}</td><td>${item.text || ''}</td><td>${formatMoney(item.price || 0)}</td><td>${item.time || ''}</td><td>${new Date(item.rawDate).toLocaleDateString()}</td></tr>`; });
-            htmlContent += `</tbody></table><script>window.onload=function(){window.print();window.close();}<\/script></body></html>`;
+            htmlContent += `</tbody><tfoot><tr class="total-row"><td colspan="2" style="text-align: left; padding-right: 15px;">${totalLabel}</td><td style="color: #10b981;">${formatMoney(totalAmount)}</td><td colspan="2"></td></tr></tfoot></table><script>window.onload=function(){window.print();window.close();}<\/script></body></html>`;
             printWin.document.write(htmlContent); printWin.document.close();
         };
 
@@ -795,22 +830,110 @@
             await setDoc(doc(db, "salon_devices", `${d.salon}_${devId}`), { ...d, posItems: currentItems }, { merge: true });
         }
 
+        // دالة الطباعة
+        function printReceipt(html) {
+            let iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute'; iframe.style.width = '0px'; iframe.style.height = '0px'; iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+            let doc = iframe.contentWindow.document; doc.open(); doc.write(html); doc.close();
+            iframe.contentWindow.focus();
+            setTimeout(() => { iframe.contentWindow.print(); setTimeout(() => { document.body.removeChild(iframe); }, 1000); }, 500);
+        }
+
+        // دالة إظهار نافذة الفاتورة المنبثقة
+        function showReceiptModal(devName, totalMins, timeCost, posDetails, grandTotal, htmlToPrint) {
+            let modal = document.getElementById('receipt-modal');
+            let content = document.getElementById('receipt-modal-content');
+            content.innerHTML = `
+                <div class="receipt-row"><span>الجهاز:</span> <b>${devName}</b></div>
+                <div class="receipt-row"><span>مدة الجلسة:</span> <b>${totalMins} دقيقة</b></div>
+                <div class="receipt-row"><span>حساب الوقت:</span> <b>${formatMoney(timeCost)}</b></div>
+                <div class="receipt-row" style="flex-direction: column; align-items: flex-start;">
+                    <span>الطلبات:</span>
+                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 5px; width: 100%;">${posDetails ? posDetails.replace(/\n/g, '<br>') : 'لا توجد'}</div>
+                </div>
+                <div class="receipt-total"><span>الإجمالي:</span> <span>${formatMoney(grandTotal)}</span></div>
+            `;
+            modal.style.display = 'flex';
+            document.getElementById('modal-print-btn').onclick = function() {
+                printReceipt(htmlToPrint);
+                modal.style.display = 'none';
+            };
+        }
+
         window.stopDeviceCloud = async function(devId) {
             let d = devicesData[devId]; if (!d || (!d.busy && !d.paused)) return;
-            let choice = prompt(currentLang === 'ar' ? `إدارة جلسة (${d.name}):\n1- دقائق لإضافتها.\n2- (stop) للإنهاء.\n3- إلغاء للمتابعة.` : `Manage (${d.name}):\n1- Mins to add.\n2- (stop) to end.\n3- Cancel to continue.`, "");
-            if (choice === null) return; let trimmedChoice = choice.trim().toLowerCase();
-            if (trimmedChoice !== "" && !isNaN(trimmedChoice)) { await adjustTimeCloud(devId, parseInt(trimmedChoice)); return; }
-            if (trimmedChoice === "stop" || trimmedChoice === "إنهاء" || trimmedChoice === "") {
-                if (!confirm(`End invoice for (${d.name})?`)) return; stopSpeechAlert(devId);
-                let activeElapsed = d.busy && !d.paused ? Math.floor((Date.now() - (d.lastStartTime || Date.now())) / 1000) : 0; let totalSeconds = (d.accumulatedSeconds || 0) + activeElapsed;
-                let timeCost = calculateSessionTimeCost(d); let totalMins = Math.ceil(totalSeconds / 60);
-                let posTotal = 0; let posDetails = ""; if (d.posItems) d.posItems.forEach(item => { posTotal += item.price; posDetails += `\n- ${item.name}: ${formatMoney(item.price)}`; });
-                let grandTotal = timeCost + posTotal; alert(`🧾 Invoice (${d.name}):\n- Time (${totalMins}m): ${formatMoney(timeCost)}${posDetails}\n------------------\nTotal: ${formatMoney(grandTotal)}`);
-                totalRevenue += grandTotal; let nowObj = new Date();
-                let logEntry = { salon: d.salon, text: `${d.name} (${d.type}) - ${totalMins}m`, price: grandTotal, time: nowObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), dateStr: nowObj.toLocaleDateString(), rawDate: nowObj.toISOString() };
-                historyLogs.unshift(logEntry); renderHistory(); try { await setDoc(doc(db, "salon_logs", `${d.salon}_${Date.now()}_${Math.floor(Math.random()*1000)}`), logEntry); } catch(e) {}
-                await setDoc(doc(db, "salon_devices", `${d.salon}_${devId}`), { ...d, busy: false, paused: false, accumulatedSeconds: 0, lastStartTime: 0, modeSegments: [], modeSegmentStartTime: 0, type: d.category === 'pc' ? 'PC' : 'فردي', durationMinutes: 0, posItems: [] });
+
+            let confirmEnd = confirm(currentLang === 'ar' ? `هل أنت متأكد من إنهاء الفاتورة لجهاز (${d.name})؟` : `End invoice for (${d.name})?`);
+            if (!confirmEnd) return;
+
+            stopSpeechAlert(devId);
+
+            let activeElapsed = d.busy && !d.paused ? Math.floor((Date.now() - (d.lastStartTime || Date.now())) / 1000) : 0; 
+            let totalSeconds = (d.accumulatedSeconds || 0) + activeElapsed;
+            let timeCost = calculateSessionTimeCost(d); 
+            let totalMins = Math.ceil(totalSeconds / 60);
+            
+            let posTotal = 0; 
+            let posItemsHtml = "";
+            let posDetailsText = "";
+            if (d.posItems && d.posItems.length > 0) {
+                d.posItems.forEach(item => {
+                    posTotal += item.price;
+                    posItemsHtml += `<div class="item-row"><span>${item.name}</span><span>${formatMoney(item.price)}</span></div>`;
+                    posDetailsText += `- ${item.name}: ${formatMoney(item.price)}\n`;
+                });
+            } else {
+                posItemsHtml = `<div class="item-row" style="color:#666;"><span>لا توجد طلبات</span><span>-</span></div>`;
             }
+
+            let grandTotal = timeCost + posTotal;
+            let nowObj = new Date();
+            let dateStr = nowObj.toLocaleDateString();
+            let timeString = nowObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // إعداد HTML للفاتورة (نمط طابعة كاشير)
+            let receiptHtml = `
+                <!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>فاتورة</title>
+                <style>
+                    body { font-family: 'Courier New', Courier, monospace; width: 80mm; margin: 0 auto; padding: 10px; color: #000; background: #fff; direction: rtl; font-size: 14px; }
+                    .text-center { text-align: center; }
+                    .header { margin-bottom: 15px; border-bottom: 1px dashed #000; padding-bottom: 10px; text-align: center; }
+                    .header h2 { margin: 0 0 5px 0; font-size: 18px; }
+                    .header p { margin: 2px 0; font-size: 12px; }
+                    .item-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+                    .divider { border-top: 1px dashed #000; margin: 10px 0; }
+                    .total-row { font-size: 16px; font-weight: bold; margin-top: 10px; display: flex; justify-content: space-between; }
+                    .footer { margin-top: 20px; text-align: center; font-size: 12px; border-top: 1px dashed #000; padding-top: 10px; }
+                    @media print { body { margin: 0; padding: 0; } }
+                </style></head>
+                <body>
+                    <div class="header"><h2>${t('brandTitle')}</h2><p>${currentSalon.name}</p><p>${dateStr} | ${timeString}</p></div>
+                    <div class="item-row" style="font-weight: bold; margin-bottom: 10px;"><span>البيان / Item</span><span>المبلغ / Price</span></div>
+                    <div class="divider"></div>
+                    <div class="item-row"><span>وقت اللعب (${d.name}) - ${totalMins} دقيقة</span><span>${formatMoney(timeCost)}</span></div>
+                    <div class="divider"></div>
+                    ${posItemsHtml}
+                    <div class="divider"></div>
+                    <div class="total-row"><span>الإجمالي / Total</span><span>${formatMoney(grandTotal)}</span></div>
+                    <div class="footer"><p>شكراً لزيارتكم!</p><p>Thank you for your visit!</p></div>
+                </body></html>
+            `;
+
+            // التحقق من خيار الطباعة التلقائية
+            if (autoPrintEnabled) {
+                printReceipt(receiptHtml);
+            } else {
+                showReceiptModal(d.name, totalMins, timeCost, posDetailsText, grandTotal, receiptHtml);
+            }
+
+            // تحديث السجلات وقاعدة البيانات
+            totalRevenue += grandTotal; 
+            let logEntry = { salon: d.salon, text: `${d.name} (${d.type}) - ${totalMins}m`, price: grandTotal, time: timeString, dateStr: dateStr, rawDate: nowObj.toISOString() };
+            historyLogs.unshift(logEntry); 
+            renderHistory(); 
+            try { await setDoc(doc(db, "salon_logs", `${d.salon}_${Date.now()}_${Math.floor(Math.random()*1000)}`), logEntry); } catch(e) {}
+            await setDoc(doc(db, "salon_devices", `${d.salon}_${devId}`), { ...d, busy: false, paused: false, accumulatedSeconds: 0, lastStartTime: 0, modeSegments: [], modeSegmentStartTime: 0, type: d.category === 'pc' ? 'PC' : 'فردي', durationMinutes: 0, posItems: [] });
         }
 
         function renderDevicesGrid() {
@@ -834,7 +957,6 @@
                 if (!isBusy && !isPaused) {
                     stopSpeechAlert(d.deviceId); let curType = tempTypes[d.deviceId] || (d.category === 'pc' ? 'PC' : 'فردي');
                     if (d.category === 'ps') {
-                        // تم إزالة سطر الأسعار الأزرق هنا
                         html += `<div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Select Mode:</div><div class="type-buttons"><button type="button" class="type-btn ${curType === 'فردي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'فردي')">${t('singleLabel')}</button><button type="button" class="type-btn ${curType === 'ثنائي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثنائي')">${t('doubleLabel')}</button><button type="button" class="type-btn ${curType === 'ثلاثي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'ثلاثي')">${t('tripleLabel')}</button><button type="button" class="type-btn ${curType === 'رباعي' ? 'active' : ''}" onclick="setGameType('${d.deviceId}', 'رباعي')">${t('quadLabel')}</button></div>`;
                     } else { html += `<div style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">Device Type: <b>PC (${r['PC']}/hr)</b></div>`; }
                     html += `<div style="font-size: 13px; color: var(--text-muted); margin-top: 15px;">${t('durationLabel')}</div><input type="number" id="duration-${d.deviceId}" value="0" min="0" style="padding: 14px; font-size: 16px;"><div class="time-buttons" style="margin-top: 10px;"><button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 5)">+5m</button><button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 15)">+15m</button><button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 30)">+30m</button><button class="time-btn" onclick="setInitialDuration('${d.deviceId}', 60)">+1h</button><button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -5)">-5m</button><button class="time-btn reduce" onclick="setInitialDuration('${d.deviceId}', -15)">-15m</button></div><button class="start" onclick="startDeviceCloud('${d.deviceId}')">${t('startSession')}</button>`;
@@ -893,6 +1015,20 @@
     </script>
 </head>
 <body>
+
+    <!-- نافذة الفاتورة المنبثقة -->
+    <div id="receipt-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modal-title">تم إنهاء الجلسة</h2>
+            <div id="receipt-modal-content" class="receipt-details">
+                <!-- سيتم تعبئتها بواسطة JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-close" id="modal-close-btn" onclick="document.getElementById('receipt-modal').style.display='none'">إغلاق</button>
+                <button class="btn-print" id="modal-print-btn">🖨️ طباعة الفاتورة</button>
+            </div>
+        </div>
+    </div>
 
     <!-- شاشة تسجيل الدخول -->
     <div id="auth-screen" class="auth-container">
@@ -1046,6 +1182,18 @@
             <div class="admin-panel" style="margin-top: 20px; border-color: var(--accent-green);">
                 <h3 id="currency-header-text" style="color: var(--accent-green); margin-top:0; font-size:14px;">💱 عملة الدولة</h3>
                 <select id="currency-select" onchange="changeCurrency(this.value)" style="margin-top:0; width:100%;"></select>
+            </div>
+
+            <!-- إعدادات الطباعة -->
+            <div class="admin-panel" style="margin-top: 20px; border-color: var(--accent-orange);">
+                <h3 id="auto-print-header-text" style="color: var(--accent-orange); margin-top:0; font-size:14px;">🖨️ إعدادات الطباعة</h3>
+                <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-top: 10px;">
+                    <span id="auto-print-label" style="font-size: 14px;">طباعة الفاتورة تلقائياً عند إنهاء الجلسة</span>
+                    <div class="theme-switch" style="margin-left: 10px;">
+                        <input type="checkbox" id="auto-print-toggle" onchange="toggleAutoPrint(this.checked)">
+                        <span class="slider"></span>
+                    </div>
+                </label>
             </div>
 
             <div style="margin-top: 30px; border-top: 1px solid var(--glass-border); padding-top: 20px; text-align: center;">
